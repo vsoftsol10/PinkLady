@@ -1,0 +1,368 @@
+/* NavBar.css - External Stylesheet */
+
+/* Navbar Styles */
+.navbar {
+  background: white;
+  /* box-shadow: 0 2px 10px rgba(0,0,0,0.1); */
+  position: relative;
+  top: 0;
+  z-index: 1000;
+  transition: all 0.3s ease;
+}
+
+.navbar-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 200px;
+}
+
+/* Logo */
+.logo {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  transition: transform 0.2s ease;
+}
+
+.logo:hover {
+  transform: scale(1.05);
+}
+
+.logo img {
+  height: 45px;
+  width: auto;
+  max-width: 180px;
+}
+
+/* Desktop Navigation */
+.nav-menu {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.nav-link {
+  color: #333;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 1rem;
+  padding: 0.5rem 0;
+  position: relative;
+  transition: color 0.3s ease;
+}
+
+.nav-link:hover {
+  color: #ec6173;
+}
+
+.nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: #ec6173;
+  transition: width 0.3s ease;
+}
+
+.nav-link:hover::after {
+  width: 100%;
+}
+
+/* Search & Cart Icons */
+.nav-icons {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.search-icon, .cart-container {
+  cursor: pointer;
+  color: #333;
+  transition: all 0.3s ease;
+  padding: 0.5rem;
+  border-radius: 50%;
+}
+
+.search-icon:hover, .cart-container:hover {
+  color: #ec6173;
+  background: rgba(236, 97, 115, 0.1);
+  transform: translateY(-2px);
+}
+
+.cart-container {
+  position: relative;
+}
+
+@keyframes pulse {
+  0% { transform: translate(25%, -25%) scale(1); }
+  50% { transform: translate(25%, -25%) scale(1.1); }
+  100% { transform: translate(25%, -25%) scale(1); }
+}
+
+/* Hamburger Menu */
+.hamburger {
+  display: none;
+  flex-direction: column;
+  cursor: pointer;
+  padding: 0.5rem;
+  background: none;
+  border: none;
+  border-radius: 8px;
+  transition: background 0.3s ease;
+}
+
+.hamburger:hover {
+  background: rgba(236, 97, 115, 0.1);
+}
+
+.hamburger-line {
+  width: 25px;
+  height: 3px;
+  background: #333;
+  margin: 3px 0;
+  transition: all 0.3s ease;
+  border-radius: 2px;
+}
+
+.hamburger.active .hamburger-line:nth-child(1) {
+  transform: rotate(47deg) translate(6px, 6px);
+}
+
+.hamburger.active .hamburger-line:nth-child(2) {
+  opacity: 0;
+}
+
+.hamburger.active .hamburger-line:nth-child(3) {
+  transform: rotate(-45deg) translate(6px, -6px);
+  background: #ec6173;
+}
+
+/* Mobile Menu */
+.mobile-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+  border-radius: 0 0 15px 15px;
+  overflow: hidden;
+  max-height: 0;
+  transition: all 0.4s ease;
+}
+
+.mobile-menu.open {
+  max-height: 400px;
+}
+
+.mobile-menu-content {
+  padding: 2rem 1rem;
+}
+
+.mobile-nav-link {
+  display: block;
+  color: #333;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 1.1rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid #f0f0f0;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.mobile-nav-link:hover {
+  color: #ec6173;
+  padding-left: 1rem;
+}
+
+.mobile-nav-link:last-child {
+  border-bottom: none;
+}
+
+.mobile-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center; /* Changed from space-between to center */
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #f0f0f0;
+}
+
+/* Enhanced mobile cart styling */
+.mobile-actions .cart-container {
+  cursor: pointer;
+  color: #333;
+  transition: all 0.3s ease;
+  padding: 1rem; /* Increased padding for better touch target */
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(236, 97, 115, 0.1); /* Added subtle background */
+  border: 2px solid transparent;
+}
+
+.mobile-actions .cart-container:hover {
+  color: #ec6173;
+  background: rgba(236, 97, 115, 0.2);
+  border-color: #ec6173;
+  transform: scale(1.1);
+}
+
+.mobile-search {
+  display: flex;
+  align-items: center;
+  background: #f8f9fa;
+  border-radius: 25px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+  border: 2px solid transparent;
+  transition: border-color 0.3s ease;
+}
+
+.mobile-search:focus-within {
+  border-color: #ec6173;
+}
+
+.mobile-search input {
+  background: none;
+  border: none;
+  outline: none;
+  flex: 1;
+  margin-right: 0.5rem;
+  font-size: 1rem;
+}
+
+.mobile-search input::placeholder {
+  color: #999;
+}
+
+/* Mobile cart icon - show in navbar */
+.mobile-cart-icon {
+  display: none;
+}
+
+/* Responsive Breakpoints */
+@media (max-width: 768px) {
+  .nav-menu {
+    display: none;
+  }
+  
+  /* Hide desktop nav-icons but show mobile cart */
+  .nav-icons {
+    display: none;
+  }
+  
+  .mobile-cart-icon {
+    display: flex;
+    cursor: pointer;
+    color: #333;
+    transition: all 0.3s ease;
+    padding: 0.5rem;
+    border-radius: 50%;
+    margin-right: 1rem;
+  }
+  
+  .mobile-cart-icon:hover {
+    color: #ec6173;
+    background: rgba(236, 97, 115, 0.1);
+    transform: translateY(-2px);
+  }
+  
+  .hamburger {
+    display: flex;
+  }
+
+  .navbar-container {
+    height: 60px;
+    padding: 50px 1rem;
+  }
+
+  .logo img {
+    height: 80px;
+    max-width: 150px;
+  }
+}
+
+@media (max-width: 480px) {
+  .navbar-container {
+    padding: 45px 0.75rem;
+  }
+  
+  .logo img {
+    height: 70px;
+    max-width: 150px;
+  }
+  
+  /* Smaller margin for mobile phones */
+  .mobile-cart-icon {
+    margin-right: 0.75rem;
+  }
+}
+
+/* Tablet Styles */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .nav-menu {
+    gap: 1.5rem;
+  }
+  
+  .nav-icons {
+    gap: 1rem;
+  }
+
+  .logo img {
+    height: 100px;
+    max-width: 160px;
+  }
+  
+  /* Hide mobile cart icon on tablets as desktop nav-icons will be visible */
+  .mobile-cart-icon {
+    display: none;
+  }
+}
+
+/* Large Desktop */
+@media (min-width: 1200px) {
+  .navbar-container {
+    padding: 0 2rem;
+  }
+  
+  .nav-menu {
+    gap: 3rem;
+  }
+
+  .logo img {
+    height: 150px;
+    max-width: 150px;
+  }
+}
+
+/* Smooth overlay for mobile menu */
+.mobile-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.3);
+  z-index: 999;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+}
+
+.mobile-overlay.open {
+  opacity: 1;
+  visibility: visible;
+}
