@@ -2,10 +2,10 @@ import React from "react";
 const HomeAbout = () => {
   return (
     <div className="bg-white-50 py-16 px-8 mb-8">
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-7xl mx-auto">
         <div className="grid md:grid-cols-2 gap-12 items-center">
           {/* Left side - Title */}
-          <div className="text-center md:text-left">
+          <div className="text-center md:text-center">
             <h1 className="text-6xl md:text-7xl font-bold text-gray-800 mb-4">
               About
             </h1>

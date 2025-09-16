@@ -1,6 +1,7 @@
 // Footer.jsx
 import React from "react";
 import MainLogo from "../assets/PinkLadyLogo.png";
+import logo from "../assets/PapaatchiLogo.png"
 import "./Footer.css";
 
 const Footer = () => {
@@ -26,73 +27,52 @@ const Footer = () => {
 
   return (
     <footer className="footer">
-      {/* Top Section */}
+      {/* Main Footer Content */}
       <div className="footer-container">
-        {/* Mobile Layout */}
-        <div className="footer-mobile">
-          {/* Logo + Description - Mobile */}
-          <div className="footer-mobile-header">
-            <img src={MainLogo} alt="Pink Lady Logo" className="footer-logo-mobile" />
-            <p className="footer-description-mobile">
-              Pink Lady – Your trusted brand for premium sanitary napkins.
-              Comfort, care, and confidence in every product.
-            </p>
-          </div>
-
-          {/* Links - Mobile (Stacked) */}
-          <div className="footer-mobile-links">
-            {linkSections.map((section, index) => (
-              <div key={index} className="footer-section-mobile">
-                <h2 className="footer-title-mobile">{section.title}</h2>
-                <ul className="footer-list-mobile">
-                  {section.links.map((link, i) => (
-                    <li key={i} className="footer-link-item">
-                      {link}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Desktop/Tablet Layout */}
-        <div className="footer-desktop">
-          {/* Logo + Description - Desktop */}
+        <div className="footer-content">
+          {/* Brand Section */}
           <div className="footer-brand">
-            <img src={MainLogo} alt="Pink Lady Logo" className="footer-logo-desktop" />
-            <p className="footer-description-desktop">
+            <img src={MainLogo} alt="Pink Lady Logo" className="footer-logo" />
+            <p className="footer-description">
               Pink Lady – Your trusted brand for premium sanitary napkins.
               Comfort, care, and confidence in every product.
             </p>
           </div>
 
-          {/* Links - Desktop */}
-          <div className="footer-links-container">
+          {/* Links Sections */}
+          <div className="footer-links-wrapper">
             {linkSections.map((section, index) => (
-              <div key={index} className="footer-section-desktop">
-                <h2 className="footer-title-desktop">{section.title}</h2>
-                <ul className="footer-list-desktop">
+              <div key={index} className="footer-section">
+                <h2 className="footer-title">{section.title}</h2>
+                <ul className="footer-list">
                   {section.links.map((link, i) => (
                     <li key={i} className="footer-link-item">
-                      {link}
+                      <a href="#" className="footer-link">{link}</a>
                     </li>
                   ))}
                 </ul>
               </div>
             ))}
+          </div>
+
+          {/* Paapatchi Brand Section */}
+          <div className="footer-partner">
+            <img src={logo} alt="Paapatchi Logo" className="footer-partner-logo" />
+            <p className="footer-partner-text">
+              <strong>Paapatchi Enterprises Proudly Presenting Pink Lady</strong>
+            </p>
           </div>
         </div>
       </div>
 
       {/* Divider */}
-      <div className="footer-divider-container">
-        <div className="footer-divider"></div>
-      </div>
+      <div className="footer-divider"></div>
 
       {/* Bottom Bar */}
       <div className="footer-bottom">
-        © {new Date().getFullYear()} Pink Lady | Powered by Paapatchi Enterprises. All Rights Reserved.
+        <div className="footer-bottom-container">
+          © {new Date().getFullYear()} Pink Lady | Powered by Paapatchi Enterprises. All Rights Reserved.
+        </div>
       </div>
     </footer>
   );
