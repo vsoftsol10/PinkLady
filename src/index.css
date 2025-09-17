@@ -35,7 +35,7 @@ a:hover {
   color: #c25747;   /* Green hover */
 }
 
-/* Buttons */
+/* Buttons
 button {
   background-color: #F18372;   
   color: #fff;
@@ -48,7 +48,4 @@ button {
   cursor: pointer;
   transition: all 0.3s ease;
 
-}
-button:hover {
-  background-color: #f5624b;   /* Green hover */
-}
+} */

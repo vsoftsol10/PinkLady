@@ -1,14 +1,15 @@
 // Footer.jsx
 import React from "react";
 import MainLogo from "../assets/PinkLadyLogo.png";
-import logo from "../assets/PapaatchiLogo.png"
+import logo from "../assets/PapaatchiLogo.png";
 import "./Footer.css";
 
 const Footer = () => {
   const linkSections = [
     {
       title: "Quick Links",
-      links: ["Home", "About", "Products", "Blog", "Contact"],
+      links: ["Home", "About", "Products", "Contact"],
+      urls: ["/", "/about", "/products", "/contact"], // lowercase urls
     },
     {
       title: "Our Policies",
@@ -18,10 +19,20 @@ const Footer = () => {
         "Payment Methods",
         "Track your Order",
       ],
+      urls: [
+        "/terms",
+        "/refund-policy",
+        "/payment-methods",
+        "/track-order",
+      ],
     },
     {
       title: "Follow Us",
-      links: ["Instagram", "Facebook"]
+      links: ["Instagram", "Facebook"],
+      urls: [
+        "https://instagram.com/yourpage",
+        "https://facebook.com/yourpage",
+      ],
     },
   ];
 
@@ -47,7 +58,14 @@ const Footer = () => {
                 <ul className="footer-list">
                   {section.links.map((link, i) => (
                     <li key={i} className="footer-link-item">
-                      <a href="#" className="footer-link">{link}</a>
+                      <a
+                        href={section.urls ? section.urls[i] : "#"}
+                        className="footer-link"
+                        target={section.title === "Follow Us" ? "_blank" : "_self"}
+                        rel="noopener noreferrer"
+                      >
+                        {link}
+                      </a>
                     </li>
                   ))}
                 </ul>
@@ -57,7 +75,11 @@ const Footer = () => {
 
           {/* Paapatchi Brand Section */}
           <div className="footer-partner">
-            <img src={logo} alt="Paapatchi Logo" className="footer-partner-logo" />
+            <img
+              src={logo}
+              alt="Paapatchi Logo"
+              className="footer-partner-logo"
+            />
             <p className="footer-partner-text">
               <strong>Paapatchi Enterprises Proudly Presenting Pink Lady</strong>
             </p>

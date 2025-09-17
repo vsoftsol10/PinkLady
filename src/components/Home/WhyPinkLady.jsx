@@ -83,7 +83,7 @@ const WhyPinkLady = () => {
           <p className="text-orange-100 mb-6 max-w-2xl mx-auto">
             Pink Lady Herbal Napkins deliver natural confidence, gentle comfort, and herbal care for every woman, every day.
           </p>
-          <button className="px-6 py-3 bg-white text-[#F18372] font-semibold rounded-full hover:bg-gray-50 transition-colors duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+          <button className="px-6 py-3 bg-[#F18372] text-white font-semibold rounded-full hover:bg-gray-50 transition-colors duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
             Shop Now
           </button>
         </div>

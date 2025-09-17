@@ -4,6 +4,7 @@ import Carousel from '../components/About/carousel'
 import AboutSection from '../components/About/AboutSection'
 import Founder from '../components/About/Founder'
 import Paapatchi from '../components/About/Paapatchi'
+import Quote from '../components/About/Quote'
 
 const AboutUs = () => {
   return ( 
@@ -13,6 +14,7 @@ const AboutUs = () => {
         <AboutSection/>
         <Founder/>
         <Paapatchi/>
+        <Quote/>
     </div>
   )
 }
