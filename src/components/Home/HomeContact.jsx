@@ -1,11 +1,9 @@
 import React from 'react';
-import Contact from "../../assets/ContactUs.jpg"
+import Contact from "../../assets/ContactUs.png"
 
 const HomeContact = () => {
   const handleContactClick = () => {
-    // Replace with your routing logic (e.g., React Router)
-    // Example: navigate('/contact') or window.location.href = '/contact'
-    console.log('Redirect to contact page');
+
   };
 
   return (

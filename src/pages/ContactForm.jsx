@@ -1,234 +1,329 @@
-import { useState } from 'react';
-import { MapPin, Mail, Phone, User, MessageSquare, Send } from 'lucide-react';
+import React, { useState } from 'react';
+import LocationIcon from "../assets/icon/LocationIcon.png"
+import CallIcon from "../assets/icon/PhoneIcon.png"
+import MailIcon from "../assets/icon/MailIcon.png"
+import BreadCrumsContact from '../components/Contact/BreadCrumsContact';
 
-export default function ContactForm() {
-    const [formData, setFormData] = useState({
-        firstName: '',
-        lastName: '',
-        email: '',
-        phone: '',
-        subject: '',
-        message: ''
+const ContactInputBox = ({ type, placeholder, name, value, onChange, error, touched }) => {
+  return (
+    <div className="mb-4">
+      <input
+        type={type}
+        placeholder={placeholder}
+        name={name}
+        value={value}
+        onChange={onChange}
+        className={`w-full rounded border px-3 py-2 text-sm text-gray-700 outline-none focus:border-blue-500 dark:bg-gray-800 dark:text-gray-300 ${
+          error && touched 
+            ? 'border-red-500 dark:border-red-500' 
+            : 'border-gray-300 dark:border-gray-600'
+        }`}
+      />
+      {error && touched && (
+        <p className="mt-1 text-xs text-red-500">{error}</p>
+      )}
+    </div>
+  );
+};
+
+const ContactTextArea = ({ placeholder, name, value, onChange, error, touched }) => {
+  return (
+    <div className="mb-4">
+      <textarea
+        rows={4}
+        placeholder={placeholder}
+        name={name}
+        value={value}
+        onChange={onChange}
+        className={`w-full resize-none rounded border px-3 py-2 text-sm text-gray-700 outline-none focus:border-blue-500 dark:bg-gray-800 dark:text-gray-300 ${
+          error && touched 
+            ? 'border-red-500 dark:border-red-500' 
+            : 'border-gray-300 dark:border-gray-600'
+        }`}
+      />
+      {error && touched && (
+        <p className="mt-1 text-xs text-red-500">{error}</p>
+      )}
+    </div>
+  );
+};
+
+const ContactForm = () => {
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    message: ''
+  });
+
+  const [errors, setErrors] = useState({});
+  const [touched, setTouched] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState(null);
+
+  // Validation functions
+  const validateName = (name) => {
+    if (!name.trim()) return 'Name is required';
+    if (name.trim().length < 2) return 'Name must be at least 2 characters';
+    if (!/^[a-zA-Z\s]+$/.test(name)) return 'Name can only contain letters and spaces';
+    return '';
+  };
+
+  const validateEmail = (email) => {
+    if (!email.trim()) return 'Email is required';
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) return 'Please enter a valid email address';
+    return '';
+  };
+
+  const validatePhone = (phone) => {
+    if (!phone.trim()) return 'Phone number is required';
+    const phoneRegex = /^[\+]?[0-9\s\-\(\)]{10,}$/;
+    if (!phoneRegex.test(phone)) return 'Please enter a valid phone number';
+    return '';
+  };
+
+  const validateMessage = (message) => {
+    if (!message.trim()) return 'Message is required';
+    if (message.trim().length < 10) return 'Message must be at least 10 characters';
+    if (message.trim().length > 500) return 'Message must be less than 500 characters';
+    return '';
+  };
+
+  const validateForm = () => {
+    const newErrors = {
+      name: validateName(formData.name),
+      email: validateEmail(formData.email),
+      phone: validatePhone(formData.phone),
+      message: validateMessage(formData.message)
+    };
+    setErrors(newErrors);
+    return !Object.values(newErrors).some(error => error);
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+
+    // Real-time validation
+    let error = '';
+    switch (name) {
+      case 'name':
+        error = validateName(value);
+        break;
+      case 'email':
+        error = validateEmail(value);
+        break;
+      case 'phone':
+        error = validatePhone(value);
+        break;
+      case 'message':
+        error = validateMessage(value);
+        break;
+      default:
+        break;
+    }
+
+    setErrors(prev => ({
+      ...prev,
+      [name]: error
+    }));
+
+    // Mark field as touched when user starts typing
+    if (!touched[name]) {
+      setTouched(prev => ({
+        ...prev,
+        [name]: true
+      }));
+    }
+
+    // Clear submit status when user starts typing
+    if (submitStatus) {
+      setSubmitStatus(null);
+    }
+  };
+
+  const handleBlur = (e) => {
+    const { name } = e.target;
+    setTouched(prev => ({
+      ...prev,
+      [name]: true
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    // Mark all fields as touched
+    setTouched({
+      name: true,
+      email: true,
+      phone: true,
+      message: true
     });
 
-    const handleInputChange = (e) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({
-            ...prev,
-            [name]: value
-        }));
-    };
+    if (!validateForm()) {
+      setSubmitStatus({ type: 'error', message: 'Please fill the required fields before submitting.' });
+      return;
+    }
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        console.log('Form submitted:', formData);
-        alert('Thank you for reaching out! We\'ll get back to you soon.');
-        // Reset form
-        setFormData({
-            firstName: '',
-            lastName: '',
-            email: '',
-            phone: '',
-            subject: '',
-            message: ''
-        });
-    };
+    setIsSubmitting(true);
+    setSubmitStatus(null);
 
-    return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-8 sm:py-12 lg:py-16">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16">
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      // Here you would typically send the data to your backend
+      console.log('Form submitted:', formData);
+      
+      setSubmitStatus({ 
+        type: 'success', 
+        message: 'Thank you! Your message has been sent successfully.' 
+      });
+      
+      // Reset form
+      setFormData({
+        name: '',
+        email: '',
+        phone: '',
+        message: ''
+      });
+      setTouched({});
+      setErrors({});
+      
+    } catch (error) {
+      setSubmitStatus({ 
+        type: 'error', 
+        message: 'Something went wrong. Please try again.' 
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
-                    {/* Left Side - Contact Form */}
-                    <div className="bg-white rounded-3xl shadow-2xl p-6 sm:p-8 lg:p-10 border border-gray-100">
-                        <div className="mb-8">
-                            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-4 leading-tight">
-                                Keep in Touch
-                            </h1>
-
-                            <p className="text-gray-600 text-base sm:text-lg leading-relaxed">
-                                We’re here to listen. Whether it’s about our products or your experience, reach out to us - because every woman’s voice matters.
-                            </p>
-                        </div>
-
-                        <div className="space-y-6">
-                            {/* Name Fields */}
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <div>
-                                    <label htmlFor="firstName" className="block text-sm font-semibold text-gray-700 mb-2">
-                                        Name *
-                                    </label>
-                                    <div className="relative">
-                                        <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                                        <input
-                                            type="text"
-                                            id="firstName"
-                                            name="firstName"
-                                            value={formData.firstName}
-                                            onChange={handleInputChange}
-                                            className="w-full pl-10 pr-4 py-3  border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white"
-                                            placeholder="John"
-                                            required
-                                        />
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Email Field */}
-                            <div>
-                                <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
-                                    Email Address *
-                                </label>
-                                <div className="relative">
-                                    <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                                    <input
-                                        type="email"
-                                        id="email"
-                                        name="email"
-                                        value={formData.email}
-                                        onChange={handleInputChange}
-                                        className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white"
-                                        placeholder="john@example.com"
-                                        required
-                                    />
-                                </div>
-                            </div>
-
-                            {/* Phone Field */}
-                            <div>
-                                <label htmlFor="phone" className="block text-sm font-semibold text-gray-700 mb-2">
-                                    Phone Number
-                                </label>
-                                <div className="relative">
-                                    <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                                    <input
-                                        type="tel"
-                                        id="phone"
-                                        name="phone"
-                                        value={formData.phone}
-                                        onChange={handleInputChange}
-                                        className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white"
-                                        placeholder="+1 (555) 123-4567"
-                                    />
-                                </div>
-                            </div>
-
-                            {/* Message Field */}
-                            <div>
-                                <label htmlFor="message" className="block text-sm font-semibold text-gray-700 mb-2">
-                                    Message *
-                                </label>
-                                <textarea
-                                    id="message"
-                                    name="message"
-                                    value={formData.message}
-                                    onChange={handleInputChange}
-                                    rows="5"
-                                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white resize-none"
-                                    placeholder="Tell us more about your project or question..."
-                                    required
-                                ></textarea>
-                            </div>
-
-                            {/* Submit Button */}
-                            <button
-                                type="button"
-                                onClick={handleSubmit}
-                                className="w-full text-white font-semibold py-4 px-8 rounded-xl focus:outline-none focus:ring-2 focus:ring-offset-2 transform hover:scale-105 transition-all duration-200 flex items-center justify-center space-x-2 shadow-lg"
-                            >
-                                <Send className="w-5 h-5" />
-                                <span>Send Message</span>
-                            </button>
-                        </div>
-                    </div>
-
-                    {/* Right Side - Contact Information */}
-                    <div className="space-y-6">
-                        {/* Address Card */}
-                        <div className="bg-white rounded-3xl shadow-2xl p-6 sm:p-8 border border-gray-100">
-                            <div className="flex items-start space-x-4">
-                                <div className="flex-shrink-0">
-                                    <div className="w-12 h-12 rounded-2xl flex items-center justify-center">
-                                        <MapPin className="w-6 h-6 text-black" />
-                                    </div>
-                                </div>
-                                <div className="flex-1">
-                                    <h3 className="text-xl font-bold text-gray-900 mb-2">Visit Our Office</h3>
-                                    <div className="text-gray-600 space-y-1">
-                                        <p>123 Business Avenue</p>
-                                        <p>Suite 456, Floor 12</p>
-                                        <p>New York, NY 10001</p>
-                                        <p>United States</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Support Email Card */}
-                        <div className="bg-white rounded-3xl shadow-2xl p-6 sm:p-8 border border-gray-100">
-                            <div className="flex items-start space-x-4">
-                                <div className="flex-shrink-0">
-                                    <div className="w-12 h-12 rounded-2xl flex items-center justify-center">
-                                        <Mail className="w-6 h-6 text-black" />
-                                    </div>
-                                </div>
-                                <div className="flex-1">
-                                    <h3 className="text-xl font-bold text-gray-900 mb-2">Email Support</h3>
-                                    <div className="space-y-3">
-                                        <div>
-                                            <p className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Technical Support</p>
-                                            <a
-                                                href="mailto:support@company.com"
-                                                className="text-blue-600 hover:text-blue-800 font-semibold text-lg transition-colors duration-200"
-                                            >
-                                                support@company.com
-                                            </a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Phone Support Card */}
-                        <div className="bg-white rounded-3xl shadow-2xl p-6 sm:p-8 border border-gray-100">
-                            <div className="flex items-start space-x-4">
-                                <div className="flex-shrink-0">
-                                    <div className="w-12 h-12 rounded-2xl flex items-center justify-center">
-                                        <Phone className="w-6 h-6 text-Black" />
-                                    </div>
-                                </div>
-                                <div className="flex-1">
-                                    <h3 className="text-xl font-bold text-gray-900 mb-2">Call Us</h3>
-                                    <div className="space-y-3">
-                                        <div>
-                                            <p className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Main Office</p>
-                                            <a
-                                                href="tel:+1-555-123-4567"
-                                                className="text-blue-600 hover:text-blue-800 font-semibold text-lg transition-colors duration-200"
-                                            >
-                                                +1 (555) 123-4567
-                                            </a>
-                                        </div>
-                                        <div>
-                                            <a
-                                                href="tel:+1-555-987-6543"
-                                                className="text-blue-600 hover:text-blue-800 font-semibold text-lg transition-colors duration-200"
-                                            >
-                                                +1 (555) 987-6543
-                                            </a>
-                                        </div>
-                                        <div className="pt-2">
-                                            <p className="text-sm text-gray-500">
-                                                <strong>Hours:</strong> Monday - Friday, 9:00 AM - 6:00 PM
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+  return (
+    <div className="max-w-4xl mx-auto p-6 bg-white dark:bg-gray-900">
+      <BreadCrumsContact/>
+      <div className="grid md:grid-cols-2 gap-8">
+        {/* Contact Info */}
+        <div>
+          <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
+            Get In Touch
+          </h2>
+          <p className="text-gray-600 dark:text-gray-400 mb-6">
+            We'd love to hear from you. Send us a message and we'll respond as soon as possible.
+          </p>
+          
+          <div className="space-y-4">
+            <div className="flex items-start">
+              <div className="flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center mr-3">
+                <img src={LocationIcon} alt="Location-Icon" className='w-12 rounded-3xl' />
+              </div>
+              <div>
+                <h4 className="font-extrabold">Address</h4>
+                <p className="text-sm text-gray-600 dark:text-gray-400">99 S.t Jomblo Park Pekanbaru 28292. Indonesia</p>
+              </div>
             </div>
+            
+            <div className="flex items-start">
+              <div className="flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center mr-3">
+                <img src={CallIcon} alt="Phone-Icon" className='w-12 rounded-3xl' />
+              </div>
+              <div>
+                <h4 className="font-bold">Phone</h4>
+                <p className="text-sm text-gray-600 dark:text-gray-400">(+62)81 414 257 9980</p>
+              </div>
+            </div>
+            
+            <div className="flex items-start">
+              <div className="flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center mr-3">
+                <img src={MailIcon} alt="Mail-Icon" className='w-12 rounded-3xl' />
+              </div>
+              <div>
+                <h4 className="font-bold">Email</h4>
+                <p className="text-sm text-gray-600 dark:text-gray-400">info@yourdomain.com</p>
+              </div>
+            </div>
+          </div>
         </div>
-    );
-}
+
+        {/* Contact Form */}
+        <div className="bg-gray-50 dark:bg-gray-800 text-black p-6 rounded-lg">
+          <form onSubmit={handleSubmit} noValidate>
+            <ContactInputBox
+              type="text"
+              name="name"
+              placeholder="Your Name"
+              value={formData.name}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              error={errors.name}
+              touched={touched.name}
+            />
+            
+            <ContactInputBox
+              type="email"
+              name="email"
+              placeholder="Your Email"
+              value={formData.email}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              error={errors.email}
+              touched={touched.email}
+            />
+            
+            <ContactInputBox
+              type="tel"
+              name="phone"
+              placeholder="Your Phone"
+              value={formData.phone}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              error={errors.phone}
+              touched={touched.phone}
+            />
+            
+            <ContactTextArea
+              placeholder="Your Message"
+              name="message"
+              value={formData.message}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              error={errors.message}
+              touched={touched.message}
+            />
+
+            {/* Submit Status Message */}
+            {submitStatus && (
+              <div className={`mb-4 p-3 rounded text-sm ${
+                submitStatus.type === 'success' 
+                  ? 'bg-green-100 text-green-700 border border-green-300' 
+                  : 'bg-red-100 text-red-700 border border-red-300'
+              }`}>
+                {submitStatus.message}
+              </div>
+            )}
+            
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className={`w-full py-2 px-4 rounded font-medium transition-colors ${
+                isSubmitting
+                  ? 'bg-gray-400 cursor-not-allowed'
+                  : 'bg-[#F18372] hover:bg-[#e6725f]'
+              } text-white`}
+            >
+              {isSubmitting ? 'Sending...' : 'Send Message'}
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default ContactForm;
