@@ -1,11 +1,15 @@
 import React, { useState } from 'react';
 import { Search, ShoppingCart } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import MainLogo from '../assets/PinkLadyLogo.png';
 import './NavBar.css';
 
 const NavBar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const location = useLocation();
+
+  // Check if current route is inside admin panel
+  const isAdminRoute = location.pathname.startsWith("/admin");
 
   return (
     <>
@@ -18,30 +22,43 @@ const NavBar = () => {
       <nav className="navbar">
         <div className="navbar-container">
           {/* Logo */}
-          <a href="/" className="logo">
-            <img src={MainLogo} alt='Pink Lady Logo' />
-          </a>
+          <Link to="/" className="logo">
+            <img src={MainLogo} alt="Pink Lady Logo" />
+          </Link>
 
           {/* Desktop Navigation */}
           <ul className="nav-menu">
-            <li><Link to="/" className="nav-link">Home</Link></li>
-            <li><Link to="/about" className="nav-link">About</Link></li>
-            <li><Link to="/products" className="nav-link">Products</Link></li>
-            <li><Link to="/contact" className="nav-link">Contact</Link></li>
+            {isAdminRoute ? (
+              <>
+                <li><Link to="/admin/products" className="nav-link">Products</Link></li>
+                <li><Link to="/admin/orders" className="nav-link">Order Management</Link></li>
+              </>
+            ) : (
+              <>
+                <li><Link to="/" className="nav-link">Home</Link></li>
+                <li><Link to="/about" className="nav-link">About</Link></li>
+                <li><Link to="/products" className="nav-link">Products</Link></li>
+                <li><Link to="/contact" className="nav-link">Contact</Link></li>
+              </>
+            )}
           </ul>
 
-          {/* Desktop Icons */}
-          <div className="nav-icons">
-            <Search className="w-5 h-5" />
-            <div className="cart-container">
+          {/* Desktop Icons (hide in admin if not needed) */}
+          {!isAdminRoute && (
+            <div className="nav-icons">
+              <Search className="w-5 h-5" />
+              <div className="cart-container">
+                <ShoppingCart className="w-5 h-5" />
+              </div>
+            </div>
+          )}
+
+          {/* Mobile Cart Icon (hide in admin) */}
+          {!isAdminRoute && (
+            <div className="mobile-cart-icon">
               <ShoppingCart className="w-5 h-5" />
             </div>
-          </div>
-
-          {/* Mobile Cart Icon (shows before hamburger on mobile) */}
-          <div className="mobile-cart-icon">
-            <ShoppingCart className="w-5 h-5" />
-          </div>
+          )}
 
           {/* Hamburger Menu */}
           <button
@@ -59,25 +76,37 @@ const NavBar = () => {
         <div className={`mobile-menu ${isOpen ? 'open' : ''}`}>
           <div className="mobile-menu-content">
 
-            {/* Mobile Search */}
-            <div className="mobile-search">
-              <input type="text" placeholder="Search products..." />
-              <Search className="w-4 h-4 text-gray-500" />
-            </div>
+            {/* Mobile Search (hide in admin) */}
+            {!isAdminRoute && (
+              <div className="mobile-search">
+                <input type="text" placeholder="Search products..." />
+                <Search className="w-4 h-4 text-gray-500" />
+              </div>
+            )}
 
             {/* Mobile Navigation */}
-            <a href="#" className="mobile-nav-link" onClick={() => setIsOpen(false)}>Home</a>
-            <a href="#" className="mobile-nav-link" onClick={() => setIsOpen(false)}>About</a>
-            <a href="#" className="mobile-nav-link" onClick={() => setIsOpen(false)}>Products</a>
-            <a href="#" className="mobile-nav-link" onClick={() => setIsOpen(false)}>Blog</a>
-            <a href="#" className="mobile-nav-link" onClick={() => setIsOpen(false)}>Contact</a>
+            {isAdminRoute ? (
+              <>
+                <Link to="/admin/products" className="mobile-nav-link" onClick={() => setIsOpen(false)}>Products</Link>
+                <Link to="/admin/orders" className="mobile-nav-link" onClick={() => setIsOpen(false)}>Order Management</Link>
+              </>
+            ) : (
+              <>
+                <Link to="/" className="mobile-nav-link" onClick={() => setIsOpen(false)}>Home</Link>
+                <Link to="/about" className="mobile-nav-link" onClick={() => setIsOpen(false)}>About</Link>
+                <Link to="/products" className="mobile-nav-link" onClick={() => setIsOpen(false)}>Products</Link>
+                <Link to="/contact" className="mobile-nav-link" onClick={() => setIsOpen(false)}>Contact</Link>
+              </>
+            )}
 
-            {/* Mobile Actions */}
-            <div className="mobile-actions">
-              <div className="cart-container">
-                <ShoppingCart className="w-6 h-6" />
+            {/* Mobile Actions (hide in admin) */}
+            {!isAdminRoute && (
+              <div className="mobile-actions">
+                <div className="cart-container">
+                  <ShoppingCart className="w-6 h-6" />
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
       </nav>

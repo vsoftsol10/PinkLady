@@ -1,8 +1,12 @@
 import React from 'react';
 import { useState } from 'react';
+import shoppingCart from "../../assets/icon/CheckoutIcon.png"
+import { useNavigate } from 'react-router-dom';
 
 const ProductItem = ({ product, onAddToCart, onRemoveFromCart }) => {
     const [count, setCount] = useState(0);
+    const navigate =useNavigate();
+
 
     const handleAddClick = () => {
         setCount(1);
@@ -87,6 +91,9 @@ const ProductItem = ({ product, onAddToCart, onRemoveFromCart }) => {
 
 const ProductsGrid = () => {
     const [alerts, setAlerts] = useState([]);
+    const [totalItems, setTotalItems] = useState(0);
+    const navigate =useNavigate();
+
 
     const addAlert = (message, description, type) => {
         const newAlert = {
@@ -109,6 +116,7 @@ const ProductsGrid = () => {
     };
 
     const handleAddToCart = () => {
+        setTotalItems(prev => prev + 1);
         addAlert(
             'Added to cart!', 
             'Item has been successfully added to your cart.',
@@ -117,11 +125,29 @@ const ProductsGrid = () => {
     };
 
     const handleRemoveFromCart = () => {
+        setTotalItems(prev => Math.max(prev - 1, 0));
         addAlert(
             'Removed from cart', 
-            'Item has been successfully removed to your cart.',
+            'Item has been successfully removed from your cart.',
             'remove'
         );
+    };
+
+    const handleCheckoutClick = () => {
+        if (totalItems === 0) {
+            addAlert(
+                'Cart is empty!',
+                'Please add some items to your cart before checkout.',
+                'remove'
+            );
+        } else {
+            addAlert(
+                'Checkout initiated!',
+                `Proceeding to checkout with ${totalItems} item${totalItems > 1 ? 's' : ''}`,
+                'success'
+            );
+            navigate("/checkout")
+        }
     };
 
     // Sample products data
@@ -271,6 +297,29 @@ const ProductsGrid = () => {
                         onRemoveFromCart={handleRemoveFromCart}
                     />
                 ))}
+            </div>
+
+            {/* Always Visible Checkout Button */}
+            <div className="fixed bottom-6 right-6 z-50">
+                <button 
+                    className={`${
+                        totalItems > 0 
+                            ? 'bg-gradient-to-r from-[#93B45D] to-[#7BA04A] hover:from-[#7BA04A] hover:to-[#6A9040]' 
+                            : 'bg-gradient-to-r from-[#F18372] to-[#F18372] hover:from-[#f05c46] hover:to-[#F18372]'
+                    } text-white px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-3 group`}
+                    onClick={handleCheckoutClick}
+                >
+                    <div className="flex items-center gap-2">
+                        <img src={shoppingCart} alt="Checkout-Icon" className='w-5 mb-1'  />
+                        <span className="font-medium">Checkout</span>
+                    </div>
+                    <div className="bg-white/20 px-2 py-1 rounded-full text-sm font-bold">
+                        {totalItems}
+                    </div>
+                    <svg className="w-4 h-4 transform group-hover:translate-x-1 transition-transform" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                    </svg>
+                </button>
             </div>
         </div>
     );
