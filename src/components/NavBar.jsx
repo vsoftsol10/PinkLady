@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
 import { Search, ShoppingCart } from 'lucide-react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import MainLogo from '../assets/PinkLadyLogo.png';
+import { useCart } from '../context/CartContext';
 import './NavBar.css';
 
 const NavBar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+  const { itemCount } = useCart();
 
   // Check if current route is inside admin panel
   const isAdminRoute = location.pathname.startsWith("/admin");
@@ -47,16 +50,26 @@ const NavBar = () => {
           {!isAdminRoute && (
             <div className="nav-icons">
               <Search className="w-5 h-5" />
-              <div className="cart-container">
+              <div className="cart-container relative" onClick={() => { navigate("/checkout") }}>
                 <ShoppingCart className="w-5 h-5" />
+                {itemCount > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center min-w-[20px] font-semibold">
+                    {itemCount > 99 ? '99+' : itemCount}
+                  </span>
+                )}
               </div>
             </div>
           )}
 
           {/* Mobile Cart Icon (hide in admin) */}
           {!isAdminRoute && (
-            <div className="mobile-cart-icon">
+            <div className="mobile-cart-icon relative" onClick={() => { navigate("/checkout") }}>
               <ShoppingCart className="w-5 h-5" />
+              {itemCount > 0 && (
+                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center min-w-[20px] font-semibold">
+                  {itemCount > 99 ? '99+' : itemCount}
+                </span>
+              )}
             </div>
           )}
 
@@ -102,8 +115,13 @@ const NavBar = () => {
             {/* Mobile Actions (hide in admin) */}
             {!isAdminRoute && (
               <div className="mobile-actions">
-                <div className="cart-container">
+                <div className="cart-container relative" onClick={() => { navigate("/checkout"); setIsOpen(false); }}>
                   <ShoppingCart className="w-6 h-6" />
+                  {itemCount > 0 && (
+                    <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center min-w-[20px] font-semibold">
+                      {itemCount > 99 ? '99+' : itemCount}
+                    </span>
+                  )}
                 </div>
               </div>
             )}

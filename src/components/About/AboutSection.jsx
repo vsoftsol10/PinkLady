@@ -57,69 +57,78 @@ const AboutSection = () => {
           </div>
         </div>
 
-        {/* Herbal Ingredients Section */}
-        <div className="mb-12">
-          <div className="text-center mb-12">
-            <h4 className="text-3xl font-semibold text-gray-800 mb-4 font-serif">The Sacred Six Herbal Blend</h4>
-            <p className="text-gray-600 max-w-2xl mx-auto">Every herb is chosen for its specific qualities, building an intense synergy of natural protection and healing.</p>
-          </div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[
-              {
-                name: "Thulasi Powder",
-                description: "known for its natural healing and purifying properties.",
-                color: "from-green-100 to-green-50"
-              },
-              {
-                name: "Aloe Vera Powder", 
-                description: "offering soothing, cooling, and herbal skin care benefits.",
-                color: "from-emerald-100 to-emerald-50"
-              },
-              {
-                name: "Vettiver Powder",
-                description: "adding refreshing herbal fragrance and antibacterial protection.",
-                color: "from-teal-100 to-teal-50"
-              },
-              {
-                name: "Manjal (Turmeric) Powder",
-                description: "a traditional herbal antiseptic for extra protection.",
-                color: "from-yellow-100 to-yellow-50"
-              },
-              {
-                name: "Neem Powder",
-                description: "a powerful herbal antibacterial and antifungal agent.",
-                color: "from-lime-100 to-lime-50"
-              },
-              {
-                name: "Triphala Chooranam Powder",
-                description: "a classic Ayurvedic herbal detoxifier that enhances overall hygiene.",
-                color: "from-orange-100 to-orange-50"
-              }
-            ].map((herb, index) => (
-              <div key={index} className={`bg-gradient-to-br ${herb.color} rounded-2xl p-6 border border-white/60 backdrop-blur-sm hover:scale-105 transition-all duration-300 group relative overflow-hidden`}>
-                <div className="absolute top-0 right-0 w-20 h-20 bg-white/20 rounded-full blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <div className="relative z-10">
-                  <div className="w-12 h-12 bg-gradient-to-br from-[#6b2f25] to-[#6b2f25]/70 rounded-full mb-4 flex items-center justify-center">
-                    <div className="w-2 h-2 bg-white rounded-full"></div>
-                  </div>
-                  <h5 className="text-lg font-semibold text-gray-800 mb-3 font-serif">{herb.name}</h5>
-                  <p className="text-gray-600 text-sm leading-relaxed">{herb.description}</p>
-                </div>
+        {/* Our Story Section */}
+        <div className="mb-16">
+          <div className="bg-white/70 backdrop-blur-md rounded-3xl p-10 shadow-xl border border-white/60 relative overflow-hidden">
+            <div className="absolute top-0 left-0 w-48 h-48 bg-gradient-to-br from-[#fabdb4]/20 to-transparent rounded-full blur-2xl"></div>
+            <div className="absolute bottom-0 right-0 w-40 h-40 bg-gradient-to-tl from-[#6b2f25]/10 to-transparent rounded-full blur-xl"></div>
+            <div className="relative z-10">
+              <div className="text-center mb-8">
+                <h4 className="text-3xl font-bold text-[#6b2f25] mb-4 font-serif">Our Story</h4>
+                <div className="w-24 h-1 bg-gradient-to-r from-[#fabdb4] to-[#ffbdb3] mx-auto rounded-full"></div>
               </div>
-            ))}
+              <p className="text-gray-700 leading-relaxed text-lg font-serif mb-8">
+                Pink Lady Herbal Napkins was born out of a personal journey. In 2013, our founder struggled with PCOS and thyroid-related issues that disrupted her health. Guided by her grandmother's traditional healing wisdom, she discovered the power of natural herbs like turmeric and neem, blended with soft cotton. This remedy worked wonders and inspired her to create safe, herbal-based sanitary napkins. What began as a personal solution soon became a mission to help other women facing similar struggles.
+              </p>
+            </div>
           </div>
         </div>
+
+        {/* Our Purpose Section */}
+        <div className="mb-16">
+          <div className="bg-gradient-to-r from-[#fabdb4]/30 to-[#ffbdb3]/30 backdrop-blur-sm rounded-3xl p-10 border border-[#fabdb4]/50 relative overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-br from-white/40 to-transparent"></div>
+            <div className="relative z-10">
+              <div className="text-center mb-8">
+                <h4 className="text-3xl font-bold text-[#6b2f25] mb-4 font-serif">Our Purpose</h4>
+                <div className="w-24 h-1 bg-gradient-to-r from-[#6b2f25] to-[#6b2f25]/70 mx-auto rounded-full"></div>
+              </div>
+              <p className="text-gray-700 leading-relaxed text-lg font-serif mb-6">
+                We believe quality menstrual care should not be a luxury. Many women face the double challenge of health issues and high medical costs. That's why Pink Lady is built as a <span className="font-bold text-[#6b2f25]">service-driven initiative</span>, not a profit-hungry brand. Each napkin is made fresh, <b>plastic-free, ISO-certified, and crafted from edible-grade herbs and pure cotton</b>.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Our Promise Section */}
+        <div className="mb-16">
+          <div className="bg-white/80 backdrop-blur-md rounded-3xl p-10 shadow-lg border border-white/70 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-[#fabdb4]/30 to-transparent rounded-full blur-xl"></div>
+            <div className="relative z-10">
+              <div className="text-center mb-8">
+                <h4 className="text-3xl font-bold text-[#6b2f25] mb-4 font-serif">Our Promise</h4>
+                <div className="w-24 h-1 bg-gradient-to-r from-[#fabdb4] to-[#ffbdb3] mx-auto rounded-full"></div>
+              </div>
+              <div className="grid md:grid-cols-2 gap-6">
+                {[
+                  "100% herbal and plastic-free",
+                  "Freshly made, hygienic, and safe", 
+                  "Affordable and accessible for every woman",
+                  "Backed by traditional wisdom and modern testing"
+                ].map((promise, index) => (
+                  <div key={index} className="flex items-center gap-4 p-4 bg-gradient-to-r from-[#fabdb4]/20 to-[#ffbdb3]/20 rounded-xl border border-[#fabdb4]/30">
+                    <div className="w-3 h-3 bg-gradient-to-r from-[#6b2f25] to-[#bd5947] rounded-full flex-shrink-0"></div>
+                    <p className="text-gray-700 font-serif text-lg">{promise}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Herbal Ingredients Section */}
+        
         
         {/* Closing Statement */}
         <div className="relative">
-          <div className="bg-gradient-to-r from-[#fabdb4]/40 to-[#ffbdb3]/40 backdrop-blur-md rounded-3xl p-10 border-l-8 border-[#6b2f25] relative overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-white/30 to-transparent"></div>
-            <div className="absolute bottom-0 right-0 w-40 h-40 bg-gradient-to-tl from-[#6b2f25]/10 to-transparent rounded-full blur-2xl"></div>
+          <div className="bg-gradient-to-r from-[#6b2f25]/90 to-[#bd5947]/90 backdrop-blur-md rounded-3xl p-10 text-white relative overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent"></div>
+            <div className="absolute bottom-0 right-0 w-40 h-40 bg-gradient-to-tl from-white/10 to-transparent rounded-full blur-2xl"></div>
             <div className="relative z-10 text-center">
-              <p className="text-gray-700 leading-relaxed text-xl font-serif italic max-w-4xl mx-auto">
-                With these six mighty herbals blended, <span className="font-bold text-[#6b2f25]">Pink Lady Herbal Napkin</span> provides all-day comfort, natural defense, and a feeling of empowerment. Each napkin is intricately infused with this herbal blend, uniting purity, safety, and self-assurance in one.
+              <p className="leading-relaxed text-xl font-serif italic max-w-4xl mx-auto mb-6">
+                Today, Pink Lady Herbal Napkins are trusted by students, professionals, and women from all walks of life. <br /> <span className='text-xl text-amber-100'>Our goal is simple: to provide safe, sustainable, and affordable menstrual care while honoring our roots in traditional healing.</span> 
               </p>
+              
             </div>
           </div>
         </div>

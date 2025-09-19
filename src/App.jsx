@@ -8,33 +8,42 @@ import AboutUs from './pages/AboutUs';
 import Products from './pages/Products';
 import CheckOutPage from './pages/CheckOutPage';
 import AdminLogin from './pages/Admin/AdminLogin';
+import AdminDashBoard from './pages/Admin/AdminDashBoard';
+import { CartProvider } from './context/CartContext'; // Import CartProvider
 
-const App = () => {
+const AppContent = () => {
   const location = useLocation();
-
+  
   // Routes where NavBar and Footer should be hidden
-  const hideLayoutRoutes = ['/adminlogin'];
-
-  const shouldHideLayout = hideLayoutRoutes.includes(location.pathname);
-
+  
+  
   return (
     <>
-      {!shouldHideLayout && <NavBar />}
-
+      <NavBar />
+      
       <Routes>
         {/* User routes */}
         <Route path='/' element={<Home />} />
         <Route path="/contact" element={<ContactForm />} />
-        <Route path="/about" element={<AboutUs />} />  
+        <Route path="/about" element={<AboutUs />} />
         <Route path='/products' element={<Products />} />
         <Route path='/checkout' element={<CheckOutPage />} />
-
+        
         {/* Admin routes */}
         <Route path='/adminlogin' element={<AdminLogin />} />
+        <Route path='/admin' element={<AdminDashBoard/>} />
       </Routes>
-
-      {!shouldHideLayout && <Footer />}
+      
+    <Footer />
     </>
+  )
+}
+
+const App = () => {
+  return (
+    <CartProvider>
+      <AppContent />
+    </CartProvider>
   )
 }
 

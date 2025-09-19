@@ -225,7 +225,7 @@ const ContactForm = () => {
               </div>
               <div>
                 <h4 className="font-extrabold">Address</h4>
-                <p className="text-sm text-gray-600 dark:text-gray-400">99 S.t Jomblo Park Pekanbaru 28292. Indonesia</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">768/E, SundarRajan Illam, Suthamalli, Manur, Periyanagar, Tirunelveli, TamilNadu-627604</p>
               </div>
             </div>
             
@@ -235,7 +235,7 @@ const ContactForm = () => {
               </div>
               <div>
                 <h4 className="font-bold">Phone</h4>
-                <p className="text-sm text-gray-600 dark:text-gray-400">(+62)81 414 257 9980</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">(+91) 99 400 32147</p>
               </div>
             </div>
             
@@ -245,7 +245,7 @@ const ContactForm = () => {
               </div>
               <div>
                 <h4 className="font-bold">Email</h4>
-                <p className="text-sm text-gray-600 dark:text-gray-400">info@yourdomain.com</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">suganthisundarrajan@gmail.com</p>
               </div>
             </div>
           </div>

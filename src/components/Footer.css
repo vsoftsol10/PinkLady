@@ -82,9 +82,9 @@
   bottom: 0;
   left: 50%;
   transform: translateX(-50%);
-  width: 30px;
+  width: 50px;
   height: 2px;
-  background: linear-gradient(90deg, #ec4899, #f472b6);
+  background: linear-gradient(90deg, #F18372, #c42e17);
   border-radius: 2px;
 }
 
@@ -113,7 +113,7 @@
 }
 
 .footer-link:hover {
-  color: #ec4899;
+  color: #F18372;
   background-color: rgba(236, 72, 153, 0.05);
   transform: translateY(-1px);
 }
