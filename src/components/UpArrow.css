@@ -1,0 +1,114 @@
+/* UpArrow.css */
+
+.scroll-to-top-button {
+  position: fixed;
+  bottom: 20px;
+  right: 35px;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background-color: #F18372;
+  color: white;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  z-index: 10000;
+  transition: all 0.3s ease;
+  opacity: 0;
+  transform: translateY(20px) scale(0.9);
+  pointer-events: none;
+}
+
+.scroll-to-top-button.visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+}
+
+.scroll-to-top-button:hover {
+  background-color:  #80a347;
+  box-shadow: 0 6px 15px  #647a3f;
+  transform: translateY(-5px) scale(1.05);
+}
+
+.scroll-to-top-button:active {
+  transform: translateY(0) scale(0.95);
+  background-color: #F18372;
+}
+
+.scroll-to-top-button svg {
+  width: 24px;
+  height: 24px;
+  transition: transform 0.3s ease;
+}
+
+.scroll-to-top-button:hover svg {
+  transform: translateY(-3px);
+}
+
+/* Pulse animation */
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 #F18372;
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(59, 130, 246, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
+  }
+}
+
+.scroll-to-top-button.visible {
+  animation: pulse 2s infinite;
+}
+
+/* Entry animation */
+@keyframes slideIn {
+  0% {
+    opacity: 0;
+    transform: translateY(30px) scale(0.8);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.scroll-to-top-button.visible {
+  animation: slideIn 0.5s ease forwards, pulse 2s 0.5s infinite;
+}
+
+/* Rotate animation on hover */
+@keyframes rotateArrow {
+  0% {
+    transform: translateY(0) rotate(0);
+  }
+  100% {
+    transform: translateY(-3px) rotate(360deg);
+  }
+}
+
+.scroll-to-top-button:hover svg {
+  animation: rotateArrow 0.7s ease;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .scroll-to-top-button {
+    background-color: #F18372;
+    color: #f3f4f6;
+  }
+  
+  .scroll-to-top-button:hover {
+    background-color:  #7b9c45;
+    box-shadow: 0 6px 15px #F18372;
+  }
+  
+  .scroll-to-top-button:active {
+    background-color: #F18372;
+  }
+}

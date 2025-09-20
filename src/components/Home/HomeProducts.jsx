@@ -84,7 +84,7 @@ const HomeProducts = () => {
                             } group-hover:[transform:rotateY(180deg)] group-active:[transform:rotateY(180deg)]`}>
                                 
                                 {/* Front Side - Product Image */}
-                                <div className="absolute w-full h-full [backface-visibility:hidden] flex flex-col items-center justify-center rounded-xl bg-[#93B45D] border border-green-200 shadow-lg p-4 sm:p-6">
+                                <div className="absolute w-full h-full [backface-visibility:hidden] flex flex-col items-center justify-center rounded-xl bg-[#0c6200] border border-green-200 shadow-lg p-4 sm:p-6">
                                     <div className="text-4xl sm:text-5xl lg:text-6xl mb-3 sm:mb-4">
                                         <img 
                                             src={product.image} 
@@ -92,14 +92,14 @@ const HomeProducts = () => {
                                             className="w-24 h-24 sm:w-26 sm:h-26 lg:w-50 lg:h-50 object-contain select-none" 
                                         />
                                     </div>
-                                    <p className="text-base sm:text-lg font-semibold text-green-800 text-center font-serif px-2 leading-tight">
+                                    <p className="text-base sm:text-lg font-semibold text-white text-center font-serif px-2 leading-tight">
                                         {product.name}
                                     </p>
                                     <div className="mt-3 sm:mt-4 px-3 py-1 bg-green-200 rounded-full">
                                         <span className="text-green-800 text-sm font-medium">{product.price}</span>
                                     </div>
                                     {/* Mobile flip indicator */}
-                                    <div className="mt-2 sm:hidden text-green-700 text-xs opacity-70">
+                                    <div className="mt-2 sm:hidden text-white text-xs opacity-100">
                                         Tap to see details
                                     </div>
                                 </div>

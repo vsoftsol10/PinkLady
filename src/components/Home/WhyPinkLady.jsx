@@ -61,6 +61,9 @@ const WhyPinkLady = () => {
           <h2 className="text-4xl font-bold mb-4 ">
             Why <span className="text-transparent bg-clip-text bg-[#F18372]">Pink Lady</span>
           </h2>
+          <div>
+            
+          </div>
           <div className="w-16 h-1 bg-gradient-to-r from-[#93B45D] to-[#F18372] mx-auto mb-6 rounded-full"></div>
           <p className="text-lg text-gray-600 max-w-3xl mx-auto leading-relaxed">
             We believe comfort, hygiene, and confidence should never be compromised. Our napkins offer 
@@ -89,7 +92,7 @@ const WhyPinkLady = () => {
         </div>
 
         {/* Call to Action */}
-        <div className="bg-[#93B45D]  rounded-2xl p-8 text-center text-white shadow-lg">
+        <div className="bg-[#0c6200]  rounded-2xl p-8 text-center text-white shadow-lg">
           <p className="text-3xl font-bold mb-3 text-white font-serif">
             More Than Just Protection
           </p>

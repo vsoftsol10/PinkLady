@@ -10,6 +10,8 @@ import CheckOutPage from './pages/CheckOutPage';
 import AdminLogin from './pages/Admin/AdminLogin';
 import AdminDashBoard from './pages/Admin/AdminDashBoard';
 import { CartProvider } from './context/CartContext'; // Import CartProvider
+import UpArrow from './components/UpArrow';
+import FloationWhatsappIcon from './components/FloatingWhatsAppIcon';
 
 const AppContent = () => {
   const location = useLocation();
@@ -24,7 +26,8 @@ const AppContent = () => {
     <>
       {/* Conditionally render NavBar */}
       {!shouldHideNavFooter && <NavBar />}
-      
+      <UpArrow/>
+      <FloationWhatsappIcon/>
       <Routes>
         {/* User routes */}
         <Route path='/' element={<Home />} />

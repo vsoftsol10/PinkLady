@@ -7,7 +7,7 @@
 
 /* Main Footer */
 .footer {
-  background: linear-gradient(135deg, #e7ffc0 0%, #deffaa 100%);
+  background: linear-gradient(135deg, #f3f8ea 0%, #f8fdf1 100%);
   border-top: 1px solid #e2e8f0;
   margin-top: auto;
 }
@@ -152,7 +152,7 @@
 
 /* Bottom Bar */
 .footer-bottom {
-  background: linear-gradient(135deg, #e7ffc0 0%, #deffaa 100%);
+  background: linear-gradient(135deg, #f3f8ea 0%, #f8fdf1 100%);
   border-top: 1px solid #e2e8f0;
 }
 
