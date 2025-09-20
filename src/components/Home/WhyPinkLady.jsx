@@ -1,6 +1,19 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const WhyPinkLady = () => {
+  const navigate=useNavigate();
+
+  const handleNavigation = (path) => {
+    navigate(path);
+
+    // Delay the scroll slightly so it happens after navigation/render
+    setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+    }, 100);
+  };
   const features = [
     {
       icon: (
@@ -83,7 +96,12 @@ const WhyPinkLady = () => {
           <p className="text-orange-100 mb-6 max-w-2xl mx-auto">
             Pink Lady Herbal Napkins deliver natural confidence, gentle comfort, and herbal care for every woman, every day.
           </p>
-          <button className="px-6 py-3 bg-[#F18372] text-white font-semibold rounded-full hover:bg-gray-50 transition-colors duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+          <button className="px-6 py-3 bg-[#F18372] text-white font-semibold cursor-pointer rounded-full hover:bg-[#ee5e48] transition-colors duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+            onClick={(e) => {
+                e.preventDefault(); // prevent full page reload
+                handleNavigation("/products");
+              }}
+          >
             Shop Now
           </button>
         </div>

@@ -1,5 +1,18 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 const HomeAbout = () => {
+  const navigate=useNavigate();
+
+  const handleNavigation = (path) => {
+    navigate(path);
+
+    // Delay the scroll slightly so it happens after navigation/render
+    setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+    }, 100);
+  };
   return (
     <div className="bg-white-50 py-16 px-8 mb-8">
       <div className="max-w-7xl mx-auto">
@@ -18,7 +31,12 @@ const HomeAbout = () => {
               Pink Lady Herbal Napkins – more than just protection, it’s herbal comfort, care, and confidence. Made with skin-friendly herbal materials, designed for freshness and all-day comfort, so every woman feels naturally safe and empowered.
             </p>
 
-            <button className=" text-white bg-[#F18372] px-8 py-3 rounded-full font-medium transition-colors duration-200 shadow-lg hover:shadow-xl">
+            <button className=" text-white bg-[#F18372] px-8 py-3 rounded-full cursor-pointer font-medium transition-colors duration-200 shadow-lg hover:shadow-xl hover:bg-[#93B45D]" 
+              onClick={(e) => {
+                e.preventDefault(); // prevent full page reload
+                handleNavigation("/about");
+              }}
+            >
               Know More
             </button>
           </div>

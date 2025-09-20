@@ -40,9 +40,6 @@ const ProductsGrid = () => {
     };
 
     const handleRemoveFromCart = (productId) => {
-        // Assuming you have a removeFromCart function in your context
-        // If not, you'll need to add it to your CartContext
-        // removeFromCart(productId);
         
         addAlert(
             'Removed from cart', 
@@ -51,22 +48,32 @@ const ProductsGrid = () => {
         );
     };
 
-    const handleCheckoutClick = () => {
-        if (itemCount === 0) {
-            addAlert(
-                'Cart is empty!',
-                'Please add some items to your cart before checkout.',
-                'remove'
-            );
-        } else {
-            addAlert(
-                'Checkout initiated!',
-                `Proceeding to checkout with ${itemCount} item${itemCount > 1 ? 's' : ''}`,
-                'success'
-            );
-            navigate("/checkout");
-        }
-    };
+    const handleNavigation = (path) => {
+    navigate(path);
+    // Delay the scroll slightly so it happens after navigation/render
+    setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+    }, 100);
+};
+
+const handleCheckoutClick = () => {
+    if (itemCount === 0) {
+        addAlert(
+            'Cart is empty!',
+            'Please add some items to your cart before checkout.',
+            'remove'
+        );
+    } else {
+        addAlert(
+            'Checkout initiated!',
+            `Proceeding to checkout with ${itemCount} item${itemCount > 1 ? 's' : ''}`,
+            'success'
+        );
+        handleNavigation("/checkout");
+    }
+};
 
     // Sample products data
     const products = [

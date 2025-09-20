@@ -14,12 +14,16 @@ import { CartProvider } from './context/CartContext'; // Import CartProvider
 const AppContent = () => {
   const location = useLocation();
   
-  // Routes where NavBar and Footer should be hidden
+  // Define routes where navbar and footer should be hidden
+  const hideNavFooterRoutes = ['/adminlogin'];
   
-  
+  // Check if current route should hide navbar and footer
+  const shouldHideNavFooter = hideNavFooterRoutes.includes(location.pathname);
+
   return (
     <>
-      <NavBar />
+      {/* Conditionally render NavBar */}
+      {!shouldHideNavFooter && <NavBar />}
       
       <Routes>
         {/* User routes */}
@@ -34,7 +38,8 @@ const AppContent = () => {
         <Route path='/admin' element={<AdminDashBoard/>} />
       </Routes>
       
-    <Footer />
+      {/* Conditionally render Footer */}
+      {!shouldHideNavFooter && <Footer />}
     </>
   )
 }

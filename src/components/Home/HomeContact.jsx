@@ -1,9 +1,20 @@
 import React from 'react';
 import Contact from "../../assets/ContactUs.png"
+import { useNavigate } from 'react-router-dom';
 
 const HomeContact = () => {
-  const handleContactClick = () => {
+  const navigate=useNavigate();
+ 
+  
+  const handleNavigation = (path) => {
+    navigate(path);
 
+    // Delay the scroll slightly so it happens after navigation/render
+    setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+    }, 100);
   };
 
   return (
@@ -33,7 +44,10 @@ const HomeContact = () => {
           <div className="relative">
             <div 
               className="flex justify-center r cursor-pointer transition-transform duration-300 hover:scale-105"
-              onClick={handleContactClick}
+              onClick={(e) => {
+                e.preventDefault(); // prevent full page reload
+                handleNavigation("/contact");
+              }}
             >
               {/* Replace the src with your image path */}
               <img
