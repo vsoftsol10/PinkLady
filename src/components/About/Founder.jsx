@@ -4,9 +4,10 @@ const Founder = () => {
   return (
     <div className="w-full  py-16 px-4 sm:px-6 lg:px-8">
           <div className="max-w-7xl mx-auto">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center ">
               {/* Left Side - Text Content */}
-              <div className="block ">                <div 
+              <div className="block ">               
+                 <div 
                   className="flex justify-center r cursor-pointer transition-transform duration-300 hover:scale-105"
                 >
                   {/* Replace the src with your image path */}
@@ -16,8 +17,12 @@ const Founder = () => {
                     className="w-90 h-auto rounded-2xl   object-cover"
                   />
                  
+                </div >
+                <div className='text-center mt-4 shadow-xl '>
+                 <h2 className='text-4xl '>Mrs. Valli</h2>
+                 <p className='text-2xl font-serif font-bold  '>Founder</p>
+
                 </div>
-                 <h2 className='text-4xl text-center mt-4 shadow-xl'>Mrs. Valli</h2>
               </div>
     
               {/* Right Side - Clickable Image */}

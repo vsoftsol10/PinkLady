@@ -5,6 +5,7 @@ import WhyPinkLady from '../components/Home/WhyPinkLady';
 import Unique from '../components/Home/Unique';
 import Benefits from '../components/Home/Benefits';
 import HomeContact from '../components/Home/HomeContact';
+import Testimonials from '../components/Home/Testimonials';
 
 
 const Home = () => {
@@ -15,6 +16,7 @@ const Home = () => {
       <WhyPinkLady/>
       <Benefits/>
       <Unique/>
+      <Testimonials/>
       <HomeContact/>
     </div>
   );
