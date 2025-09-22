@@ -1,49 +1,107 @@
-import React, { useState } from 'react';
-import LocationIcon from "../assets/icon/LocationIcon.png"
-import CallIcon from "../assets/icon/PhoneIcon.png"
-import MailIcon from "../assets/icon/MailIcon.png"
-import BreadCrumsContact from '../components/Contact/BreadCrumsContact';
+import React, { useState, useEffect } from 'react';
+import { MapPin, Phone, Mail, Send, CheckCircle, AlertCircle, User, MessageSquare, Sparkles } from 'lucide-react';
 
-const ContactInputBox = ({ type, placeholder, name, value, onChange, error, touched }) => {
+const ContactInputBox = ({ type, placeholder, name, value, onChange, onBlur, error, touched, icon: Icon }) => {
+  const [focused, setFocused] = useState(false);
+
   return (
-    <div className="mb-4">
-      <input
-        type={type}
-        placeholder={placeholder}
-        name={name}
-        value={value}
-        onChange={onChange}
-        className={`w-full rounded border px-3 py-2 text-sm text-gray-700 outline-none focus:border-blue-500 dark:bg-gray-800 dark:text-gray-300 ${
-          error && touched 
-            ? 'border-red-500 dark:border-red-500' 
-            : 'border-gray-300 dark:border-gray-600'
-        }`}
-      />
+    <div className="mb-6 relative group">
+      <div className="relative">
+        {Icon && (
+          <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 group-focus-within:text-[#F18372] transition-colors duration-200">
+            <Icon size={18} />
+          </div>
+        )}
+        <input
+          type={type}
+          placeholder={placeholder}
+          name={name}
+          value={value}
+          onChange={onChange}
+          onBlur={(e) => {
+            setFocused(false);
+            onBlur && onBlur(e);
+          }}
+          onFocus={() => setFocused(true)}
+          className={`w-full rounded-xl border-2 ${Icon ? 'pl-12' : 'pl-4'} pr-4 py-3 text-sm text-gray-700 outline-none transition-all duration-200 transform hover:scale-[1.02] focus:scale-[1.02] dark:bg-gray-800 dark:text-gray-300 ${
+            error && touched 
+              ? 'border-red-400 dark:border-red-500 shadow-lg shadow-red-100 dark:shadow-red-900/20' 
+              : focused
+              ? 'border-[#F18372] shadow-lg shadow-orange-100 dark:shadow-orange-900/20'
+              : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500'
+          } ${focused ? 'bg-white dark:bg-gray-700' : 'bg-gray-50 dark:bg-gray-800'}`}
+        />
+        <div className={`absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-[#F18372] to-orange-400 transition-all duration-300 ${
+          focused ? 'w-full' : 'w-0'
+        }`}></div>
+      </div>
       {error && touched && (
-        <p className="mt-1 text-xs text-red-500">{error}</p>
+        <div className="flex items-center mt-2 text-xs text-red-500 animate-slide-in">
+          <AlertCircle size={14} className="mr-1" />
+          {error}
+        </div>
       )}
     </div>
   );
 };
 
-const ContactTextArea = ({ placeholder, name, value, onChange, error, touched }) => {
+const ContactTextArea = ({ placeholder, name, value, onChange, onBlur, error, touched }) => {
+  const [focused, setFocused] = useState(false);
+
   return (
-    <div className="mb-4">
-      <textarea
-        rows={4}
-        placeholder={placeholder}
-        name={name}
-        value={value}
-        onChange={onChange}
-        className={`w-full resize-none rounded border px-3 py-2 text-sm text-gray-700 outline-none focus:border-blue-500 dark:bg-gray-800 dark:text-gray-300 ${
-          error && touched 
-            ? 'border-red-500 dark:border-red-500' 
-            : 'border-gray-300 dark:border-gray-600'
-        }`}
-      />
+    <div className="mb-6 relative group">
+      <div className="relative">
+        <div className="absolute left-3 top-3 text-gray-400 group-focus-within:text-[#F18372] transition-colors duration-200">
+          <MessageSquare size={18} />
+        </div>
+        <textarea
+          rows={4}
+          placeholder={placeholder}
+          name={name}
+          value={value}
+          onChange={onChange}
+          onBlur={(e) => {
+            setFocused(false);
+            onBlur && onBlur(e);
+          }}
+          onFocus={() => setFocused(true)}
+          className={`w-full resize-none rounded-xl border-2 pl-12 pr-4 py-3 text-sm text-gray-700 outline-none transition-all duration-200 transform hover:scale-[1.02] focus:scale-[1.02] dark:bg-gray-800 dark:text-gray-300 ${
+            error && touched 
+              ? 'border-red-400 dark:border-red-500 shadow-lg shadow-red-100 dark:shadow-red-900/20' 
+              : focused
+              ? 'border-[#F18372] shadow-lg shadow-orange-100 dark:shadow-orange-900/20'
+              : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500'
+          } ${focused ? 'bg-white dark:bg-gray-700' : 'bg-gray-50 dark:bg-gray-800'}`}
+        />
+        <div className={`absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-[#F18372] to-orange-400 transition-all duration-300 ${
+          focused ? 'w-full' : 'w-0'
+        }`}></div>
+      </div>
       {error && touched && (
-        <p className="mt-1 text-xs text-red-500">{error}</p>
+        <div className="flex items-center mt-2 text-xs text-red-500 animate-slide-in">
+          <AlertCircle size={14} className="mr-1" />
+          {error}
+        </div>
       )}
+    </div>
+  );
+};
+
+const FloatingParticles = () => {
+  return (
+    <div className="absolute inset-0 overflow-hidden pointer-events-none">
+      {[...Array(6)].map((_, i) => (
+        <div
+          key={i}
+          className={`absolute w-1 h-1 bg-[#F18372] rounded-full opacity-20 animate-float`}
+          style={{
+            left: `${Math.random() * 100}%`,
+            top: `${Math.random() * 100}%`,
+            animationDelay: `${Math.random() * 5}s`,
+            animationDuration: `${3 + Math.random() * 4}s`
+          }}
+        />
+      ))}
     </div>
   );
 };
@@ -60,8 +118,13 @@ const ContactForm = () => {
   const [touched, setTouched] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState(null);
+  const [isVisible, setIsVisible] = useState(false);
 
-  // Validation functions
+  useEffect(() => {
+    setIsVisible(true);
+  }, []);
+
+  // Validation functions (same as original)
   const validateName = (name) => {
     if (!name.trim()) return 'Name is required';
     if (name.trim().length < 2) return 'Name must be at least 2 characters';
@@ -132,7 +195,6 @@ const ContactForm = () => {
       [name]: error
     }));
 
-    // Mark field as touched when user starts typing
     if (!touched[name]) {
       setTouched(prev => ({
         ...prev,
@@ -140,7 +202,6 @@ const ContactForm = () => {
       }));
     }
 
-    // Clear submit status when user starts typing
     if (submitStatus) {
       setSubmitStatus(null);
     }
@@ -157,7 +218,6 @@ const ContactForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Mark all fields as touched
     setTouched({
       name: true,
       email: true,
@@ -174,10 +234,8 @@ const ContactForm = () => {
     setSubmitStatus(null);
 
     try {
-      // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 2000));
       
-      // Here you would typically send the data to your backend
       console.log('Form submitted:', formData);
       
       setSubmitStatus({ 
@@ -185,7 +243,6 @@ const ContactForm = () => {
         message: 'Thank you! Your message has been sent successfully.' 
       });
       
-      // Reset form
       setFormData({
         name: '',
         email: '',
@@ -206,122 +263,196 @@ const ContactForm = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-white dark:bg-gray-900">
-      <BreadCrumsContact/>
-      <div className="grid md:grid-cols-2 gap-8">
-        {/* Contact Info */}
-        <div>
-          <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
-            Get In Touch
-          </h2>
-          <p className="text-gray-600 dark:text-gray-400 mb-6">
-            We'd love to hear from you. Send us a message and we'll respond as soon as possible.
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-orange-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 relative overflow-hidden">
+      <FloatingParticles />
+      
+      {/* Decorative elements */}
+      <div className="absolute top-0 right-0 w-72 h-72 bg-gradient-to-br from-[#F18372]/10 to-orange-200/10 rounded-full blur-3xl"></div>
+      <div className="absolute bottom-0 left-0 w-96 h-96 bg-gradient-to-tr from-blue-100/20 to-purple-100/20 rounded-full blur-3xl"></div>
+
+      <div className={`max-w-6xl mx-auto p-8 relative z-10 transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+        
+        {/* Header Section */}
+        <div className="text-center mb-16">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-[#F18372] to-orange-400 rounded-full mb-6 animate-pulse">
+            <Sparkles className="text-white" size={24} />
+          </div>
+          <h1 className="text-5xl md:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-gray-900 via-[#F18372] to-orange-400 dark:from-white dark:via-[#F18372] dark:to-orange-400 mb-4">
+            Let's Connect
+          </h1>
+          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto leading-relaxed">
+            Have a question? We'd love to hear from you. 
+            <span className="text-[#F18372] font-semibold"> Drop us a line</span> and we'll get back to you as soon as possible.
           </p>
-          
-          <div className="space-y-4">
-            <div className="flex items-start">
-              <div className="flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center mr-3">
-                <img src={LocationIcon} alt="Location-Icon" className='w-12 rounded-3xl' />
+        </div>
+
+        <div className="grid lg:grid-cols-5 gap-12 items-start">
+          {/* Contact Info */}
+          <div className="lg:col-span-2 space-y-8">
+            <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-3xl p-8 shadow-xl border border-white/20 dark:border-gray-700/20 transform hover:scale-105 transition-all duration-300">
+              <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6 flex items-center">
+                Get In Touch
+                <div className="ml-3 w-3 h-3 bg-[#F18372] rounded-full animate-pulse"></div>
+              </h2>
+              
+              <div className="space-y-6">
+                <div className="group flex items-start p-4 rounded-2xl hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-all duration-200 cursor-pointer">
+                  <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-r from-[#F18372] to-orange-400 rounded-2xl flex items-center justify-center mr-4 group-hover:scale-110 transition-transform duration-200">
+                    <MapPin className="text-white" size={20} />
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-gray-900 dark:text-white mb-1">Visit Us</h4>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">768/E, SundarRajan Illam, Suthamalli, Manur, Periyanagar, Tirunelveli, TamilNadu-627604</p>
+                  </div>
+                </div>
+                
+                <div className="group flex items-start p-4 rounded-2xl hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-all duration-200 cursor-pointer">
+                  <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-r from-[#F18372] to-orange-400 rounded-2xl flex items-center justify-center mr-4 group-hover:scale-110 transition-transform duration-200">
+                    <Phone className="text-white" size={20} />
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-gray-900 dark:text-white mb-1">Call Us</h4>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">(+91) 99 400 32147</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-500">Mon-Fri from 8am to 5pm</p>
+                  </div>
+                </div>
+                
+                <div className="group flex items-start p-4 rounded-2xl hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-all duration-200 cursor-pointer">
+                  <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-r from-[#F18372] to-orange-400 rounded-2xl flex items-center justify-center mr-4 group-hover:scale-110 transition-transform duration-200">
+                    <Mail className="text-white" size={20} />
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-gray-900 dark:text-white mb-1">Email Us</h4>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">suganthisundarrajan@gmail.com</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-500">Online support</p>
+                  </div>
+                </div>
               </div>
-              <div>
-                <h4 className="font-extrabold">Address</h4>
-                <p className="text-sm text-gray-600 dark:text-gray-400">768/E, SundarRajan Illam, Suthamalli, Manur, Periyanagar, Tirunelveli, TamilNadu-627604</p>
-              </div>
-            </div>
+
             
-            <div className="flex items-start">
-              <div className="flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center mr-3">
-                <img src={CallIcon} alt="Phone-Icon" className='w-12 rounded-3xl' />
-              </div>
-              <div>
-                <h4 className="font-bold">Phone</h4>
-                <p className="text-sm text-gray-600 dark:text-gray-400">(+91) 99 400 32147</p>
-              </div>
             </div>
-            
-            <div className="flex items-start">
-              <div className="flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center mr-3">
-                <img src={MailIcon} alt="Mail-Icon" className='w-12 rounded-3xl' />
-              </div>
-              <div>
-                <h4 className="font-bold">Email</h4>
-                <p className="text-sm text-gray-600 dark:text-gray-400">suganthisundarrajan@gmail.com</p>
+          </div>
+
+          {/* Contact Form */}
+          <div className="lg:col-span-3">
+            <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-lg rounded-3xl p-8 shadow-2xl border border-white/20 dark:border-gray-700/20 relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-[#F18372]/20 to-orange-200/20 rounded-full blur-2xl"></div>
+              
+              <div className="relative z-10">
+                <div className="grid md:grid-cols-2 gap-6">
+                  <ContactInputBox
+                    type="text"
+                    name="name"
+                    placeholder="Your Name"
+                    value={formData.name}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    error={errors.name}
+                    touched={touched.name}
+                    icon={User}
+                  />
+                  
+                  <ContactInputBox
+                    type="email"
+                    name="email"
+                    placeholder="Your Email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    error={errors.email}
+                    touched={touched.email}
+                    icon={Mail}
+                  />
+                </div>
+                
+                <ContactInputBox
+                  type="tel"
+                  name="phone"
+                  placeholder="Your Phone"
+                  value={formData.phone}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  error={errors.phone}
+                  touched={touched.phone}
+                  icon={Phone}
+                />
+                
+                <ContactTextArea
+                  placeholder="Tell us about your project or ask us anything..."
+                  name="message"
+                  value={formData.message}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  error={errors.message}
+                  touched={touched.message}
+                />
+
+                {/* Submit Status Message */}
+                {submitStatus && (
+                  <div className={`mb-6 p-4 rounded-xl text-sm flex items-center animate-slide-in ${
+                    submitStatus.type === 'success' 
+                      ? 'bg-green-50 text-green-700 border border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800' 
+                      : 'bg-red-50 text-red-700 border border-red-200 dark:bg-red-900/20 dark:text-red-400 dark:border-red-800'
+                  }`}>
+                    {submitStatus.type === 'success' ? (
+                      <CheckCircle size={18} className="mr-2 flex-shrink-0" />
+                    ) : (
+                      <AlertCircle size={18} className="mr-2 flex-shrink-0" />
+                    )}
+                    {submitStatus.message}
+                  </div>
+                )}
+                
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className={`group relative w-full py-4 px-8 rounded-2xl font-semibold text-white transition-all duration-300 transform hover:scale-105 active:scale-95 ${
+                    isSubmitting
+                      ? 'bg-gray-400 cursor-not-allowed'
+                      : 'bg-gradient-to-r from-[#F18372] to-orange-400 hover:from-[#e6725f] hover:to-orange-500 shadow-lg hover:shadow-xl'
+                  } overflow-hidden`}
+                >
+                  <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  <div className="relative flex items-center justify-center">
+                    {isSubmitting ? (
+                      <>
+                        <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent mr-3"></div>
+                        Sending Message...
+                      </>
+                    ) : (
+                      <>
+                        Send Message
+                        <Send size={18} className="ml-2 group-hover:translate-x-1 transition-transform duration-200" />
+                      </>
+                    )}
+                  </div>
+                </button>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Contact Form */}
-        <div className="bg-gray-50 dark:bg-gray-800 text-black p-6 rounded-lg">
-          <form onSubmit={handleSubmit} noValidate>
-            <ContactInputBox
-              type="text"
-              name="name"
-              placeholder="Your Name"
-              value={formData.name}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              error={errors.name}
-              touched={touched.name}
-            />
-            
-            <ContactInputBox
-              type="email"
-              name="email"
-              placeholder="Your Email"
-              value={formData.email}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              error={errors.email}
-              touched={touched.email}
-            />
-            
-            <ContactInputBox
-              type="tel"
-              name="phone"
-              placeholder="Your Phone"
-              value={formData.phone}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              error={errors.phone}
-              touched={touched.phone}
-            />
-            
-            <ContactTextArea
-              placeholder="Your Message"
-              name="message"
-              value={formData.message}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              error={errors.message}
-              touched={touched.message}
-            />
-
-            {/* Submit Status Message */}
-            {submitStatus && (
-              <div className={`mb-4 p-3 rounded text-sm ${
-                submitStatus.type === 'success' 
-                  ? 'bg-green-100 text-green-700 border border-green-300' 
-                  : 'bg-red-100 text-red-700 border border-red-300'
-              }`}>
-                {submitStatus.message}
-              </div>
-            )}
-            
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className={`w-full py-2 px-4 rounded font-medium transition-colors ${
-                isSubmitting
-                  ? 'bg-gray-400 cursor-not-allowed'
-                  : 'bg-[#F18372] hover:bg-[#e6725f]'
-              } text-white`}
-            >
-              {isSubmitting ? 'Sending...' : 'Send Message'}
-            </button>
-          </form>
-        </div>
+       
       </div>
+
+      <style jsx>{`
+        @keyframes float {
+          0%, 100% { transform: translateY(0px) rotate(0deg); }
+          25% { transform: translateY(-10px) rotate(5deg); }
+          50% { transform: translateY(-20px) rotate(0deg); }
+          75% { transform: translateY(-10px) rotate(-5deg); }
+        }
+        @keyframes slide-in {
+          from { opacity: 0; transform: translateY(-10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-float {
+          animation: float 6s ease-in-out infinite;
+        }
+        .animate-slide-in {
+          animation: slide-in 0.3s ease-out;
+        }
+      `}</style>
     </div>
   );
 };

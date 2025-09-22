@@ -26,8 +26,9 @@ const AppContent = () => {
     <>
       {/* Conditionally render NavBar */}
       {!shouldHideNavFooter && <NavBar />}
+      {!shouldHideNavFooter && <FloationWhatsappIcon/>}
       <UpArrow/>
-      <FloationWhatsappIcon/>
+      
       <Routes>
         {/* User routes */}
         <Route path='/' element={<Home />} />

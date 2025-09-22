@@ -36,7 +36,7 @@ const Unique = () => {
                 <h3 className="text-lg font-bold text-gray-900 mb-2">
                   Organic Products
                 </h3>
-                <p className="text-gray-600 text-sm">100% natural product</p>
+                <p className="text-gray-600 text-sm">100% Pure, natural, and safe for you every day.</p>
               </div>
 
               {/* Feature 2 - Comfort Products */}
@@ -48,7 +48,7 @@ const Unique = () => {
                 <h3 className="text-lg font-bold text-gray-900 mb-2">
                   Comfort Products
                 </h3>
-                <p className="text-gray-600 text-sm">100% natural product</p>
+                <p className="text-gray-600 text-sm">Made to keep you relaxed and happy.</p>
               </div>
 
               {/* Feature 3 - Organic Products */}
@@ -58,9 +58,9 @@ const Unique = () => {
                   <img src={ProductsIcon} alt="Products Icon" />
                 </div>
                 <h3 className="text-lg font-bold text-gray-900 mb-2">
-                  Organic Products
+                  Affordable Price
                 </h3>
-                <p className="text-gray-600 text-sm">100% natural product</p>
+                <p className="text-gray-600 text-sm">Top quality without breaking the bank.</p>
               </div>
             </div>
           </div>

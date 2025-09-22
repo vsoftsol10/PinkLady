@@ -53,7 +53,7 @@ const ProductItem = ({ product, onAddToCart, onRemoveFromCart }) => {
                     <div>
                         {count === 0 ? (
                             <button 
-                                className="flex items-center justify-center gap-1 bg-gradient-to-r from-[#ffb3a7] to-[#F18372] md:w-[80px] w-[64px] h-[34px] rounded text-white font-medium hover:bg-[#93B45D] transition-colors" 
+                                className="flex  items-center justify-center gap-1 bg-gradient-to-r from-[#ffb3a7] to-[#F18372] md:w-[120px] w-[120px] h-[40px] rounded text-white font-medium hover:bg-[#93B45D] transition-colors" 
                                 onClick={handleAddClick}
                             >
                                 <svg className="w-4 h-4 text-white mr-1" fill="currentColor" viewBox="0 0 20 20">
