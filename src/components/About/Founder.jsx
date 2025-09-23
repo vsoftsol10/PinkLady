@@ -21,7 +21,6 @@ const Founder = () => {
                 <div className='text-center mt-4 shadow-xl '>
                  <h2 className='text-4xl '>Mrs. Valli</h2>
                  <p className='text-2xl font-serif font-bold  '>Founder</p>
-
                 </div>
               </div>
     
