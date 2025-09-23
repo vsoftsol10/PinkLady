@@ -125,7 +125,7 @@ const HomeProducts = () => {
                                     <div className="space-y-2 sm:space-y-3">
                                         <div className="text-xl sm:text-2xl font-bold text-center">{product.price}</div>
                                         <button 
-                                            className="w-full cursor-pointer bg-[#0c6200] px-3 sm:px-4 py-2 sm:py-3 rounded-lg font-semibold hover:bg-green-50 transition-colors duration-200 shadow-md font-poppins text-sm sm:text-base active:scale-95"
+                                            className="w-full cursor-pointer bg-[#0c6200] px-3 sm:px-4 py-2 sm:py-3 rounded-lg font-semibold hover:bg-green-500 transition-colors duration-200 shadow-md font-poppins text-sm sm:text-base active:scale-95"
                                             onClick={(e) => {
                                                 e.stopPropagation(); // Prevent card flip when clicking buy button
                                                 e.preventDefault();

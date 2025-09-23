@@ -31,7 +31,7 @@ const HomeAbout = () => {
               Pink Lady Herbal Napkins – more than just protection, it’s herbal comfort, care, and confidence. Made with skin-friendly herbal materials, designed for freshness and all-day comfort, so every woman feels naturally safe and empowered.
             </p>
 
-            <button className=" text-white bg-[#F18372] px-8 py-3 rounded-full cursor-pointer font-medium transition-colors duration-200 shadow-lg hover:shadow-xl hover:bg-[#93B45D]" 
+            <button className=" text-white bg-[#F18372] px-8 py-3 rounded-full cursor-pointer font-medium transition-colors duration-200 shadow-lg hover:shadow-xl hover:bg-[#0c6200]" 
               onClick={(e) => {
                 e.preventDefault(); // prevent full page reload
                 handleNavigation("/about");

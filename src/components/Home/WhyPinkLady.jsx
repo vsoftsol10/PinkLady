@@ -63,55 +63,34 @@ const WhyPinkLady = () => {
 
         {/* Features Grid */}
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-  {features.map((feature, index) => (
-    <div
-      key={index}
-      className="group rounded-xl shadow-md  hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 relative overflow-hidden min-h-[200px] border border-gray-100"
-      style={{
-        backgroundImage: `url(${feature.backgroundImage})`,
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        
-      }}
-    >
-      {/* Glassy Overlay */}
-      {/* <div className="absolute inset-0 bg-white/10 backdrop-blur-sm group-hover:bg-white/20 transition-all duration-300"></div> */}
+          {features.map((feature, index) => (
+            <div
+              key={index}
+              className="group rounded-xl shadow-md  hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 relative overflow-hidden min-h-[200px] border border-gray-100"
+              style={{
+                backgroundImage: `url(${feature.backgroundImage})`,
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+              }}
+            >
+              {/* Content */}
+              <div className="relative z-10 p-6 h-full flex flex-col justify-end">
+                {/* Semi-transparent background for overlay */}
+                <div className="absolute inset-0 bg-amber-50/60 rounded-xl"></div>
 
-      {/* Decorative Icon Bubble */}
-      {/* <div
-        className="absolute top-4 right-4 w-12 h-12 rounded-full flex items-center justify-center opacity-40 group-hover:opacity-60 transition-opacity duration-300"
-        style={{
-          backgroundColor:
-            index === 0
-              ? "#93B45D"
-              : index === 1
-              ? "#F18372"
-              : index === 2
-              ? "#4A90E2"
-              : "#FF9500",
-        }}
-      >
-        <div className="w-6 h-6 bg-white rounded-full opacity-80"></div>
-      </div> */}
-
-      {/* Content */}
-      <div className="relative z-10 p-6 h-full flex flex-col justify-end">
-  {/* Semi-transparent background for overlay */}
-  <div className="absolute inset-0 bg-amber-50/60 rounded-xl"></div>
-
-  {/* Text content */}
-  <div className="relative flex-1 flex flex-col justify-end">
-  <p className="text-lg font-serif font-extrabold mb-2 text-green-900 drop-shadow-md">{feature.title}</p>
-<p className="text-[#63241a] text-md font-sans leading-relaxed drop-shadow-md">{feature.description}</p>
-
-</div>
-
-</div>
-
-    </div>
-  ))}
-</div>
-
+                {/* Text content */}
+                <div className="relative flex-1 flex flex-col justify-end">
+                  <p className="text-lg font-serif font-extrabold mb-2 text-green-900 drop-shadow-md">
+                    {feature.title}
+                  </p>
+                  <p className="text-[#63241a] text-md font-sans leading-relaxed drop-shadow-md">
+                    {feature.description}
+                  </p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
 
         {/* Call to Action */}
         <div className="bg-[#0c6200] rounded-2xl p-8 text-center text-white shadow-lg">

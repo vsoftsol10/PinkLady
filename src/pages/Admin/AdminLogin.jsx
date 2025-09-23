@@ -86,7 +86,7 @@ const AdminLogin = () => {
       <div 
         className="w-90 max-w-md rounded-2xl shadow-2xl px-8 py-10 relative z-30"
         style={{
-          background: 'rgba(255, 235, 232, 0.95)',
+          background: 'rgba(255, 247, 246, 0.4)',
           backdropFilter: 'blur(5px)',
           WebkitBackdropFilter: 'blur(5px)',
           border: '1px solid rgba(255, 255, 255, 0.3)',

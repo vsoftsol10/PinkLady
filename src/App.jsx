@@ -12,6 +12,7 @@ import AdminDashBoard from './pages/Admin/AdminDashBoard';
 import { CartProvider } from './context/CartContext'; // Import CartProvider
 import UpArrow from './components/UpArrow';
 import FloationWhatsappIcon from './components/FloatingWhatsAppIcon';
+import OrderManagement from './pages/Admin/OrderManagement';
 
 const AppContent = () => {
   const location = useLocation();
@@ -39,6 +40,7 @@ const AppContent = () => {
         
         {/* Admin routes */}
         <Route path='/adminlogin' element={<AdminLogin />} />
+        <Route path='/admin/orders' element={<OrderManagement />} />
         <Route path='/admin' element={<AdminDashBoard/>} />
       </Routes>
       
