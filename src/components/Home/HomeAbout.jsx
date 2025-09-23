@@ -19,7 +19,7 @@ const HomeAbout = () => {
         <div className="grid md:grid-cols-2 gap-12 items-center">
           {/* Left side - Title */}
           <div className="text-center md:text-center">
-            <h1 className="text-6xl md:text-7xl font-bold text-gray-800 mb-4">
+            <h1 className="text-6xl md:text-5xl font-bold text-gray-800 mb-4">
               About
             </h1>
             <h3 className="text-5xl md:text-6xl text-gray-700 ">Pink Lady</h3>

@@ -38,7 +38,7 @@ const AboutSection = () => {
     },
   ];
   return (
-    <div className="py-10 sm:py-16 md:py-20 px-4 sm:px-6 md:px-8 mb-8 relative overflow-hidden">
+    <div className="py-10 sm:py-16 md:py-20 px-4 sm:px-6 md:px-8 relative overflow-hidden">
       {/* Animated background elements */}
       <div className="absolute inset-0">
         <div className="absolute top-10 left-4 sm:left-10 w-48 h-48 sm:w-72 sm:h-72 bg-gradient-to-br from-pink-200/20 to-amber-200/20 rounded-full blur-3xl animate-pulse"></div>
