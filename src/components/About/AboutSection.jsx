@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import Master from "../../assets/GrandFather.png";
+import Founder from "./Founder";
 const AboutSection = () => {
   const [currentChapter, setCurrentChapter] = useState(0);
 
@@ -65,6 +66,7 @@ const AboutSection = () => {
             <div className="w-24 sm:w-32 h-1 mx-auto mt-6 rounded-full bg-gradient-to-r from-pink-500 via-rose-400 to-amber-400"></div>
           </div>
         </div>
+          
 
         {/* Interactive Story Timeline */}
         <div className="mb-12 sm:mb-16">

@@ -8,11 +8,12 @@ import Quote from '../components/About/Quote'
 
 const AboutUs = () => {
   return ( 
-    <div>
+    <div className='max-w-8xl mx-auto mt-[50px] md:mt-[220px]'>
         <BreadCrums/>
         <Carousel/>
+                <Founder/>
+
         <AboutSection/>
-        <Founder/>
         <Paapatchi/>
         <Quote/>
     </div>

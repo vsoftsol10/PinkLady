@@ -130,7 +130,7 @@ const NavBar = () => {
     <>
       {/* Mobile Overlay */}
       <div
-        className={`mobile-overlay ${isOpen ? 'open' : ''}`}
+        className={` mobile-overlay ${isOpen ? 'open' : ''}`}
         onClick={() => setIsOpen(false)}
       />
 
@@ -209,7 +209,6 @@ const NavBar = () => {
           <ul className="nav-menu">
             {isAdminRoute ? (
               <>
-                <li><Link to="/admin/products" className="nav-link">Products</Link></li>
                 <li><Link to="/admin/orders" className="nav-link">Order Management</Link></li>
               </>
             ) : (

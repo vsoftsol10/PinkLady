@@ -14,34 +14,39 @@ const Testimonials = () => {
 
   const cardsData = [
     {
-      name: "Sarah Mitchell",
-      role: "Working Mom",
-      content: "Finally found napkins that are gentle on my sensitive skin and made with natural ingredients. My cramps are so much more manageable now!",
+      name: "Sutha",
+      content: "Good morning Madam, Very thankful for giving such a super herbal napkin It makes me a regular period and has a perfect original herbal  .The main thing is my PCDO is now normal. No Leakage Issue and complete cotton product ",
       avatar: "SM"
     },
     {
-      name: "Priya Sharma", 
-      role: "College Student",
-      content: "These herbal napkins are a game-changer! No more irritation or discomfort. I feel fresh and confident all day long.",
-      avatar: "PS"
+      name: "Meena", 
+      content: "Thanks for the best product 👍👍👍 what u suggest and given a product that's help my irregular periods issue. Thanks akka",
+      avatar: "M"
     },
     {
-      name: "Emma Rodriguez",
-      role: "Fitness Instructor",
-      content: "As someone who's always active, I need reliable protection. These napkins with herbal extracts keep me comfortable during my workouts.",
-      avatar: "ER"
+      name: "Jothi Lakshmi",
+      content: "Pad  very nice, Very comfortable, Thanks sis",
+      avatar: "JL"
     },
     {
-      name: "Lisa Thompson",
-      role: "Healthcare Worker",
-      content: "I love that these napkins are chemical-free and infused with natural herbs. Perfect for my 12-hour shifts at the hospital.",
-      avatar: "LT"
+      name: "Kanishka",
+      content: "Sis napkin very nice and comfortable no leakage thank u so much for your product sis",
+      avatar: "K"
     },
     {
-      name: "Aisha Patel",
-      role: "Yoga Teacher",
-      content: "The natural lavender scent is so soothing! These herbal napkins align perfectly with my holistic lifestyle approach.",
-      avatar: "AP"
+      name: "Divya",
+      content: "thanks to give me the wonderfull product sis. this napkin feel soo comfortable and freshness,no irritation i feel blessed to have it , i m sure to recommended this pad to my frds and family ",
+      avatar: "D"
+    },
+    {
+      name: "Aishu",
+      content: "Pad comfortable ah Nala  eruku use pana, Use panum pothu Nala cool la feel aaguthu, Irritation eila Nala eruku, Apservasion yepputi irrukku, Aah one day fulla tharalama use panala",
+      avatar: "A"
+    },
+    {
+      name: "Mrs Gomati",
+      content: "Hi Valli,These sanitary pads are comfortable, soft, and absorb really well. They fit securely, prevent leaks, and keep me feeling fresh and confident. A very reliable product. These herbal sanitary pads are an excellent choice for anyone looking for comfort and natural care. They are soft, breathable, and provide strong absorption while being gentle on the skin. I appreciate that they are eco-friendly and free from harmful chemicals, which makes them safe and reliable for everyday use. They keep me feeling fresh, comfortable, and confident throughout the day.💐💐💐",
+      avatar: "G"
     }
   ];
 

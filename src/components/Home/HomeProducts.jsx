@@ -25,35 +25,23 @@ const HomeProducts = () => {
     const products = [
         {
             id: 1,
-            name: "Herbal Day Napkin",
+            name: "Herbal Napkin XL",
             image: image,
-            description: "Natural comfort for daily use with organic herbs",
-            price: "₹299",
-            features: ["100% Organic", "Rash-free", "Super Absorbent"]
+            description: "Extra Large comfort with herbal protection for heavy flow days",
+            mrp: "₹200",
+            price: "₹179",
+            discount: "10% OFF",
+            features: ["100% Organic", "Extra Large Size", "Super Absorbent", "Herbal Comfort"]
         },
         {
             id: 2,
-            name: "Herbal Night Napkin", 
+            name: "Herbal Napkin XXL", 
             image: image,
-            description: "Extra protection for overnight comfort",
-            price: "₹349",
-            features: ["Extended Length", "Anti-bacterial", "Odor Control"]
-        },
-        {
-            id: 3,
-            name: "Herbal Panty Liner",
-            image: image,
-            description: "Light protection with herbal freshness",
-            price: "₹199",
-            features: ["Ultra-thin", "Breathable", "Natural Herbs"]
-        },
-        {
-            id: 4,
-            name: "Herbal Heavy Flow",
-            image: image,
-            description: "Maximum protection with herbal care",
-            price: "₹399",
-            features: ["Heavy Duty", "Leak-proof", "Herbal Comfort"]
+            description: "Extra Extra Large protection with maximum coverage and herbal care",
+            mrp: "₹210",
+            price: "₹189",
+            discount: "10% OFF",
+            features: ["Maximum Coverage", "Ultra Absorbent", "Anti-bacterial", "Premium Herbal Formula"]
         }
     ];
 
@@ -70,12 +58,12 @@ const HomeProducts = () => {
                     </p>
                 </div>
                 
-                {/* Products Grid */}
-                <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 max-w-7xl mx-auto mb-8 sm:mb-12'>
+                {/* Products Grid - Centered for 2 items */}
+                <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6 sm:gap-8 max-w-4xl mx-auto mb-8 sm:mb-12 justify-center'>
                     {products.map((product) => (
                         <div 
                             key={product.id} 
-                            className="group w-full h-72 sm:h-80 [perspective:1000px] cursor-pointer touch-manipulation"
+                            className="group w-full h-80 sm:h-96 [perspective:1000px] cursor-pointer touch-manipulation mx-auto max-w-sm"
                             onClick={() => handleCardClick(product.id)}
                             onTouchStart={() => {}} // Enable touch events
                         >
@@ -89,17 +77,28 @@ const HomeProducts = () => {
                                         <img 
                                             src={product.image} 
                                             alt={product.name} 
-                                            className="w-24 h-24 sm:w-26 sm:h-26 lg:w-50 lg:h-50 object-contain select-none" 
+                                            className="w-28 h-28 sm:w-32 sm:h-32 lg:w-36 lg:h-36 object-contain select-none" 
                                         />
                                     </div>
                                     <p className="text-base sm:text-lg font-semibold text-white text-center font-serif px-2 leading-tight">
                                         {product.name}
                                     </p>
-                                    <div className="mt-3 sm:mt-4 px-3 py-1 bg-green-200 rounded-full">
-                                        <span className="text-green-800 text-sm font-medium">{product.price}</span>
+                                    
+                                    {/* Price Display with Discount */}
+                                    <div className="mt-3 sm:mt-4 text-center">
+                                        <div className="px-2 py-1 bg-red-500 rounded-full mb-2">
+                                            <span className="text-white text-xs font-bold">{product.discount}</span>
+                                        </div>
+                                        <div className="flex items-center justify-center gap-2">
+                                            <span className="text-white text-sm line-through opacity-70">{product.mrp}</span>
+                                            <div className="px-3 py-1 bg-green-200 rounded-full">
+                                                <span className="text-green-800 text-lg font-bold">{product.price}</span>
+                                            </div>
+                                        </div>
                                     </div>
+                                    
                                     {/* Mobile flip indicator */}
-                                    <div className="mt-2 sm:hidden text-white text-xs opacity-100">
+                                    <div className="mt-3 sm:hidden text-white text-xs opacity-100">
                                         Tap to see details
                                     </div>
                                 </div>
@@ -123,7 +122,13 @@ const HomeProducts = () => {
                                         </ul>
                                     </div>
                                     <div className="space-y-2 sm:space-y-3">
-                                        <div className="text-xl sm:text-2xl font-bold text-center">{product.price}</div>
+                                        <div className="text-center">
+                                            <div className="flex items-center justify-center gap-2 mb-1">
+                                                <span className="text-green-200 text-sm line-through">{product.mrp}</span>
+                                                <span className="text-xl sm:text-2xl font-bold">{product.price}</span>
+                                            </div>
+                                            <div className="text-green-200 text-xs">{product.discount}</div>
+                                        </div>
                                         <button 
                                             className="w-full cursor-pointer bg-[#0c6200] px-3 sm:px-4 py-2 sm:py-3 rounded-lg font-semibold hover:bg-green-500 transition-colors duration-200 shadow-md font-poppins text-sm sm:text-base active:scale-95"
                                             onClick={(e) => {

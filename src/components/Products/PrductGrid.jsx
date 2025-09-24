@@ -1,15 +1,79 @@
 import React from 'react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { collection, getDocs, query, orderBy } from 'firebase/firestore';
+import { db } from '../../firebase/firebaseConfig'; // Adjust path as needed
 import shoppingCart from "../../assets/icon/CheckoutIcon.png"
-import productImg from "../../assets/ProductImage.png"
+import productImg from "../../assets/ProductImage.png" // Fallback image
 import ProductItem from './ProductsItem';
 import { useCart } from '../../context/CartContext';
 
 const ProductsGrid = () => {
     const [alerts, setAlerts] = useState([]);
+    const [products, setProducts] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
     const navigate = useNavigate();
     const { addToCart, cartItems, itemCount } = useCart();
+
+    // Fetch products from Firebase
+    useEffect(() => {
+        const fetchProducts = async () => {
+            try {
+                setLoading(true);
+                setError(null);
+                
+                // Create a query to get products, ordered by creation date or name
+                const productsRef = collection(db, 'products');
+                const q = query(productsRef, orderBy('createdAt', 'desc')); // or orderBy('name')
+                
+                const querySnapshot = await getDocs(q);
+                const productsData = [];
+                
+                querySnapshot.forEach((doc) => {
+                    productsData.push({
+                        id: doc.id,
+                        ...doc.data()
+                    });
+                });
+                
+                setProducts(productsData);
+            } catch (err) {
+                console.error('Error fetching products:', err);
+                setError('Failed to load products. Please try again.');
+                
+                // Fallback to default products in case of error
+                setProducts([
+                    {
+                        id: 1,
+                        name: "Herbal Sanitary Napkin - XL",
+                        category: "Herbal",
+                        price: 200,
+                        offerPrice: 179,
+                        rating: 5,
+                        size: "XL",
+                        discount: "10%",
+                        image: productImg,
+                    },
+                    {
+                        id: 2,
+                        name: "Herbal Sanitary Napkin - XXL",
+                        category: "Herbal",
+                        price: 210,
+                        offerPrice: 189,
+                        rating: 5,
+                        size: "XXL",
+                        discount: "10%",
+                        image: productImg,
+                    }
+                ]);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchProducts();
+    }, []);
 
     const addAlert = (message, description, type) => {
         const newAlert = {
@@ -40,7 +104,6 @@ const ProductsGrid = () => {
     };
 
     const handleRemoveFromCart = (productId) => {
-        
         addAlert(
             'Removed from cart', 
             'Item has been successfully removed from your cart.',
@@ -50,7 +113,6 @@ const ProductsGrid = () => {
 
     const handleNavigation = (path) => {
         navigate(path);
-        // Delay the scroll slightly so it happens after navigation/render
         setTimeout(() => {
             window.scrollTo({ top: 0, behavior: 'smooth' });
             document.documentElement.scrollTop = 0;
@@ -75,45 +137,33 @@ const ProductsGrid = () => {
         }
     };
 
-    // Sample products data
-    const products = [
-        {
-            id: 1,
-            name: "Casual Shoes",
-            category: "Herbal",
-            price: 100,
-            offerPrice: 80,
-            rating: 4,
-            image: productImg,
-        },
-        {
-            id: 2,
-            name: "Running Sneakers",
-            category: "Herbal",
-            price: 120,
-            offerPrice: 95,
-            rating: 5,
-            image: productImg,
-        },
-        {
-            id: 3,
-            name: "Basketball Shoes",
-            category: "Herbal",
-            price: 150,
-            offerPrice: 120,
-            rating: 4,
-            image: productImg,
-        },
-        {
-            id: 4,
-            name: "Tennis Shoes",
-            category: "Herbal",
-            price: 90,
-            offerPrice: 70,
-            rating: 3,
-            image: productImg,
-        },
-    ];
+    // Loading state
+    if (loading) {
+        return (
+            <div className="max-w-7xl mx-auto px-3 sm:px-4 py-4 sm:py-8 relative mb-20 sm:mb-8">
+                <div className="flex justify-center items-center min-h-[400px]">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#93B45D]"></div>
+                </div>
+            </div>
+        );
+    }
+
+    // Error state
+    if (error) {
+        return (
+            <div className="max-w-7xl mx-auto px-3 sm:px-4 py-4 sm:py-8 relative mb-20 sm:mb-8">
+                <div className="flex flex-col justify-center items-center min-h-[400px] text-center">
+                    <div className="text-red-500 text-lg mb-4">⚠️ {error}</div>
+                    <button 
+                        onClick={() => window.location.reload()}
+                        className="bg-[#93B45D] text-white px-6 py-2 rounded-lg hover:bg-[#7BA04A] transition-colors"
+                    >
+                        Retry
+                    </button>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="max-w-7xl mx-auto px-3 sm:px-4 py-4 sm:py-8 relative mb-20 sm:mb-8">
@@ -176,18 +226,29 @@ const ProductsGrid = () => {
                 }
             `}</style>
             
-            {/* Responsive Grid Layout - Enhanced Mobile Grid */}
-            <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2 gap-3 sm:gap-4 md:gap-6">
-                {products.map((product) => (
-                    <ProductItem 
-                        key={product.id} 
-                        product={product} 
-                        onAddToCart={() => handleAddToCart(product)}
-                        onRemoveFromCart={() => handleRemoveFromCart(product.id)}
-                        cartQuantity={cartItems.find(item => item.id === product.id)?.quantity || 0}
-                    />
-                ))}
-            </div>
+            {/* Show empty state if no products */}
+            {products.length === 0 ? (
+                <div className="flex flex-col justify-center items-center min-h-[400px] text-center">
+                    <div className="text-gray-500 text-lg mb-4">No products available</div>
+                    <p className="text-gray-400">Products will appear here once they are added to the database.</p>
+                </div>
+            ) : (
+                /* Responsive Grid Layout - Enhanced Mobile Grid */
+                <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2 gap-3 sm:gap-4 md:gap-6">
+                    {products.map((product) => (
+                        <ProductItem 
+                            key={product.id} 
+                            product={{
+                                ...product,
+                                image: product.image || product.imageUrl || productImg // Fallback to default image
+                            }} 
+                            onAddToCart={() => handleAddToCart(product)}
+                            onRemoveFromCart={() => handleRemoveFromCart(product.id)}
+                            cartQuantity={cartItems.find(item => item.id === product.id)?.quantity || 0}
+                        />
+                    ))}
+                </div>
+            )}
 
             {/* Mobile Responsive Checkout Button */}
             <div className="fixed bottom-4 sm:bottom-6 right-3 sm:right-6 z-50">

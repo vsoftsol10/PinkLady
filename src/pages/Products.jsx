@@ -6,7 +6,7 @@ import BottomPoster from '../components/Products/BottomPoster'
 
 const Products = () => {
   return (
-    <div>
+    <div className=' mt-[50px] md:mt-[210px]'>
       <BreadCrumsProduct/>
         <h1 className='text-5xl text-center mt-8 mb-2'>Our Products</h1>
         <div className='w-24 h-1 bg-gradient-to-r from-[#93B45D] to-[#F18372] mx-auto mb-8 rounded-full '></div>
