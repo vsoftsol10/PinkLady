@@ -182,37 +182,6 @@ const StepByStep = () => {
           style={{ width: `${((currentStep + 1) / steps.length) * 100}%` }}
         />
       </div>
-
-      {/* Summary Section */}
-      <div className="bg-white rounded-2xl shadow-xl p-8">
-        <h3 className="text-2xl font-bold text-gray-800 mb-6 text-center">
-          Complete Manufacturing Journey
-        </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {steps.map((step, index) => (
-            <div
-              key={step.id}
-              onClick={() => goToStep(index)}
-              className={`p-4 rounded-lg border-2 cursor-pointer transition-all duration-300 ${
-                index === currentStep
-                  ? 'border-pink-500 bg-pink-50'
-                  : 'border-gray-200 hover:border-pink-300 hover:bg-pink-25'
-              }`}
-            >
-              <div className="flex items-center gap-3 mb-2">
-                {step.icon}
-                <span className="font-bold text-gray-700">Step {step.id}</span>
-              </div>
-              <h4 className="font-semibold text-gray-800 text-sm mb-1">
-                {step.title}
-              </h4>
-              <p className="text-gray-600 text-xs line-clamp-2">
-                {step.description.slice(0, 80)}...
-              </p>
-            </div>
-          ))}
-        </div>
-      </div>
     </div>
   );
 };

@@ -1,5 +1,5 @@
 import React from 'react'
-import FounderImage from "../../assets/About/Founder.png"
+import FounderImage from "../../assets/About/Founder.jpeg"
 const Founder = () => {
   return (
     <div className="w-full py-16 px-4 sm:px-6 lg:px-8">
@@ -8,8 +8,7 @@ const Founder = () => {
               {/* Left Side - Text Content */}
               <div className="block ">               
                  <div 
-                  className="flex justify-center r cursor-pointer transition-transform duration-300 hover:scale-105"
-                >
+                  className="flex justify-center r cursor-pointer transition-transform duration-300 hover:scale-105">
                   {/* Replace the src with your image path */}
                   <img
                     src={FounderImage} // Replace with your image path
