@@ -13,6 +13,7 @@ import { CartProvider } from './context/CartContext'; // Import CartProvider
 import UpArrow from './components/UpArrow';
 import FloationWhatsappIcon from './components/FloatingWhatsAppIcon';
 import OrderManagement from './pages/Admin/OrderManagement';
+import Marquee from './components/Marquee';
 
 const AppContent = () => {
   const location = useLocation();
@@ -25,11 +26,12 @@ const AppContent = () => {
 
   return (
     <>
+    <Marquee/>
       {/* Conditionally render NavBar */}
       {!shouldHideNavFooter && <NavBar />}
       {!shouldHideNavFooter && <FloationWhatsappIcon/>}
       <UpArrow/>
-      
+
       <Routes>
         {/* User routes */}
         <Route path='/' element={<Home />} />

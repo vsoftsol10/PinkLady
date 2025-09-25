@@ -288,7 +288,7 @@ const AdminDashBoard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50  mx-auto mt-[50px] md:mt-[200px]">
+    <div className="min-h-screen bg-gray-50  mx-auto mt-[70px] md:mt-[120px]">
       {/* Notification */}
       {notification.show && (
         <div

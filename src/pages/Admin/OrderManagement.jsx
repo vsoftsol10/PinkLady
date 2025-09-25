@@ -1,77 +1,15 @@
-import React, { useState, useMemo } from "react";
+
+import React, { useState, useMemo, useEffect } from "react";
 import { Download, Calendar, Search, Package, DollarSign, Clock, Filter, Edit2, Check, X, Eye, ShoppingCart } from "lucide-react";
+// Add these Firebase imports
+import { db } from "../../firebase/firebaseConfig"; // Adjust the path according to your file structure
+import { collection, getDocs, doc, updateDoc, onSnapshot, query, orderBy } from "firebase/firestore";
 
 const OrderManagement = () => {
-  // Sample order data with products
-  const [orders, setOrders] = useState([
-    {
-      id: "ORD-001",
-      customerName: "John Smith",
-      email: "john@example.com",
-      orderDate: "2024-09-20",
-      status: "Completed",
-      total: 299.99,
-      items: 3,
-      products: [
-        { name: "Wireless Headphones", price: 129.99, quantity: 1, image: "/api/placeholder/50/50" },
-        { name: "Phone Case", price: 29.99, quantity: 2, image: "/api/placeholder/50/50" },
-        { name: "USB Cable", price: 15.99, quantity: 3, image: "/api/placeholder/50/50" }
-      ]
-    },
-    {
-      id: "ORD-002",
-      customerName: "Sarah Johnson",
-      email: "sarah@example.com",
-      orderDate: "2024-09-21",
-      status: "Processing",
-      total: 156.50,
-      items: 2,
-      products: [
-        { name: "Bluetooth Speaker", price: 89.99, quantity: 1, image: "/api/placeholder/50/50" },
-        { name: "Screen Protector", price: 19.99, quantity: 2, image: "/api/placeholder/50/50" }
-      ]
-    },
-    {
-      id: "ORD-003",
-      customerName: "Mike Wilson",
-      email: "mike@example.com",
-      orderDate: "2024-09-22",
-      status: "Shipped",
-      total: 89.99,
-      items: 1,
-      products: [
-        { name: "Laptop Stand", price: 89.99, quantity: 1, image: "/api/placeholder/50/50" }
-      ]
-    },
-    {
-      id: "ORD-004",
-      customerName: "Emily Davis",
-      email: "emily@example.com",
-      orderDate: "2024-09-23",
-      status: "Pending",
-      total: 445.75,
-      items: 5,
-      products: [
-        { name: "Gaming Mouse", price: 79.99, quantity: 1, image: "/api/placeholder/50/50" },
-        { name: "Mechanical Keyboard", price: 149.99, quantity: 1, image: "/api/placeholder/50/50" },
-        { name: "Monitor Stand", price: 69.99, quantity: 1, image: "/api/placeholder/50/50" },
-        { name: "Desk Lamp", price: 45.99, quantity: 2, image: "/api/placeholder/50/50" }
-      ]
-    },
-    {
-      id: "ORD-005",
-      customerName: "David Brown",
-      email: "david@example.com",
-      orderDate: "2024-09-19",
-      status: "Completed",
-      total: 123.45,
-      items: 2,
-      products: [
-        { name: "Power Bank", price: 39.99, quantity: 1, image: "/api/placeholder/50/50" },
-        { name: "Car Charger", price: 24.99, quantity: 3, image: "/api/placeholder/50/50" }
-      ]
-    }
-  ]);
+  // Replace the static orders state with an empty array and loading state
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const [dateFilter, setDateFilter] = useState({
     startDate: "",
@@ -84,7 +22,53 @@ const OrderManagement = () => {
   const [selectedOrders, setSelectedOrders] = useState(new Set());
   const [viewingOrderDetails, setViewingOrderDetails] = useState(null);
 
-  const statusOptions = ["Pending", "Processing", "Shipped", "Completed"];
+const statusOptions = ["pending", "processing", "shipped", "delivered", "cancelled"];
+ useEffect(() => {
+  const fetchOrders = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const ordersQuery = query(
+        collection(db, "orders"),
+        orderBy("createdAt", "desc")
+      );
+      
+      const snapshot = await getDocs(ordersQuery);
+      const ordersData = [];
+      
+      snapshot.forEach((doc) => {
+        const data = doc.data();
+        ordersData.push({
+          id: doc.id,
+          customerName: data.customerDetails?.name || 'N/A',
+          email: data.customerDetails?.email || 'N/A',
+          phone: data.customerDetails?.phone || 'N/A',
+          orderDate: data.createdAt?.toDate ? 
+            data.createdAt.toDate().toISOString().split('T')[0] : 
+            new Date().toISOString().split('T')[0],
+          status: data.orderStatus || 'pending',
+          total: data.pricing?.total || 0,
+          items: data.itemCount || 0,
+          products: data.items || [],
+          orderNumber: data.orderNumber || doc.id,
+          paymentMethod: data.paymentMethod || 'N/A',
+          paymentStatus: data.paymentStatus || 'pending',
+          deliveryAddress: data.deliveryAddress || {}
+        });
+      });
+
+      setOrders(ordersData);
+      setLoading(false);
+    } catch (error) {
+      console.error("Error fetching orders:", error);
+      setError("Failed to fetch orders. Please try again.");
+      setLoading(false);
+    }
+  };
+
+  fetchOrders();
+}, []);
 
   // Filter orders based on date range, status, and search term
   const filteredOrders = useMemo(() => {
@@ -135,16 +119,32 @@ const OrderManagement = () => {
   const isAllSelected = filteredOrders.length > 0 && selectedOrders.size === filteredOrders.length;
   const isPartiallySelected = selectedOrders.size > 0 && selectedOrders.size < filteredOrders.length;
 
-  // Update order status
-  const updateOrderStatus = (orderId, newStatus) => {
+  // Update order status in Firestore
+  const updateOrderStatus = async (orderId, newStatus) => {
+  try {
+    const orderRef = doc(db, "orders", orderId);
+    await updateDoc(orderRef, {
+      orderStatus: newStatus,  // Changed from 'status' to 'orderStatus'
+      updatedAt: new Date()
+    });
+    
+    // Update local state
     setOrders(prevOrders => 
       prevOrders.map(order => 
-        order.id === orderId ? { ...order, status: newStatus } : order
+        order.id === orderId 
+          ? { ...order, status: newStatus }
+          : order
       )
     );
+    
     setEditingStatus(null);
     setTempStatus("");
-  };
+    
+  } catch (error) {
+    console.error("Error updating order status:", error);
+    alert("Failed to update order status. Please try again.");
+  }
+};
 
   // Start editing status
   const startEditingStatus = (orderId, currentStatus) => {
@@ -230,14 +230,15 @@ const OrderManagement = () => {
   };
 
   const getStatusColor = (status) => {
-    switch (status) {
-      case "Completed": return "bg-green-100 text-green-800";
-      case "Processing": return "bg-blue-100 text-blue-800";
-      case "Shipped": return "bg-purple-100 text-purple-800";
-      case "Pending": return "bg-yellow-100 text-yellow-800";
-      default: return "bg-gray-100 text-gray-800";
-    }
-  };
+  switch (status?.toLowerCase()) {
+    case "delivered": return "bg-green-100 text-green-800";
+    case "processing": return "bg-blue-100 text-blue-800";
+    case "shipped": return "bg-purple-100 text-purple-800";
+    case "pending": return "bg-yellow-100 text-yellow-800";
+    case "cancelled": return "bg-red-100 text-red-800";
+    default: return "bg-gray-100 text-gray-800";
+  }
+};
 
   const clearFilters = () => {
     setDateFilter({ startDate: "", endDate: "" });
@@ -246,8 +247,62 @@ const OrderManagement = () => {
     setSelectedOrders(new Set()); // Clear selections when clearing filters
   };
 
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen mt-[90px] md:mt-[120px] bg-gradient-to-br from-slate-50 to-gray-100 p-4">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-8">
+            <h1 className="text-4xl font-bold text-gray-800 mb-4">Order Management</h1>
+            <div className="flex justify-center items-center">
+              <span className="mx-2 text-[#F18372] text-lg">✦</span>
+              <span className="w-15 h-[2px] bg-[#F18372]"></span>
+              <span className="mx-2 text-[#F18372] text-lg">✦</span>
+              <span className="w-15 h-[2px] bg-[#F18372]"></span>
+              <span className="mx-2 text-[#F18372] text-lg">✦</span>
+            </div>
+          </div>
+          <div className="bg-white rounded-lg shadow-lg p-12 text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#F18372] mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading orders...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error state
+  if (error) {
+    return (
+      <div className="min-h-screen mt-[90px] md:mt-[120px] bg-gradient-to-br from-slate-50 to-gray-100 p-4">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-8">
+            <h1 className="text-4xl font-bold text-gray-800 mb-4">Order Management</h1>
+            <div className="flex justify-center items-center">
+              <span className="mx-2 text-[#F18372] text-lg">✦</span>
+              <span className="w-15 h-[2px] bg-[#F18372]"></span>
+              <span className="mx-2 text-[#F18372] text-lg">✦</span>
+              <span className="w-15 h-[2px] bg-[#F18372]"></span>
+              <span className="mx-2 text-[#F18372] text-lg">✦</span>
+            </div>
+          </div>
+          <div className="bg-white rounded-lg shadow-lg p-12 text-center">
+            <X className="h-12 w-12 text-red-500 mx-auto mb-4" />
+            <p className="text-red-600 mb-4">{error}</p>
+            <button 
+              onClick={() => window.location.reload()} 
+              className="px-4 py-2 bg-[#F18372] text-white rounded-lg hover:bg-[#e0725f] transition-colors"
+            >
+              Retry
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen  mt-[50px] md:mt-[200px] bg-gradient-to-br from-slate-50 to-gray-100 p-4">
+    <div className="min-h-screen  mt-[90px] md:mt-[120px] bg-gradient-to-br from-slate-50 to-gray-100 p-4">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8">
@@ -307,31 +362,7 @@ const OrderManagement = () => {
           </div>
         </div>
 
-        {/* Selection Info and Export Bar */}
-        {selectedOrders.size > 0 && (
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <span className="text-blue-800 font-medium">
-                  {selectedOrders.size} order{selectedOrders.size !== 1 ? 's' : ''} selected
-                </span>
-                <button
-                  onClick={() => setSelectedOrders(new Set())}
-                  className="text-blue-600 hover:text-blue-800 text-sm underline"
-                >
-                  Clear selection
-                </button>
-              </div>
-              <button
-                onClick={exportSelectedToExcel}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
-              >
-                <Download className="h-4 w-4" />
-                Export Selected ({selectedOrders.size})
-              </button>
-            </div>
-          </div>
-        )}
+        
 
         {/* Filters and Export */}
         <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
@@ -377,33 +408,35 @@ const OrderManagement = () => {
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
               <select
-                className="p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#F18372] focus:border-transparent"
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-              >
-                <option value="">All Status</option>
-                <option value="Pending">Pending</option>
-                <option value="Processing">Processing</option>
-                <option value="Shipped">Shipped</option>
-                <option value="Completed">Completed</option>
-              </select>
+  className="p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#F18372] focus:border-transparent"
+  value={statusFilter}
+  onChange={(e) => setStatusFilter(e.target.value)}
+>
+  <option value="">All Status</option>
+  <option value="pending">Pending</option>
+  <option value="processing">Processing</option>
+  <option value="shipped">Shipped</option>
+  <option value="delivered">Delivered</option>
+  <option value="cancelled">Cancelled</option>
+</select>
             </div>
 
             {/* Action Buttons */}
             <div className="flex gap-2">
-              <button
-                onClick={clearFilters}
-                className="px-4 py-3 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors flex items-center gap-2"
-              >
-                <Filter className="h-4 w-4" />
-                Clear
-              </button>
-              <button
-                onClick={exportAllToExcel}
+              {selectedOrders.size > 0 && (
+                <button
+                  onClick={() => setSelectedOrders(new Set())}
+                  className="px-4 py-3 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
+                >
+                  Clear Selection
+                </button>
+              )}
+             <button
+                onClick={selectedOrders.size > 0 ? exportSelectedToExcel : exportAllToExcel}
                 className="px-4 py-3 bg-[#F18372] text-white rounded-lg hover:bg-[#e0725f] transition-colors flex items-center gap-2"
               >
                 <Download className="h-4 w-4" />
-                Export All
+                {selectedOrders.size > 0 ? `Export Selected (${selectedOrders.size})` : 'Export All'}
               </button>
             </div>
           </div>
@@ -526,7 +559,7 @@ const OrderManagement = () => {
             </table>
           </div>
 
-          {filteredOrders.length === 0 && (
+          {filteredOrders.length === 0 && !loading && (
             <div className="text-center py-12">
               <Package className="mx-auto h-12 w-12 text-gray-400" />
               <h3 className="mt-2 text-sm font-medium text-gray-900">No orders found</h3>
@@ -535,128 +568,170 @@ const OrderManagement = () => {
           )}
         </div>
 
-        {/* Order Details Modal */}
-        {viewingOrderDetails && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
-              {/* Modal Header */}
-              <div className="flex items-center justify-between p-6 border-b border-gray-200">
-                <div>
-                  <h2 className="text-2xl font-bold text-gray-900">Order Details</h2>
-                  <p className="text-gray-600">{viewingOrderDetails.id}</p>
-                </div>
-                <button
-                  onClick={closeOrderDetails}
-                  className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-                >
-                  <X className="h-6 w-6 text-gray-500" />
-                </button>
+       {/* Order Details Modal */}
+{viewingOrderDetails && (
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-[9999]">
+    <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full h-[85vh] overflow-hidden flex flex-col">
+      {/* Modal Header */}
+      <div className="bg-gray-50 px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+        <h2 className="text-xl font-semibold text-gray-900">
+          Order Details - {viewingOrderDetails.orderNumber}
+        </h2>
+        <button
+          onClick={closeOrderDetails}
+          className="text-gray-400 hover:text-gray-600 transition-colors"
+        >
+          <X className="h-6 w-6" />
+        </button>
+      </div>
+
+      {/* Modal Body */}
+      <div className="flex-1 p-6 overflow-y-auto">
+        {/* Customer Information */}
+        <div className="mb-6">
+          <h3 className="text-lg font-semibold mb-3 text-gray-800">Customer Information</h3>
+          <div className="bg-gray-50 rounded-lg p-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <span className="text-gray-600">Name: </span>
+                <span className="font-medium">{viewingOrderDetails.customerName}</span>
               </div>
-
-              {/* Modal Body */}
-              <div className="p-6 overflow-y-auto max-h-[70vh]">
-                {/* Customer Info */}
-                <div className="mb-6 p-4 bg-gray-50 rounded-lg">
-                  <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
-                    <Package className="h-5 w-5 text-[#F18372]" />
-                    Customer Information
-                  </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <p className="text-sm text-gray-600">Name</p>
-                      <p className="font-medium">{viewingOrderDetails.customerName}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-600">Email</p>
-                      <p className="font-medium">{viewingOrderDetails.email}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-600">Order Date</p>
-                      <p className="font-medium">{new Date(viewingOrderDetails.orderDate).toLocaleDateString()}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-600">Status</p>
-                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(viewingOrderDetails.status)}`}>
-                        {viewingOrderDetails.status}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Products */}
-                <div className="mb-6">
-                  <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
-                    <ShoppingCart className="h-5 w-5 text-[#F18372]" />
-                    Ordered Products ({viewingOrderDetails.products.length} items)
-                  </h3>
-                  <div className="space-y-4">
-                    {viewingOrderDetails.products.map((product, index) => (
-                      <div key={index} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
-                        <div className="flex items-start gap-4">
-                          <div className="flex-shrink-0">
-                            <div className="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center">
-                              <Package className="h-8 w-8 text-gray-400" />
-                            </div>
-                          </div>
-                          <div className="flex-1">
-                            <h4 className="text-lg font-medium text-gray-900 mb-1">{product.name}</h4>
-                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-sm">
-                              <div>
-                                <span className="text-gray-600">Price: </span>
-                                <span className="font-medium">₹{product.price.toFixed(2)}</span>
-                              </div>
-                              <div>
-                                <span className="text-gray-600">Quantity: </span>
-                                <span className="font-medium">{product.quantity}</span>
-                              </div>
-                              <div>
-                                <span className="text-gray-600">Subtotal: </span>
-                                <span className="font-medium text-[#F18372]">₹{(product.price * product.quantity).toFixed(2)}</span>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Order Summary */}
-                <div className="border-t border-gray-200 pt-4">
-                  <div className="bg-[#F18372] bg-opacity-10 rounded-lg p-4">
-                    <div className="flex justify-between items-center">
-                      <span className="text-lg font-semibold text-gray-900">Order Total:</span>
-                      <span className="text-2xl font-bold text-[#F18372]">₹{viewingOrderDetails.total.toFixed(2)}</span>
-                    </div>
-                    <div className="mt-2 text-sm text-gray-600">
-                      Total Items: {viewingOrderDetails.products.reduce((sum, product) => sum + product.quantity, 0)}
-                    </div>
-                  </div>
-                </div>
+              <div>
+                <span className="text-gray-600">Email: </span>
+                <span className="font-medium">{viewingOrderDetails.email}</span>
               </div>
-
-              {/* Modal Footer */}
-              <div className="flex justify-end gap-3 p-1 border-t border-gray-200">
-                <button
-                  onClick={closeOrderDetails}
-                  className="px-4 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors"
-                >
-                  Close
-                </button>
-                <button
-                  onClick={() => {
-                    // You can add print or export functionality here
-                    window.print();
-                  }}
-                  className="px-4 py-2 bg-[#F18372] text-white rounded-lg hover:bg-[#e0725f] transition-colors flex items-center gap-2"
-                >
-                  <Download className="h-4 w-4" />
-                  Print Order
-                </button>
+              <div>
+                <span className="text-gray-600">Phone: </span>
+                <span className="font-medium">{viewingOrderDetails.phone}</span>
+              </div>
+              <div>
+                <span className="text-gray-600">Order Date: </span>
+                <span className="font-medium">{new Date(viewingOrderDetails.orderDate).toLocaleDateString()}</span>
               </div>
             </div>
           </div>
-        )}
+        </div>
+
+        {/* Order Information */}
+        <div className="mb-6">
+          <h3 className="text-lg font-semibold mb-3 text-gray-800">Order Information</h3>
+          <div className="bg-gray-50 rounded-lg p-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <span className="text-gray-600">Status: </span>
+                <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(viewingOrderDetails.status)}`}>
+                  {viewingOrderDetails.status}
+                </span>
+              </div>
+              <div>
+                <span className="text-gray-600">Payment Method: </span>
+                <span className="font-medium">{viewingOrderDetails.paymentMethod}</span>
+              </div>
+              <div>
+                <span className="text-gray-600">Payment Status: </span>
+                <span className="font-medium">{viewingOrderDetails.paymentStatus}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Delivery Address */}
+       {viewingOrderDetails.deliveryAddress && 
+ viewingOrderDetails.deliveryAddress.addressDetails && 
+ Object.keys(viewingOrderDetails.deliveryAddress.addressDetails).length > 0 && (
+  <div className="mb-6">
+    <h3 className="text-lg font-semibold mb-3 text-gray-800">Delivery Address</h3>
+    <div className="bg-gray-50 rounded-lg p-4">
+      <p className="text-gray-900">
+        {viewingOrderDetails.deliveryAddress.addressDetails.address && 
+         `${viewingOrderDetails.deliveryAddress.addressDetails.address}, `}
+        {viewingOrderDetails.deliveryAddress.addressDetails.city && 
+         `${viewingOrderDetails.deliveryAddress.addressDetails.city}, `}
+        {viewingOrderDetails.deliveryAddress.addressDetails.state && 
+         `${viewingOrderDetails.deliveryAddress.addressDetails.state} `}
+        {viewingOrderDetails.deliveryAddress.addressDetails.zipCode && 
+         `- ${viewingOrderDetails.deliveryAddress.addressDetails.zipCode}`}
+      </p>
+    </div>
+  </div>
+)}
+
+        {/* Products */}
+        <div className="mb-6">
+          <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
+            <ShoppingCart className="h-5 w-5 text-[#F18372]" />
+            Ordered Products ({viewingOrderDetails?.products?.length || 0} items)
+          </h3>
+          <div className="space-y-4">
+            {viewingOrderDetails?.products?.map((product, index) => (
+              <div key={index} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                <div className="flex items-start gap-4">
+                  <div className="flex-shrink-0">
+                    {product.image ? (
+                      <img 
+                        src={product.image} 
+                        alt={product.name}
+                        className="w-16 h-16 object-cover rounded-lg"
+                      />
+                    ) : (
+                      <div className="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center">
+                        <Package className="h-8 w-8 text-gray-400" />
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex-1">
+                    <h4 className="text-lg font-medium text-gray-900 mb-1">{product.name}</h4>
+                    <div className="grid grid-cols-1 sm:grid-cols-4 gap-2 text-sm">
+                      <div>
+                        <span className="text-gray-600">Price: </span>
+                        <span className="font-medium">₹{product.pricePerItem?.toFixed(2) || '0.00'}</span>
+                      </div>
+                      <div>
+                        <span className="text-gray-600">Quantity: </span>
+                        <span className="font-medium">{product.quantity || 0}</span>
+                      </div>
+                      <div>
+                        <span className="text-gray-600">Size: </span>
+                        <span className="font-medium">{product.size || 'N/A'}</span>
+                      </div>
+                      <div>
+                        <span className="text-gray-600">Subtotal: </span>
+                        <span className="font-medium text-[#F18372]">₹{product.totalPrice?.toFixed(2) || '0.00'}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )) || (
+              <div className="text-center py-8 text-gray-500">
+                <Package className="mx-auto h-12 w-12 text-gray-300 mb-4" />
+                <p>No products found for this order</p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Order Summary */}
+        <div className="bg-[#F18372] bg-opacity-10 rounded-lg p-4 border border-[#F18372] border-opacity-30">
+          <div className="flex justify-between items-center">
+            <span className="text-lg font-semibold text-gray-800">Order Total:</span>
+            <span className="text-2xl font-bold text-[#F18372]">₹{viewingOrderDetails.total?.toFixed(2) || '0.00'}</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Modal Footer */}
+      <div className="bg-gray-50 px-6 py-4 border-t border-gray-200 flex justify-end">
+        <button
+          onClick={closeOrderDetails}
+          className="px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
+        >
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+)}
       </div>
     </div>
   );

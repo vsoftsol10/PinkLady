@@ -234,7 +234,10 @@ useEffect(() => {
           <ul className="nav-menu">
             {isAdminRoute ? (
               <>
-                <li>
+                <li className='flex gap-4'>
+                  <button onClick={() => handleNavigation("/admin")} className="nav-link" >
+                    Admin
+                  </button>
                   <button onClick={() => handleNavigation("/admin/orders")} className="nav-link">
                     Order Management
                   </button>

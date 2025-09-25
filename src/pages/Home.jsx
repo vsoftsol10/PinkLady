@@ -7,11 +7,13 @@ import Benefits from '../components/Home/Benefits';
 import HomeContact from '../components/Home/HomeContact';
 import Testimonials from '../components/Home/Testimonials';
 import StepByStep from '../components/Home/StepByStep';
+import HeroCarosuel from '../components/Home/HeroCarosuel';
 
 
 const Home = () => {
   return (
 <div className=" mt-[50px] md:mt-[100px]">
+      <HeroCarosuel/>
       <HomeAbout/>
       <HomeProducts/>
       <WhyPinkLady/>

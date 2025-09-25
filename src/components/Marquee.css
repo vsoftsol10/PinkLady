@@ -1,0 +1,30 @@
+.marquee-container {
+  overflow: hidden;
+  width: 100%;
+  background-color: rgb(0, 87, 46); /* green-50 */
+}
+
+.marquee-content {
+  display: inline-block;
+  white-space: nowrap;
+  animation: marquee linear infinite;
+  padding: 0.5rem 0;
+}
+
+.marquee-item {
+  display: inline-block;
+  margin-right: 3rem;
+  font-size: 1.125rem;
+  color: rgb(201, 255, 225); /* green-800 */
+  font-weight: 500;
+  font-family: 'Times New Roman', Times, serif;
+}
+
+@keyframes marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
