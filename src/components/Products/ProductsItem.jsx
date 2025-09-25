@@ -1,23 +1,19 @@
 import React from 'react';
-import { useState } from 'react';
 
-const ProductItem = ({ product, onAddToCart, onRemoveFromCart }) => {
-    const [count, setCount] = useState(0);
+const ProductItem = ({ product, onAddToCart, onRemoveFromCart, cartQuantity = 0 }) => {
+    // ✅ Use cartQuantity from props instead of local state
+    const count = cartQuantity;
 
     const handleAddClick = () => {
-        setCount(1);
         onAddToCart();
     };
 
     const handleIncrement = () => {
-        setCount((prev) => prev + 1);
         onAddToCart();
     };
 
     const handleDecrement = () => {
-        const newCount = Math.max(count - 1, 0);
-        setCount(newCount);
-        onRemoveFromCart(); // Always show alert when decrementing
+        onRemoveFromCart(); // This should actually remove from cart
     };
 
     return (
@@ -32,7 +28,7 @@ const ProductItem = ({ product, onAddToCart, onRemoveFromCart }) => {
             <div className="text-gray-500/60 text-sm">
                 <p className="mb-1">{product.category}</p>
                 <p className="text-gray-700 font-medium text-lg truncate w-full mb-2">{product.name}</p>
-                  <p className="text-sm text-gray-500">Size: {product.size}</p> {/* 👈 Add this */}
+                <p className="text-sm text-gray-500">Size: {product.size}</p>
 
                 <div className="flex items-center gap-0.5 mb-3">
                     {Array(5).fill('').map((_, i) => (
@@ -55,7 +51,7 @@ const ProductItem = ({ product, onAddToCart, onRemoveFromCart }) => {
                     <div>
                         {count === 0 ? (
                             <button 
-                                className="flex  items-center justify-center gap-1 bg-gradient-to-r from-[#ffb3a7] to-[#F18372] md:w-[120px] w-[120px] h-[40px] rounded text-white font-medium hover:bg-[#93B45D] transition-colors" 
+                                className="flex items-center justify-center gap-1 bg-gradient-to-r from-[#ffb3a7] to-[#F18372] md:w-[120px] w-[120px] h-[40px] rounded text-white font-medium hover:bg-[#93B45D] transition-colors" 
                                 onClick={handleAddClick}
                             >
                                 <svg className="w-4 h-4 text-white mr-1" fill="currentColor" viewBox="0 0 20 20">

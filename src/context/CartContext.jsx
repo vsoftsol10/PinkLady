@@ -7,6 +7,7 @@ const CartContext = createContext();
 const cartActions = {
   ADD_TO_CART: 'ADD_TO_CART',
   REMOVE_FROM_CART: 'REMOVE_FROM_CART',
+  DECREMENT_FROM_CART: 'DECREMENT_FROM_CART', // ✅ Add new action
   UPDATE_QUANTITY: 'UPDATE_QUANTITY',
   CLEAR_CART: 'CLEAR_CART',
   LOAD_CART: 'LOAD_CART'
@@ -31,6 +32,29 @@ const cartReducer = (state, action) => {
         ...state,
         items: [...state.items, { ...action.payload, quantity: action.payload.quantity || 1 }]
       };
+
+    case cartActions.DECREMENT_FROM_CART: // ✅ New case for decrement
+      const itemToDecrement = state.items.find(item => item.id === action.payload);
+      if (itemToDecrement) {
+        if (itemToDecrement.quantity > 1) {
+          // Decrease quantity by 1
+          return {
+            ...state,
+            items: state.items.map(item =>
+              item.id === action.payload
+                ? { ...item, quantity: item.quantity - 1 }
+                : item
+            )
+          };
+        } else {
+          // Remove item completely if quantity would become 0
+          return {
+            ...state,
+            items: state.items.filter(item => item.id !== action.payload)
+          };
+        }
+      }
+      return state; // Item not found, return unchanged
 
     case cartActions.REMOVE_FROM_CART:
       return {
@@ -91,9 +115,13 @@ export const CartProvider = ({ children }) => {
     }
   }, [cartState.items]);
 
-  // Cart actions
+  // ✅ Cart actions using dispatch (not setCartItems)
   const addToCart = (product) => {
     dispatch({ type: cartActions.ADD_TO_CART, payload: product });
+  };
+
+  const decrementFromCart = (productId) => {
+    dispatch({ type: cartActions.DECREMENT_FROM_CART, payload: productId });
   };
 
   const removeFromCart = (productId) => {
@@ -124,6 +152,7 @@ export const CartProvider = ({ children }) => {
     cartItems: cartState.items,
     addToCart,
     removeFromCart,
+    decrementFromCart, // ✅ Now properly implemented
     updateQuantity,
     clearCart,
     ...cartTotals

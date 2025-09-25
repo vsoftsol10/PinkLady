@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Search, ShoppingCart, X } from 'lucide-react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import MainLogo from '../assets/PinkLadyLogo.png';
 import { useCart } from '../context/CartContext';
 import './NavBar.css';
@@ -11,6 +11,7 @@ const NavBar = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
   
   const location = useLocation();
   const navigate = useNavigate();
@@ -18,8 +19,17 @@ const NavBar = () => {
   const searchInputRef = useRef(null);
   const searchContainerRef = useRef(null);
 
-  // Check if current route is inside admin panel
+  // ✅ Smooth navigation function
+  const handleNavigation = (path) => {
+    navigate(path);
+    setIsOpen(false); // close mobile menu if open
+    setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, 100);
+  };
+
   const isAdminRoute = location.pathname.startsWith("/admin");
+
 
   // Mock product data - replace this with your actual product data source
   const mockProducts = [
@@ -29,7 +39,22 @@ const NavBar = () => {
     { id: 4, name: "Lady's Handbag", category: "Accessories", price: 89.99 },
     { id: 5, name: "Pink Dress", category: "Clothing", price: 45.99 },
   ];
+// Handle navbar scroll shrink effect
+useEffect(() => {
+  const handleScroll = () => {
+    const scrollPosition = window.scrollY;
+    setIsScrolled(scrollPosition > 100); // Adjust threshold as needed
+  };
 
+  window.addEventListener('scroll', handleScroll);
+  
+  // Check initial scroll position
+  handleScroll();
+
+  return () => {
+    window.removeEventListener('scroll', handleScroll);
+  };
+}, []);
   // Handle search functionality
   const handleSearch = (query) => {
     if (!query.trim()) {
@@ -130,7 +155,7 @@ const NavBar = () => {
     <>
       {/* Mobile Overlay */}
       <div
-        className={` mobile-overlay ${isOpen ? 'open' : ''}`}
+        className={`mobile-overlay ${isOpen ? 'open' : ''}`}
         onClick={() => setIsOpen(false)}
       />
 
@@ -198,25 +223,29 @@ const NavBar = () => {
         </div>
       )}
 
-      <nav className="navbar">
+<nav className={`navbar ${isScrolled ? 'scrolled' : ''}`}>
         <div className="navbar-container">
           {/* Logo */}
-          <Link to="/" className="logo">
+          <button onClick={() => handleNavigation("/")} className="logo">
             <img src={MainLogo} alt="Pink Lady Logo" />
-          </Link>
+          </button>
 
           {/* Desktop Navigation */}
           <ul className="nav-menu">
             {isAdminRoute ? (
               <>
-                <li><Link to="/admin/orders" className="nav-link">Order Management</Link></li>
+                <li>
+                  <button onClick={() => handleNavigation("/admin/orders")} className="nav-link">
+                    Order Management
+                  </button>
+                </li>
               </>
             ) : (
               <>
-                <li><Link to="/" className="nav-link">Home</Link></li>
-                <li><Link to="/about" className="nav-link">About</Link></li>
-                <li><Link to="/products" className="nav-link">Products</Link></li>
-                <li><Link to="/contact" className="nav-link">Contact</Link></li>
+                <li><button onClick={() => handleNavigation("/")} className="nav-link">Home</button></li>
+                <li><button onClick={() => handleNavigation("/about")} className="nav-link">About</button></li>
+                <li><button onClick={() => handleNavigation("/products")} className="nav-link">Products</button></li>
+                <li><button onClick={() => handleNavigation("/contact")} className="nav-link">Contact</button></li>
               </>
             )}
           </ul>
@@ -268,39 +297,40 @@ const NavBar = () => {
 
         {/* Mobile Menu */}
         <div className={`mobile-menu ${isOpen ? 'open' : ''}`}>
-          <div className="mobile-menu-content">
+            <div className="mobile-menu-content">
+              {!isAdminRoute && (
+                <div className="mobile-search">
+                  <button 
+                    onClick={() => {
+                      setIsOpen(false);
+                      openSearch();
+                    }}
+                    className="mobile-search-btn"
+                  >
+                    <Search className="w-4 h-4 text-gray-500" />
+                    <span>Search products...</span>
+                  </button>
+                </div>
+              )}
 
-            {/* Mobile Search (hide in admin) */}
-            {!isAdminRoute && (
-              <div className="mobile-search">
-                <button 
-                  onClick={() => {
-                    setIsOpen(false);
-                    openSearch();
-                  }}
-                  className="mobile-search-btn"
-                >
-                  <Search className="w-4 h-4 text-gray-500" />
-                  <span>Search products...</span>
-                </button>
-              </div>
-            )}
-
-            {/* Mobile Navigation */}
-            {isAdminRoute ? (
-              <>
-                <Link to="/admin/products" className="mobile-nav-link" onClick={() => setIsOpen(false)}>Products</Link>
-                <Link to="/admin/orders" className="mobile-nav-link" onClick={() => setIsOpen(false)}>Order Management</Link>
-              </>
-            ) : (
-              <>
-                <Link to="/" className="mobile-nav-link" onClick={() => setIsOpen(false)}>Home</Link>
-                <Link to="/about" className="mobile-nav-link" onClick={() => setIsOpen(false)}>About</Link>
-                <Link to="/products" className="mobile-nav-link" onClick={() => setIsOpen(false)}>Products</Link>
-                <Link to="/contact" className="mobile-nav-link" onClick={() => setIsOpen(false)}>Contact</Link>
-              </>
-            )}
-
+              {/* Mobile Navigation */}
+              {isAdminRoute ? (
+                <>
+                  <button onClick={() => handleNavigation("/admin/products")} className="mobile-nav-link">
+                    Products
+                  </button>
+                  <button onClick={() => handleNavigation("/admin/orders")} className="mobile-nav-link">
+                    Order Management
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button onClick={() => handleNavigation("/")} className="mobile-nav-link">Home</button>
+                  <button onClick={() => handleNavigation("/about")} className="mobile-nav-link">About</button>
+                  <button onClick={() => handleNavigation("/products")} className="mobile-nav-link">Products</button>
+                  <button onClick={() => handleNavigation("/contact")} className="mobile-nav-link">Contact</button>
+                </>
+              )}
             {/* Mobile Actions (hide in admin) */}
             {!isAdminRoute && (
               <div className="mobile-actions">

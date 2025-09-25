@@ -14,7 +14,8 @@ const ProductsGrid = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const navigate = useNavigate();
-    const { addToCart, cartItems, itemCount } = useCart();
+    
+    const { addToCart, decrementFromCart, cartItems, itemCount } = useCart();
 
     // Fetch products from Firebase
     useEffect(() => {
@@ -103,7 +104,9 @@ const ProductsGrid = () => {
         );
     };
 
+    // ✅ Fix this function to actually remove from cart
     const handleRemoveFromCart = (productId) => {
+        decrementFromCart(productId); // Actually remove from cart
         addAlert(
             'Removed from cart', 
             'Item has been successfully removed from your cart.',

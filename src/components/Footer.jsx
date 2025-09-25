@@ -1,15 +1,27 @@
 // Footer.jsx
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import MainLogo from "../assets/PinkLadyLogo.png";
 import logo from "../assets/PapaatchiLogo.png";
+import certificationIcon from "../assets/ISO.png"; 
 import "./Footer.css";
 
 const Footer = () => {
+  const navigate = useNavigate();
+
+  // Custom navigation with smooth scroll
+  const handleNavigation = (path) => {
+    navigate(path);
+    setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }, 100);
+  };
+
   const linkSections = [
     {
       title: "Quick Links",
       links: ["Home", "About", "Products", "Contact"],
-      urls: ["/", "/about", "/products", "/contact"], // lowercase urls
+      urls: ["/", "/about", "/products", "/contact"],
     },
     {
       title: "Our Policies",
@@ -48,6 +60,16 @@ const Footer = () => {
               Pink Lady – Your trusted brand for premium sanitary napkins.
               Comfort, care, and confidence in every product.
             </p>
+            <div className="footer-certification">
+              <img 
+                src={certificationIcon} 
+                alt="Quality Certification" 
+                className="footer-certification-icon" 
+              />
+              <span className="footer-certification-text">
+                Certified Quality Products
+              </span>
+            </div>
           </div>
 
           {/* Links Sections */}
@@ -58,14 +80,26 @@ const Footer = () => {
                 <ul className="footer-list">
                   {section.links.map((link, i) => (
                     <li key={i} className="footer-link-item">
-                      <a
-                        href={section.urls ? section.urls[i] : "#"}
-                        className="footer-link"
-                        target={section.title === "Follow Us" ? "_blank" : "_self"}
-                        rel="noopener noreferrer"
-                      >
-                        {link}
-                      </a>
+                      {section.title === "Follow Us" ? (
+                        <a
+                          href={section.urls[i]}
+                          className="footer-link"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          {link}
+                        </a>
+                      ) : (
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            handleNavigation(section.urls[i]);
+                          }}
+                          className="footer-link"
+                        >
+                          {link}
+                        </button>
+                      )}
                     </li>
                   ))}
                 </ul>
@@ -75,11 +109,7 @@ const Footer = () => {
 
           {/* Paapatchi Brand Section */}
           <div className="footer-partner">
-            <img
-              src={logo}
-              alt="Paapatchi Logo"
-              className="footer-partner-logo"
-            />
+            <img src={logo} alt="Paapatchi Logo" className="footer-partner-logo" />
             <p className="footer-partner-text">
               <strong>Paapatchi Enterprises Proudly Presenting Pink Lady</strong>
             </p>

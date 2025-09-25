@@ -11,7 +11,7 @@ import StepByStep from '../components/Home/StepByStep';
 
 const Home = () => {
   return (
-<div className=" mt-[50px] md:mt-[200px]">
+<div className=" mt-[50px] md:mt-[100px]">
       <HomeAbout/>
       <HomeProducts/>
       <WhyPinkLady/>

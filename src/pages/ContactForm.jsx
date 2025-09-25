@@ -263,7 +263,7 @@ const ContactForm = () => {
   };
 
   return (
-    <div className=" max-w-7xl mx-auto mt-[70px] md:mt-[200px] min-h-screen bg-gradient-to-br from-gray-50 via-white to-orange-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 relative overflow-hidden">
+    <div className=" max-w-7xl mx-auto mt-[70px] md:mt-[120px] min-h-screen bg-gradient-to-br from-gray-50 via-white to-orange-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 relative overflow-hidden">
       <FloatingParticles />
       
       {/* Decorative elements */}

@@ -1,15 +1,10 @@
-import React from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState } from "react";
 
 const Testimonials = () => {
-    const navigate = useNavigate();
     const handleNavigation = (path) => {
-        navigate(path);
-        setTimeout(() => {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-            document.documentElement.scrollTop = 0;
-            document.body.scrollTop = 0;
-        }, 100);
+        // For demo purposes - you can implement your navigation logic here
+        console.log('Navigate to:', path);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
   const cardsData = [
@@ -50,47 +45,77 @@ const Testimonials = () => {
     }
   ];
 
-  const CreateCard = ({ card }) => (
-    <div className="group relative bg-gradient-to-br from-slate-50 to-white border border-slate-200/60 rounded-2xl p-6 mx-3 shadow-sm hover:shadow-2xl hover:shadow-slate-900/10 transition-all duration-500 shrink-0 w-80 backdrop-blur-sm">
-      {/* Gradient border effect */}
-      <div className="absolute inset-0 bg-gradient-to-br from-green-500/20 via-emerald-500/20 to-teal-500/20 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10 blur-xl"></div>
-      
-      {/* Content */}
-      <div className="relative z-10">
-        {/* Quote icon */}
-        <div className="mb-4">
-          <svg className="w-8 h-8 text-green-500/30 group-hover:text-green-500/60 transition-colors duration-300" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h4v10h-10z"/>
-          </svg>
-        </div>
+  const CreateCard = ({ card, index }) => {
+    const [isExpanded, setIsExpanded] = useState(false);
+    
+    // Check if text exceeds approximately 6 lines (roughly 120-150 characters depending on content)
+    const shouldTruncate = card.content.length > 120;
+    const displayText = card.content;
 
-        {/* Review text */}
-        <p className="text-slate-700 text-lg leading-relaxed mb-6 font-medium group-hover:text-slate-800 transition-colors duration-300">
-          "{card.content}"
-        </p>
-
-        {/* Author info */}
-        <div className="flex items-center gap-4">
-          <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-lg group-hover:shadow-xl transition-shadow duration-300">
-            {card.avatar}
-          </div>
-          <div>
-            <div className="font-semibold text-slate-900 text-base">{card.name}</div>
-            <div className="text-slate-500 text-sm font-medium">{card.role}</div>
-          </div>
-        </div>
-
-        {/* Star rating */}
-        <div className="flex gap-1 mt-4 opacity-60 group-hover:opacity-100 transition-opacity duration-300">
-          {[...Array(5)].map((_, i) => (
-            <svg key={i} className="w-4 h-4 text-amber-400 fill-current" viewBox="0 0 24 24">
-              <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+    return (
+      <div className="group relative bg-gradient-to-br from-slate-50 to-white border border-slate-200/60 rounded-2xl p-6 mx-3 shadow-sm hover:shadow-2xl hover:shadow-slate-900/10 transition-all duration-500 shrink-0 w-80 backdrop-blur-sm">
+        {/* Gradient border effect */}
+        <div className="absolute inset-0 bg-gradient-to-br from-green-500/20 via-emerald-500/20 to-teal-500/20 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10 blur-xl"></div>
+        
+        {/* Content */}
+        <div className="relative z-10">
+          {/* Quote icon */}
+          <div className="mb-4">
+            <svg className="w-8 h-8 text-green-500/30 group-hover:text-green-500/60 transition-colors duration-300" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h4v10h-10z"/>
             </svg>
-          ))}
+          </div>
+
+          {/* Review text */}
+          <div className="mb-6">
+            <p 
+              className={`text-slate-700 text-lg leading-relaxed font-medium group-hover:text-slate-800 transition-colors duration-300 ${
+                shouldTruncate && !isExpanded 
+                  ? 'line-clamp-6 overflow-hidden' 
+                  : ''
+              }`}
+              style={{
+                display: shouldTruncate && !isExpanded ? '-webkit-box' : 'block',
+                WebkitLineClamp: shouldTruncate && !isExpanded ? 6 : 'unset',
+                WebkitBoxOrient: 'vertical'
+              }}
+            >
+              "{displayText}"
+            </p>
+            
+            {shouldTruncate && (
+              <button
+                onClick={() => setIsExpanded(!isExpanded)}
+                className="mt-2 text-green-600 hover:text-green-700 font-semibold text-sm transition-colors duration-200 hover:underline focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 rounded"
+              >
+                {isExpanded ? 'Read less' : 'Read more'}
+              </button>
+            )}
+          </div>
+
+          {/* Author info */}
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-lg group-hover:shadow-xl transition-shadow duration-300">
+              {card.avatar}
+            </div>
+            <div>
+              <div className="font-semibold text-slate-900 text-base">{card.name}</div>
+              <div className="text-slate-500 text-sm font-medium">{card.role}</div>
+            </div>
+          </div>
+
+          {/* Star rating */}
+          <div className="flex gap-1 mt-4 opacity-60 group-hover:opacity-100 transition-opacity duration-300">
+            {[...Array(5)].map((_, i) => (
+              <svg key={i} className="w-4 h-4 text-amber-400 fill-current" viewBox="0 0 24 24">
+                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+              </svg>
+            ))}
+          </div>
         </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   return (
     <>
@@ -135,6 +160,18 @@ const Testimonials = () => {
             transparent 100%
           );
         }
+
+        .line-clamp-6 {
+          display: -webkit-box;
+          -webkit-line-clamp: 6;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+        }
+
+        /* Pause animation on hover */
+        .marquee-container:hover .marquee-animation {
+          animation-play-state: paused;
+        }
       `}</style>
 
       <div className="py-16 px-4 bg-gradient-to-br from-green-50/50 via-white to-emerald-50/30 relative overflow-hidden">
@@ -165,7 +202,7 @@ const Testimonials = () => {
         <div className="marquee-container relative">
           <div className="marquee-animation flex items-center min-w-[200%]">
             {[...cardsData, ...cardsData].map((card, index) => (
-              <CreateCard key={index} card={card} />
+              <CreateCard key={index} card={card} index={index} />
             ))}
           </div>
         </div>
@@ -174,11 +211,12 @@ const Testimonials = () => {
         <div className="text-center mt-16 fade-in-up relative z-10">
           <div className="inline-flex items-center gap-4 bg-white/80 backdrop-blur-sm border border-slate-200/60 rounded-full px-8 py-4 shadow-lg hover:shadow-xl transition-all duration-300">
             <span className="text-slate-700 font-medium">Join thousands of satisfied women</span>
-            <button className="bg-gradient-to-r from-green-600 to-emerald-600 text-white px-6 py-2 rounded-full font-semibold hover:from-green-700 hover:to-emerald-700 transition-all duration-300 shadow-lg hover:shadow-xl"
-            onClick={(e) => {
-                    e.preventDefault();
-                    handleNavigation("/products");
-            }}
+            <button 
+              className="bg-gradient-to-r from-green-600 to-emerald-600 text-white px-6 py-2 rounded-full font-semibold hover:from-green-700 hover:to-emerald-700 transition-all duration-300 shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50"
+              onClick={(e) => {
+                e.preventDefault();
+                handleNavigation("/products");
+              }}
             >
               Try Now
             </button>
