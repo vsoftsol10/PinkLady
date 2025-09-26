@@ -302,7 +302,7 @@ const ContactForm = () => {
                   </div>
                   <div>
                     <h4 className="font-bold text-gray-900 dark:text-white mb-1">Visit Us</h4>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">768/E, SundarRajan Illam, Suthamalli, Manur, Periyanagar, Tirunelveli, TamilNadu-627604</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">768/E, Suthamalli, Tirunelveli, TamilNadu-627604</p>
                   </div>
                 </div>
                 
@@ -312,7 +312,7 @@ const ContactForm = () => {
                   </div>
                   <div>
                     <h4 className="font-bold text-gray-900 dark:text-white mb-1">Call Us</h4>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">(+91) 99 400 32147</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">(+91) 90 808 95118</p>
                     <p className="text-xs text-gray-500 dark:text-gray-500">Mon-Fri from 8am to 5pm</p>
                   </div>
                 </div>

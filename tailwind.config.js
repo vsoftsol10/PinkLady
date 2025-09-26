@@ -3,7 +3,10 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        playfair: ['"Playfair Display"', 'serif'], // notice the quotes
+        playfair: ['"Playfair Display"', 'serif'],
+        cormorant: ['"Cormorant Garamond"', 'serif'],
+        dancing: ['"Dancing Script"', 'cursive'],
+        poppins: ['Poppins', 'sans-serif'],
       },
       keyframes: {
         marquee: {

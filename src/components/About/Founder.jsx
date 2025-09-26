@@ -16,7 +16,7 @@ const Founder = () => {
               />
             </div>
             <div className="text-center mt-4 shadow-xl ">
-              <h2 className="text-4xl ">Mrs. Valli</h2>
+              <h2 className="text-4xl ">Mrs. Valli SundarRajan</h2>
               <p className="text-2xl font-serif font-bold  ">Founder</p>
             </div>
           </div>
@@ -34,9 +34,9 @@ const Founder = () => {
             <div className="space-y-4">
               <p className="text-lg md:text-xl text-gray-700 leading-relaxed font-serif">
                 <span className="font-semibold text-gray-900 font-serif">
-                  Mrs. Valli
+                  Mrs. Valli Sundarrajan <t/>
                 </span>
-                , Founder of <b>PinkLady </b>, hails from a family with a strong
+                  Founder of <b>PinkLady </b>, hails from a family with a strong
                 traditional medical background. Inspired by her grandmother
                 ("Aachi"), a renowned traditional healer, she discovered the
                 power of natural remedies during her own struggle with menstrual

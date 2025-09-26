@@ -230,9 +230,9 @@
 .footer-partner {
   text-align: center;
   padding: 1.5rem;
-  background: rgba(124, 158, 123, 0.3); /* darker background for partner section */
+  background: rgba(124, 158, 123, 0); /* darker background for partner section */
   border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  /* border: 1px solid rgba(255, 255, 255, 0.2); */
 }
 
 .footer-partner-logo {

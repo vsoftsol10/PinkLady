@@ -4,7 +4,7 @@ import CarouselMobileImg from "../../assets/About/MobileCarousel.png"
 
 const Carousel = () => {
   return (
-    <div className='mb-8 ml-5'>
+    <div className='mb-8 '>
       {/* Desktop Image - Hidden on mobile */}
       <img 
         src={CarouselImg} 

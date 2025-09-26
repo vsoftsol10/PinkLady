@@ -53,9 +53,14 @@ const HomeProducts = () => {
                     <h2 className="text-2xl sm:text-3xl lg:text-4xl font-medium text-slate-800 mb-2 font-poppins px-2">
                         Herbal Products
                     </h2>
-                    <p className="text-sm sm:text-xl text-slate-600 font-poppins px-4">
-                        India's One and Only Customizable <b>HERBAL</b> Napkin.
-                    </p>
+                    <p
+  className="text-sm sm:text-2xl text-slate-600 font-extrabold px-4"
+  style={{ fontFamily: '"Playfair Display", serif' }}
+>
+  India's One and Only Customizable <b>HERBAL</b> Napkin.
+</p>
+
+
                 </div>
                 
                 {/* Products Grid - Centered for 2 items */}

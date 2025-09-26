@@ -4,6 +4,10 @@ import { useNavigate } from "react-router-dom";
 import MainLogo from "../assets/PinkLadyLogo.png";
 import logo from "../assets/PapaatchiLogo.png";
 import certificationIcon from "../assets/ISO.png"; 
+import certificationIcon1 from "../assets/IAF.png"; 
+import certificationIcon2 from "../assets/MSME.png"; 
+import certificationIcon3 from "../assets/EGAC.png"; 
+
 import "./Footer.css";
 
 const Footer = () => {
@@ -66,9 +70,22 @@ const Footer = () => {
                 alt="Quality Certification" 
                 className="footer-certification-icon" 
               />
-              <span className="footer-certification-text">
-                Certified Quality Products
-              </span>
+              <img 
+                src={certificationIcon1} 
+                alt="Quality Certification" 
+                className="footer-certification-icon" 
+              />
+              <img 
+                src={certificationIcon2} 
+                alt="Quality Certification" 
+                className="footer-certification-icon" 
+              />
+              <img 
+                src={certificationIcon3} 
+                alt="Quality Certification" 
+                className="footer-certification-icon" 
+              />
+             
             </div>
           </div>
 

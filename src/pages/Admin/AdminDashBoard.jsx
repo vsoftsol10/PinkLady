@@ -22,7 +22,7 @@ const AdminDashBoard = () => {
   const [modalMode, setModalMode] = useState("add");
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const sizes = ["S", "M", "L", "XL", "XXL"];
+  const sizes = [ "XL - (280mm) ", "XXL - (320mm)"];
   const [formData, setFormData] = useState({
     name: "",
     price: "",

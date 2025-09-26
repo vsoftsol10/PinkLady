@@ -11,7 +11,7 @@ const Testimonials = () => {
     {
       name: "Sutha",
       content: "Good morning Madam, Very thankful for giving such a super herbal napkin It makes me a regular period and has a perfect original herbal  .The main thing is my PCDO is now normal. No Leakage Issue and complete cotton product ",
-      avatar: "SM"
+      avatar: "S"
     },
     {
       name: "Meena", 
@@ -53,7 +53,7 @@ const Testimonials = () => {
     const displayText = card.content;
 
     return (
-      <div className="group relative bg-gradient-to-br from-slate-50 to-white border border-slate-200/60 rounded-2xl p-6 mx-3 shadow-sm hover:shadow-2xl hover:shadow-slate-900/10 transition-all duration-500 shrink-0 w-80 backdrop-blur-sm">
+      <div className="group relative bg-white border border-slate-200/60 rounded-2xl p-6 mx-3 shadow-sm hover:shadow-2xl hover:shadow-slate-900/10 transition-all duration-500 shrink-0 w-56 sm:w-60 md:w-72 lg:w-80 backdrop-blur-sm">
         {/* Gradient border effect */}
         <div className="absolute inset-0 bg-gradient-to-br from-green-500/20 via-emerald-500/20 to-teal-500/20 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10 blur-xl"></div>
         
@@ -76,7 +76,7 @@ const Testimonials = () => {
               }`}
               style={{
                 display: shouldTruncate && !isExpanded ? '-webkit-box' : 'block',
-                WebkitLineClamp: shouldTruncate && !isExpanded ? 6 : 'unset',
+                WebkitLineClamp: shouldTruncate && !isExpanded ? 3 : 'unset',
                 WebkitBoxOrient: 'vertical'
               }}
             >
@@ -117,13 +117,21 @@ const Testimonials = () => {
     );
   };
 
+  // Create seamless loop - duplicate only once for smooth transition
+  const testimonialLoop = [...cardsData, ...cardsData];
+
   return (
     <>
       <style>{`
         @keyframes marqueeFlow {
-          0% { transform: translateX(0%); }
-          100% { transform: translateX(-50%); }
-        }
+  0% { 
+    transform: translateX(0%); 
+  }
+  100% { 
+    transform: translateX(-100%); 
+  }
+}
+
         
         @keyframes fadeInUp {
           from {
@@ -137,7 +145,7 @@ const Testimonials = () => {
         }
 
         .marquee-animation {
-          animation: marqueeFlow 40s linear infinite;
+          animation: marqueeFlow 35s linear infinite;
         }
         
         .fade-in-up {
@@ -148,15 +156,15 @@ const Testimonials = () => {
           mask-image: linear-gradient(
             to right,
             transparent 0%,
-            black 10%,
-            black 90%,
+            black 5%,
+            black 95%,
             transparent 100%
           );
           -webkit-mask-image: linear-gradient(
             to right,
             transparent 0%,
-            black 10%,
-            black 90%,
+            black 5%,
+            black 95%,
             transparent 100%
           );
         }
@@ -172,16 +180,31 @@ const Testimonials = () => {
         .marquee-container:hover .marquee-animation {
           animation-play-state: paused;
         }
+
+        /* Mobile optimizations - adjust speed for different screen sizes */
+       @media (max-width: 768px) {
+  .marquee-animation {
+    animation: marqueeFlow 50s linear infinite; /* slower on tablet */
+  }
+}
+
+@media (max-width: 480px) {
+ @keyframes marqueeFlow {
+  0% { 
+    transform: translateX(0%); 
+  }
+  100% { 
+    transform: translateX(-400%); 
+  }
+}
+  .marquee-animation {
+    animation: marqueeFlow 30s linear infinite; /* even slower on mobile */
+  }
+}
+
       `}</style>
 
-      <div className="py-16 px-4 bg-gradient-to-br from-green-50/50 via-white to-emerald-50/30 relative overflow-hidden">
-        {/* Background decoration */}
-        <div className="absolute inset-0 opacity-5">
-          <div className="absolute top-20 left-10 w-72 h-72 bg-green-500 rounded-full mix-blend-multiply filter blur-xl"></div>
-          <div className="absolute top-40 right-10 w-72 h-72 bg-emerald-500 rounded-full mix-blend-multiply filter blur-xl"></div>
-          <div className="absolute -bottom-10 left-1/2 w-72 h-72 bg-teal-500 rounded-full mix-blend-multiply filter blur-xl"></div>
-        </div>
-
+      <div className="py-16 px-4 bg-white relative overflow-hidden">
         {/* Header */}
         <div className="text-center mb-16 fade-in-up relative z-10">
           <div className="inline-flex items-center gap-2 bg-green-100 text-green-700 px-4 py-2 rounded-full text-sm font-semibold mb-4">
@@ -200,8 +223,8 @@ const Testimonials = () => {
 
         {/* Testimonials marquee */}
         <div className="marquee-container relative">
-          <div className="marquee-animation flex items-center min-w-[200%]">
-            {[...cardsData, ...cardsData].map((card, index) => (
+          <div className="marquee-animation flex items-center">
+            {testimonialLoop.map((card, index) => (
               <CreateCard key={index} card={card} index={index} />
             ))}
           </div>
