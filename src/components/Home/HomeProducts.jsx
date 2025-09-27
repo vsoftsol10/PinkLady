@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
-import image from "../../assets/napkin.png"
+import image from "../../assets/napkin1.png"
+import image1 from "../../assets/napkin2.png"
 import { useNavigate } from 'react-router-dom';
 
 const HomeProducts = () => {
@@ -36,7 +37,7 @@ const HomeProducts = () => {
         {
             id: 2,
             name: "Herbal Napkin XXL", 
-            image: image,
+            image: image1,
             description: "Extra Extra Large protection with maximum coverage and herbal care",
             mrp: "₹210",
             price: "₹189",
@@ -82,7 +83,7 @@ const HomeProducts = () => {
                                         <img 
                                             src={product.image} 
                                             alt={product.name} 
-                                            className="w-28 h-28 sm:w-32 sm:h-32 lg:w-36 lg:h-36 object-contain select-none" 
+                                            className="w-28 h-28 sm:w-32 sm:h-32 lg:w-50 lg:h-43   object-contain select-none" 
                                         />
                                     </div>
                                     <p className="text-base sm:text-lg font-semibold text-white text-center font-serif px-2 leading-tight">
