@@ -1,156 +1,193 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
-const OrderConfirmationModal = ({ isOpen, onClose, orderDetails, onContinueShopping }) => {
-  // Comprehensive debugging
-  React.useEffect(() => {
-    console.log('=== MODAL PROPS DEBUG ===');
-    console.log('isOpen:', isOpen, typeof isOpen);
-    console.log('orderDetails:', orderDetails);
-    console.log('onClose:', typeof onClose);
-    console.log('onContinueShopping:', typeof onContinueShopping);
-    console.log('========================');
-  }, [isOpen, orderDetails, onClose, onContinueShopping]);
+const OrderConfirmationModal = ({ 
+  isOpen, 
+  onClose, 
+  orderDetails 
+}) => {
+  const navigate = useNavigate();
 
-  // Force render if we have any truthy isOpen value
-  if (!isOpen) {
-    console.log('Modal not rendering - isOpen is:', isOpen);
+  // Add debugging
+  console.log("=== MODAL RENDER DEBUG ===");
+  console.log("isOpen:", isOpen);
+  console.log("orderDetails:", orderDetails);
+  console.log("Should render:", isOpen && orderDetails);
+  console.log("========================");
+
+  if (!isOpen || !orderDetails) {
+    console.log("Modal not rendering - isOpen:", isOpen, "orderDetails:", !!orderDetails);
     return null;
   }
 
-  if (!orderDetails) {
-    console.log('Modal not rendering - no orderDetails');
-    return (
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div className="bg-white p-8 rounded-lg">
-          <p>Loading order details...</p>
-        </div>
-      </div>
-    );
-  }
+  const handleContinueShopping = () => {
+    onClose();
+    navigate('/products');
+  };
 
-  console.log('✅ MODAL IS RENDERING!');
+  const handleViewOrders = () => {
+    onClose();
+    navigate('/orders');
+  };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center" style={{ zIndex: 9999 }}>
-      <div className="bg-white rounded-lg shadow-2xl max-w-md w-full mx-4 max-h-[90vh] overflow-y-auto">
-        {/* Header */}
-        <div className="relative p-6 text-center bg-gradient-to-r from-green-50 to-emerald-50 rounded-t-lg">
-          {/* Close Button */}
-          <button
-            onClick={() => {
-              console.log('Close button clicked');
-              if (onClose) onClose();
-            }}
-            className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
-          >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
+    <div 
+      className="fixed inset-0 flex items-center justify-center"
+      style={{ zIndex: 9999 }}
+    >
+      {/* Backdrop with higher z-index */}
+      <div 
+        className="absolute inset-0 bg-black bg-opacity-50 backdrop-blur-sm"
+        style={{ zIndex: 9999 }}
+        onClick={onClose}
+      />
+      
+      {/* Modal with even higher z-index */}
+      <div 
+        className="relative bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 transform transition-all"
+        style={{ zIndex: 10000 }}
+      >
+        {/* Close Button */}
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors z-10"
+        >
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <path
+              d="M18 6L6 18M6 6l12 12"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </button>
 
+        {/* Content */}
+        <div className="p-8 text-center">
           {/* Success Icon */}
-          <div className="mb-4">
-            <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
-              <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-              </svg>
-            </div>
+          <div className="mx-auto mb-6 w-20 h-20 bg-green-100 rounded-full flex items-center justify-center">
+            <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+              <path
+                d="M33.3333 20C33.3333 27.3638 27.3638 33.3333 20 33.3333C12.6362 33.3333 6.66666 27.3638 6.66666 20C6.66666 12.6362 12.6362 6.66666 20 6.66666C27.3638 6.66666 33.3333 12.6362 33.3333 20Z"
+                fill="#22C55E"
+              />
+              <path
+                d="M16.6667 20L18.3333 21.6667L23.3333 16.6667"
+                stroke="white"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
           </div>
 
-          {/* Success Message */}
-          <h2 className="text-2xl font-bold text-gray-800 mb-2">YAY! Order Confirmed</h2>
-          <p className="text-gray-600">Thank you for your purchase!</p>
-        </div>
+          {/* Title */}
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">
+            Order Placed Successfully!
+          </h2>
+          
+          <p className="text-gray-600 mb-8">
+            Thank you for your order. We'll process it shortly and send you updates.
+          </p>
 
-        {/* Order Details */}
-        <div className="p-6 space-y-4">
-          {/* Order Number */}
-          <div className="text-center p-4 bg-gray-50 rounded-lg">
-            <p className="text-sm text-gray-500 uppercase tracking-wide">Order Number</p>
-            <p className="text-lg font-semibold text-gray-800">{orderDetails.orderNumber}</p>
-          </div>
-
-          {/* Customer Details */}
-          <div className="space-y-3">
-            <h3 className="font-semibold text-gray-800 border-b pb-2">Order Details</h3>
-            
-            {/* Email */}
-            <div className="flex justify-between items-start">
-              <span className="text-sm text-gray-500 font-medium">Email:</span>
-              <span className="text-sm text-gray-800 text-right flex-1 ml-4">{orderDetails.customerEmail}</span>
-            </div>
-
-            {/* Delivery Address */}
-            <div className="flex justify-between items-start">
-              <span className="text-sm text-gray-500 font-medium">Delivery To:</span>
-              <span className="text-sm text-gray-800 text-right flex-1 ml-4">{orderDetails.deliveryAddress}</span>
-            </div>
-
-            {/* Payment Method */}
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-gray-500 font-medium">Payment:</span>
-              <span className="text-sm text-gray-800">{orderDetails.paymentMethod}</span>
-            </div>
-
-            {/* Items Count */}
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-gray-500 font-medium">Items:</span>
-              <span className="text-sm text-gray-800">{orderDetails.itemCount} item{orderDetails.itemCount !== 1 ? 's' : ''}</span>
-            </div>
-
-            {/* Total Amount */}
-            <div className="flex justify-between items-center pt-2 border-t">
-              <span className="text-base font-semibold text-gray-800">Total Amount:</span>
-              <span className="text-lg font-bold text-green-600">₹{orderDetails.total}</span>
+          {/* Order Details */}
+          <div className="bg-gray-50 rounded-xl p-6 mb-8 text-left">
+            <div className="space-y-3">
+              <div className="flex justify-between items-center pb-3 border-b border-gray-200">
+                <span className="font-semibold text-gray-900">Order Number:</span>
+                <span className="font-mono text-sm bg-blue-100 text-blue-800 px-2 py-1 rounded">
+                  {orderDetails.orderNumber}
+                </span>
+              </div>
+              
+              <div className="flex justify-between">
+                <span className="text-gray-600">Items:</span>
+                <span className="font-medium text-gray-900">{orderDetails.itemCount}</span>
+              </div>
+              
+              <div className="flex justify-between">
+                <span className="text-gray-600">Total Amount:</span>
+                <span className="font-semibold text-lg text-green-600">₹{orderDetails.total}</span>
+              </div>
+              
+              <div className="flex justify-between">
+                <span className="text-gray-600">Payment Method:</span>
+                <span className="font-medium text-gray-900">{orderDetails.paymentMethod}</span>
+              </div>
+              
+              <div className="pt-3 border-t border-gray-200">
+                <span className="text-gray-600 text-sm">Delivery Address:</span>
+                <p className="text-gray-900 text-sm mt-1 leading-relaxed">
+                  {orderDetails.deliveryAddress}
+                </p>
+              </div>
             </div>
           </div>
 
           {/* Email Status */}
-          <div className="p-3 rounded-lg bg-blue-50 border border-blue-200">
-            <div className="flex items-center gap-2">
-              {orderDetails.emailSent ? (
-                <>
-                  <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-                  </svg>
-                  <span className="text-sm text-blue-800">Order confirmation sent to your email</span>
-                </>
-              ) : (
-                <>
-                  <svg className="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 15.5c-.77.833.192 2.5 1.732 2.5z" />
-                  </svg>
-                  <span className="text-sm text-amber-800">Email notification pending</span>
-                </>
-              )}
-            </div>
+          <div className={`flex items-center justify-center gap-2 mb-8 p-3 rounded-lg ${
+            orderDetails.emailSent 
+              ? 'bg-green-50 text-green-700' 
+              : 'bg-yellow-50 text-yellow-700'
+          }`}>
+            {orderDetails.emailSent ? (
+              <>
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <path
+                    d="M13.3333 8C13.3333 10.9455 10.9455 13.3333 8 13.3333C5.05448 13.3333 2.66666 10.9455 2.66666 8C2.66666 5.05448 5.05448 2.66666 8 2.66666C10.9455 2.66666 13.3333 5.05448 13.3333 8Z"
+                    fill="currentColor"
+                  />
+                  <path
+                    d="M6.66666 8L7.33333 8.66667L9.33333 6.66667"
+                    stroke="white"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+                <span className="text-sm font-medium">Order confirmation sent to your email</span>
+              </>
+            ) : (
+              <>
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <path
+                    d="M8 1.33334C4.31811 1.33334 1.33333 4.31812 1.33333 8.00001C1.33333 11.6819 4.31811 14.6667 8 14.6667C11.6819 14.6667 14.6667 11.6819 14.6667 8.00001C14.6667 4.31812 11.6819 1.33334 8 1.33334Z"
+                    fill="currentColor"
+                  />
+                  <path
+                    d="M8 5.33334V8.00001M8 10.6667H8.00667"
+                    stroke="white"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+                <span className="text-sm font-medium">Email confirmation pending</span>
+              </>
+            )}
           </div>
 
-          {/* Expected Delivery */}
-          <div className="p-3 rounded-lg bg-green-50 border border-green-200">
-            <div className="flex items-center gap-2">
-              <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-              </svg>
-              <span className="text-sm text-green-800">Expected delivery: 3-5 business days</span>
-            </div>
+          {/* Action Buttons */}
+          <div className="flex flex-col sm:flex-row gap-3">
+            <button
+              onClick={handleViewOrders}
+              className="flex-1 bg-[#F18372] text-white py-3 px-6 rounded-lg hover:bg-[#ec543d] transition-colors font-medium"
+            >
+              View Orders
+            </button>
+            <button
+              onClick={handleContinueShopping}
+              className="flex-1 bg-gray-100 text-gray-700 py-3 px-6 rounded-lg hover:bg-gray-200 transition-colors font-medium"
+            >
+              Continue Shopping
+            </button>
           </div>
-        </div>
 
-        {/* Footer Actions */}
-        <div className="p-6 border-t bg-gray-50 rounded-b-lg">
-          <button
-            onClick={() => {
-              console.log('Continue Shopping clicked');
-              if (onContinueShopping) onContinueShopping();
-            }}
-            className="w-full bg-[#F18372] text-white py-3 px-4 rounded-lg font-medium hover:bg-[#ec543d] transition-colors duration-200"
-          >
-            Continue Shopping
-          </button>
-          
-          <p className="text-xs text-gray-500 text-center mt-3">
-            Track your order status in your email or contact support for any queries.
+          {/* Additional Info */}
+          <p className="text-xs text-gray-500 mt-6 leading-relaxed">
+            You can track your order status in the "My Orders" section. 
+            We'll notify you once your order is confirmed and shipped.
           </p>
         </div>
       </div>

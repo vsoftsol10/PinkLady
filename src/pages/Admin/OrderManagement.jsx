@@ -177,52 +177,119 @@ const statusOptions = ["pending", "processing", "shipped", "delivered", "cancell
       return;
     }
 
-    const headers = ["Order ID", "Customer Name", "Email", "Order Date", "Status", "Total", "Items"];
-    const csvContent = [
-      headers.join(","),
-      ...selectedOrdersData.map(order => [
-        order.id,
-        `"${order.customerName}"`,
-        order.email,
-        order.orderDate,
-        order.status,
-        order.total,
-        order.items
-      ].join(","))
-    ].join("\n");
-
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-    const link = document.createElement("a");
-    const url = URL.createObjectURL(blob);
-    link.setAttribute("href", url);
-    link.setAttribute("download", `selected_orders_export_${new Date().toISOString().split('T')[0]}.csv`);
-    link.style.visibility = "hidden";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    exportOrdersToCSV(selectedOrdersData, 'selected_orders');
   };
 
   // Export all orders to Excel function
   const exportAllToExcel = () => {
-    const headers = ["Order ID", "Customer Name", "Email", "Order Date", "Status", "Total", "Items"];
+    exportOrdersToCSV(filteredOrders, 'all_orders');
+  };
+
+  // Comprehensive CSV export function
+  const exportOrdersToCSV = (orders, filename) => {
+    // Create detailed rows for each product in each order
+    const rows = [];
+    
+    orders.forEach(order => {
+      if (order.products && order.products.length > 0) {
+        // Create a row for each product in the order
+        order.products.forEach((product, productIndex) => {
+          const deliveryAddress = order.deliveryAddress?.addressDetails || {};
+          const addressLine = [
+            deliveryAddress.address,
+            deliveryAddress.city,
+            deliveryAddress.state,
+            deliveryAddress.zipCode
+          ].filter(Boolean).join(', ');
+
+          rows.push([
+            order.orderNumber || order.id,
+            `"${order.customerName}"`,
+            order.email,
+            order.phone || 'N/A',
+            order.orderDate,
+            order.status,
+            order.paymentMethod || 'N/A',
+            order.paymentStatus || 'N/A',
+            `"${addressLine || 'N/A'}"`,
+            productIndex + 1, // Product sequence in order
+            `"${product.name || 'N/A'}"`,
+            product.size || 'N/A',
+            product.quantity || 0,
+            product.pricePerItem?.toFixed(2) || '0.00',
+            product.totalPrice?.toFixed(2) || '0.00',
+            order.total?.toFixed(2) || '0.00',
+            order.items || 0,
+            new Date(order.orderDate).toLocaleDateString() + ' ' + new Date(order.orderDate).toLocaleTimeString()
+          ]);
+        });
+      } else {
+        // If no products, still include the order with empty product fields
+        const deliveryAddress = order.deliveryAddress?.addressDetails || {};
+        const addressLine = [
+          deliveryAddress.address,
+          deliveryAddress.city,
+          deliveryAddress.state,
+          deliveryAddress.zipCode
+        ].filter(Boolean).join(', ');
+
+        rows.push([
+          order.orderNumber || order.id,
+          `"${order.customerName}"`,
+          order.email,
+          order.phone || 'N/A',
+          order.orderDate,
+          order.status,
+          order.paymentMethod || 'N/A',
+          order.paymentStatus || 'N/A',
+          `"${addressLine || 'N/A'}"`,
+          'N/A', // Product sequence
+          'No products found',
+          'N/A', // Size
+          0, // Quantity
+          '0.00', // Price per item
+          '0.00', // Product total
+          order.total?.toFixed(2) || '0.00',
+          order.items || 0,
+          new Date(order.orderDate).toLocaleDateString() + ' ' + new Date(order.orderDate).toLocaleTimeString()
+        ]);
+      }
+    });
+
+    // Define comprehensive headers
+    const headers = [
+      "Order Number",
+      "Customer Name", 
+      "Email",
+      "Phone",
+      "Order Date",
+      "Order Status",
+      "Payment Method",
+      "Payment Status",
+      "Delivery Address",
+      "Product Sequence",
+      "Product Name",
+      "Product Size",
+      "Product Quantity",
+      "Price Per Item (₹)",
+      "Product Total (₹)",
+      "Order Total (₹)",
+      "Total Items in Order",
+      "Order Timestamp"
+    ];
+
+    // Create CSV content
     const csvContent = [
       headers.join(","),
-      ...filteredOrders.map(order => [
-        order.id,
-        `"${order.customerName}"`,
-        order.email,
-        order.orderDate,
-        order.status,
-        order.total,
-        order.items
-      ].join(","))
+      ...rows.map(row => row.join(","))
     ].join("\n");
 
+    // Download the file
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const link = document.createElement("a");
     const url = URL.createObjectURL(blob);
     link.setAttribute("href", url);
-    link.setAttribute("download", `all_orders_export_${new Date().toISOString().split('T')[0]}.csv`);
+    link.setAttribute("download", `${filename}_detailed_export_${new Date().toISOString().split('T')[0]}.csv`);
     link.style.visibility = "hidden";
     document.body.appendChild(link);
     link.click();
@@ -317,7 +384,7 @@ const statusOptions = ["pending", "processing", "shipped", "delivered", "cancell
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
           <div className="bg-white rounded-lg shadow-lg p-6 border-l-4 border-blue-500">
             <div className="flex items-center">
               <Package className="h-8 w-8 text-blue-500" />
@@ -334,17 +401,6 @@ const statusOptions = ["pending", "processing", "shipped", "delivered", "cancell
                 <p className="text-sm font-medium text-gray-600">Total Revenue</p>
                 <p className="text-2xl font-bold text-gray-900">
                   ₹{filteredOrders.reduce((sum, order) => sum + order.total, 0).toFixed(2)}
-                </p>
-              </div>
-            </div>
-          </div>
-          <div className="bg-white rounded-lg shadow-lg p-6 border-l-4 border-yellow-500">
-            <div className="flex items-center">
-              <Clock className="h-8 w-8 text-yellow-500" />
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Pending Orders</p>
-                <p className="text-2xl font-bold text-gray-900">
-                  {filteredOrders.filter(order => order.status === "Pending").length}
                 </p>
               </div>
             </div>

@@ -323,7 +323,7 @@ const ContactForm = () => {
                   </div>
                   <div>
                     <h4 className="font-bold text-gray-900 dark:text-white mb-1">Email Us</h4>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">suganthisundarrajan@gmail.com</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">Paapatchienterprises@gmail.com</p>
                     <p className="text-xs text-gray-500 dark:text-gray-500">Online support</p>
                   </div>
                 </div>

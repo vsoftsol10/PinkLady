@@ -3,11 +3,11 @@ import { useNavigate } from "react-router-dom";
 import emailjs from "@emailjs/browser";
 import CartImage from "../../assets/Cart.png";
 import { useCart } from "../../context/CartContext";
-import OrderConfirmationModal from "./OrderConfirmationModal";
 import AddressModal from "./AddressModal";
 import { db } from "../../firebase/firebaseConfig";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { doc, updateDoc } from "firebase/firestore";
+import OrderConfirmationModal from "./OrderConfirmationModal";
 
 
 const Checkout = () => {
@@ -49,20 +49,24 @@ const Checkout = () => {
     console.log("orderConfirmationDetails:", orderConfirmationDetails);
   }, [showOrderConfirmation, orderConfirmationDetails]);
 
+useEffect(() => {
+  console.log("=== MODAL STATE DEBUG ===");
+  console.log("showOrderConfirmation:", showOrderConfirmation);
+  console.log("orderConfirmationDetails:", orderConfirmationDetails);
+  console.log("Modal should render:", showOrderConfirmation && orderConfirmationDetails);
+  console.log("========================");
+}, [showOrderConfirmation, orderConfirmationDetails]);
+
+
   useEffect(() => {
-    console.log("=== STATE DEBUG ===");
-    console.log("showOrderConfirmation:", showOrderConfirmation);
-    console.log("orderConfirmationDetails:", orderConfirmationDetails);
-    console.log("==================");
-  }, [showOrderConfirmation, orderConfirmationDetails]);
+  // Set first address as default if none selected
+  if (!selectedAddress && savedAddresses.length > 0) {
+    setSelectedAddress(savedAddresses[0]);
+  }
+}, [savedAddresses]);
+
 
   const navigate = useNavigate();
-
-  const handleModalClose = () => {
-    console.log("Modal close clicked");
-    setShowOrderConfirmation(false);
-    // Don't navigate away when just closing - let user stay on checkout page
-  };
 
   // Use cart context instead of location state
   const {
@@ -146,10 +150,10 @@ const Checkout = () => {
   };
 
   const handlePlaceOrder = async () => {
+  console.log("=== ORDER PLACEMENT STARTED ===");
+  
   if (cartItems.length === 0) {
-    alert(
-      "Your cart is empty. Please add some items before placing an order."
-    );
+    alert("Your cart is empty. Please add some items before placing an order.");
     navigate("/products");
     return;
   }
@@ -209,11 +213,11 @@ const Checkout = () => {
       pricing: {
         subtotal: subtotal,
         tax: tax,
-        shippingFee: 0, // Free shipping
+        shippingFee: 0,
         total: total,
       },
       itemCount: itemCount,
-      orderStatus: "pending", // You can use: pending, confirmed, shipped, delivered, cancelled
+      orderStatus: "pending",
       paymentStatus: paymentMethod === "COD" ? "pending" : "paid",
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
@@ -224,7 +228,7 @@ const Checkout = () => {
     const docRef = await addDoc(collection(db, "orders"), orderData);
     console.log("Order saved with ID: ", docRef.id);
 
-    // Create confirmation details
+    // Prepare confirmation details IMMEDIATELY after successful save
     const confirmationDetails = {
       orderNumber: orderNumber,
       customerEmail: selectedAddress.email,
@@ -233,54 +237,53 @@ const Checkout = () => {
       total: total,
       itemCount: itemCount,
       emailSent: false,
-      firestoreId: docRef.id, // Store the Firestore document ID
+      firestoreId: docRef.id,
     };
 
-    // Try to send email
-    try {
-      const emailResult = await sendOrderConfirmationEmail(orderDetails);
-      confirmationDetails.emailSent = emailResult.success;
-      
-      // Update Firestore with email status
-      if (emailResult.success) {
-        await updateDoc(doc(db, "orders", docRef.id), {
-          emailSent: true,
-          emailSentAt: serverTimestamp()
-        });
-      }
-    } catch (emailError) {
-      console.error("Email sending failed:", emailError);
-    }
-
-    // Clear cart
+    // Clear cart BEFORE showing modal
     clearCart();
 
-    // Show modal - do this synchronously
-    console.log("Setting modal data:", confirmationDetails);
+    // Set modal state SYNCHRONOUSLY and TOGETHER
+    console.log("Setting modal state...");
     setOrderConfirmationDetails(confirmationDetails);
     setShowOrderConfirmation(true);
+    
+    // Try to send email in background (don't block modal display)
+    sendOrderConfirmationEmail(orderDetails)
+      .then(async (emailResult) => {
+        if (emailResult.success) {
+          // Update both state and Firestore
+          setOrderConfirmationDetails(prev => ({
+            ...prev,
+            emailSent: true
+          }));
+          
+          await updateDoc(doc(db, "orders", docRef.id), {
+            emailSent: true,
+            emailSentAt: serverTimestamp()
+          });
+          
+          console.log("Email sent successfully");
+        }
+      })
+      .catch((emailError) => {
+        console.error("Email sending failed:", emailError);
+      });
+
+    console.log("=== ORDER PLACEMENT SUCCESS - MODAL SHOULD SHOW ===");
 
   } catch (error) {
     console.error("Error placing order:", error);
+    alert(`Order placement failed: ${error.message || 'Unknown error'}. Please try again.`);
     
-    // More specific error messages
-    if (error.code) {
-      alert(`Order placement failed: ${error.message}. Please try again.`);
-    } else {
-      alert("Order placement failed. Please check your connection and try again.");
-    }
+    // Don't show modal on error
+    setShowOrderConfirmation(false);
+    setOrderConfirmationDetails(null);
+    
   } finally {
     setIsOrderPlacing(false);
   }
 };
-
-  // Handle continue shopping from confirmation modal
-  const handleContinueShopping = () => {
-    console.log("Continue shopping clicked");
-    setShowOrderConfirmation(false);
-    setOrderConfirmationDetails(null);
-    navigate("/products");
-  };
 
   // Show empty cart message when no products
   if (cartItems.length === 0) {
@@ -541,14 +544,18 @@ const Checkout = () => {
         onClose={() => setIsAddressModalOpen(false)}
         onAddAddress={handleAddAddress}
       />
-
-      {/* Order Confirmation Modal */}
-      <OrderConfirmationModal
-        isOpen={showOrderConfirmation}
-        onClose={handleModalClose}
-        orderDetails={orderConfirmationDetails}
-        onContinueShopping={handleContinueShopping}
-      />
+     {/* Order Confirmation Modal */}
+<OrderConfirmationModal
+  isOpen={showOrderConfirmation}
+  onClose={() => {
+    console.log("Modal close triggered");
+    setShowOrderConfirmation(false);
+    setOrderConfirmationDetails(null);
+  }}
+  orderDetails={orderConfirmationDetails}
+/>
+      
+      
     </>
   );
 };

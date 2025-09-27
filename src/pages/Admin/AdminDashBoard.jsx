@@ -328,30 +328,7 @@ const AdminDashBoard = () => {
               <Package className="text-blue-500 w-8 h-8" />
             </div>
           </div>
-          <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-green-500">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Total Orders</p>
-                <p className="text-2xl font-bold text-gray-800">
-                  {totalOrders}
-                </p>
-              </div>
-              <div className="text-green-500 w-8 h-8 flex items-center justify-center">
-                <span className="text-lg">📦</span>
-              </div>
-            </div>
-          </div>
-          <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-purple-500">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Total Revenue</p>
-                <p className="text-2xl font-bold text-gray-800">
-                  ₹{totalRevenue.toLocaleString()}
-                </p>
-              </div>
-              <DollarSign className="text-purple-500 w-8 h-8" />
-            </div>
-          </div>
+          
           <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-yellow-500">
             <div className="flex items-center justify-between">
               <div>
@@ -412,7 +389,7 @@ const AdminDashBoard = () => {
                     </button>
                     <button
                       onClick={() => openModal("edit", product)}
-                      className="bg-yellow-500 text-white p-2 rounded-full hover:bg-yellow-600 transition-colors"
+                      className="bg-green-500 text-white p-2 rounded-full hover:bg-yellow-600 transition-colors"
                     >
                       <Edit2 className="w-4 h-4" />
                     </button>
@@ -438,7 +415,8 @@ const AdminDashBoard = () => {
                   <h3 className="font-bold text-lg text-gray-800 mb-2">
                     {product.name}
                   </h3>
-                  <p className="text-gray-600 mb-2">{product.category}</p>
+                  <p className="text-gray-600 mb-1">{product.category}</p>
+                  <p className="text-gray-600 mb-1">{product.size}</p>
                   <div className="flex items-center gap-1 mb-2">
                     {renderStars(product.rating)}
                     <span className="text-sm text-gray-600 ml-1">
@@ -453,18 +431,13 @@ const AdminDashBoard = () => {
                       <span className="text-gray-500 text-sm line-through ml-2">
                         ₹{product.price}
                       </span>
+                      
                     </div>
-                    <div className="flex items-center gap-1 text-sm text-blue-600">
-                      <Clock className="w-4 h-4" />
-                      {product.productionTime}
-                    </div>
+                    
                   </div>
                   <div className="flex justify-between items-center text-sm">
                     <span className="text-gray-500">
                       Savings: ₹{product.price - product.offerPrice}
-                    </span>
-                    <span className="bg-green-100 text-green-800 px-2 py-1 rounded">
-                      {product.totalOrders || 0} orders
                     </span>
                   </div>
                 </div>
@@ -564,10 +537,10 @@ const AdminDashBoard = () => {
                   </div>
                   <div className="flex justify-between">
                     <span className="font-medium text-gray-600">
-                      Production Time:
+                      Size:
                     </span>
                     <span className="text-blue-600 font-medium">
-                      {selectedProduct?.productionTime}
+                      {selectedProduct?.size}
                     </span>
                   </div>
                   <div className="flex justify-between">
