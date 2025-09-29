@@ -1,8 +1,11 @@
 import React, { useState } from "react";
+import testimonialbg from "../../assets/Testimonial.png"
+import { useNavigate } from "react-router-dom";
 
 const Testimonials = () => {
+  const navigate =useNavigate();
     const handleNavigation = (path) => {
-        // For demo purposes - you can implement your navigation logic here
+        navigate('/products');
         console.log('Navigate to:', path);
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
@@ -20,12 +23,12 @@ const Testimonials = () => {
     },
     {
       name: "Jothi Lakshmi",
-      content: "Pad  very nice, Very comfortable, Thanks sis",
+      content: "Pad  very nice, Very comfortable, Thank you very much sis",
       avatar: "JL"
     },
     {
       name: "Kanishka",
-      content: "Sis napkin very nice and comfortable no leakage thank u so much for your product sis",
+      content: "Sis napkin very nice and comfortable no leakage thank u so much ",
       avatar: "K"
     },
     {
@@ -53,9 +56,12 @@ const Testimonials = () => {
     const displayText = card.content;
 
     return (
-      <div className="group relative bg-white border border-slate-200/60 rounded-2xl p-6 mx-3 shadow-sm hover:shadow-2xl hover:shadow-slate-900/10 transition-all duration-500 shrink-0 w-56 sm:w-60 md:w-72 lg:w-80 backdrop-blur-sm">
+      <div className="group relative rounded-2xl p-6 mx-3 shadow-lg hover:shadow-2xl transition-all duration-500 shrink-0 w-56 sm:w-60 md:w-72 lg:w-80 bg-white/90 backdrop-blur-md border border-white/50">
+        {/* Glossy effect */}
+        <div className="absolute inset-0 bg-gradient-to-br from-white/60 to-transparent rounded-2xl pointer-events-none"></div>
+        
         {/* Gradient border effect */}
-        <div className="absolute inset-0 bg-gradient-to-br from-green-500/20 via-emerald-500/20 to-teal-500/20 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10 blur-xl"></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-green-500/20 to-emerald-500/20 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10 blur-xl"></div>
         
         {/* Content */}
         <div className="relative z-10">
@@ -69,15 +75,16 @@ const Testimonials = () => {
           {/* Review text */}
           <div className="mb-6">
             <p 
-              className={`text-slate-700 text-lg leading-relaxed font-medium group-hover:text-slate-800 transition-colors duration-300 ${
+              className={`text-slate-800 text-lg leading-relaxed font-medium group-hover:text-slate-900 transition-colors duration-300 ${
                 shouldTruncate && !isExpanded 
                   ? 'line-clamp-6 overflow-hidden' 
                   : ''
               }`}
               style={{
                 display: shouldTruncate && !isExpanded ? '-webkit-box' : 'block',
-                WebkitLineClamp: shouldTruncate && !isExpanded ? 3 : 'unset',
-                WebkitBoxOrient: 'vertical'
+                WebkitLineClamp: shouldTruncate && !isExpanded ? 2 : 'unset',
+                WebkitBoxOrient: 'vertical',
+                textShadow: '0 1px 2px rgba(255, 255, 255, 0.8)'
               }}
             >
               "{displayText}"
@@ -204,7 +211,25 @@ const Testimonials = () => {
 
       `}</style>
 
-      <div className="py-16 px-4 bg-white relative overflow-hidden">
+      <div className="py-16 px-4 relative overflow-hidden">
+        {/* Background image with glossy overlay */}
+        <div 
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          style={{
+            backgroundImage: {testimonialbg},
+          }}
+        />
+        
+        {/* Glossy overlay for better text visibility */}
+        <div className="absolute inset-0 bg-gradient-to-br from-white/95 via-green-50/90 to-emerald-50/95 backdrop-blur-sm" />
+        
+        {/* Glass effect layer */}
+        <div className="absolute inset-0 bg-white/40 backdrop-blur-[2px]" 
+             style={{
+               boxShadow: 'inset 0 0 100px rgba(255, 255, 255, 0.3)'
+             }} 
+        />
+
         {/* Header */}
         <div className="text-center mb-16 fade-in-up relative z-10">
           <div className="inline-flex items-center gap-2 bg-green-100 text-green-700 px-4 py-2 rounded-full text-sm font-semibold mb-4">
@@ -222,7 +247,7 @@ const Testimonials = () => {
         </div>
 
         {/* Testimonials marquee */}
-        <div className="marquee-container relative">
+        <div className="marquee-container relative py-8">
           <div className="marquee-animation flex items-center">
             {testimonialLoop.map((card, index) => (
               <CreateCard key={index} card={card} index={index} />

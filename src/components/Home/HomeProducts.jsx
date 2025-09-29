@@ -26,7 +26,7 @@ const HomeProducts = () => {
     const products = [
         {
             id: 1,
-            name: "Herbal Napkin XL",
+            name: "Herbal Napkin XL - (280mm)",
             image: image,
             description: "Extra Large comfort with herbal protection for heavy flow days",
             mrp: "₹200",
@@ -36,7 +36,7 @@ const HomeProducts = () => {
         },
         {
             id: 2,
-            name: "Herbal Napkin XXL", 
+            name: "Herbal Napkin XXL - (320mm)", 
             image: image1,
             description: "Extra Extra Large protection with maximum coverage and herbal care",
             mrp: "₹210",
