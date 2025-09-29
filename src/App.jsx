@@ -20,6 +20,7 @@ import TermsAndConditions from './pages/TermsAndConditions';
 
 const AppContent = () => {
   const location = useLocation();
+  const isAdminPage = location.pathname.includes('/admin');
   
   // Define routes where navbar and footer should be hidden
   const hideNavFooterRoutes = ['/adminlogin'];
@@ -29,7 +30,8 @@ const AppContent = () => {
 
   return (
     <>
-    <Marquee/>
+         <Marquee hide={isAdminPage} />
+
       {/* Conditionally render NavBar */}
       {!shouldHideNavFooter && <NavBar />}
       {!shouldHideNavFooter && <FloationWhatsappIcon/>}

@@ -56,7 +56,7 @@ const Testimonials = () => {
     const displayText = card.content;
 
     return (
-      <div className="group relative rounded-2xl p-6 mx-3 shadow-lg hover:shadow-2xl transition-all duration-500 shrink-0 w-56 sm:w-60 md:w-72 lg:w-80 bg-white/90 backdrop-blur-md border border-white/50">
+      <div className="group relative rounded-2xl p-6 mx-3 shadow-lg hover:shadow-2xl transition-all duration-500 shrink-0 w-76 sm:w-60 md:w-72 lg:w-80 bg-white/90 backdrop-blur-md border border-white/50">
         {/* Glossy effect */}
         <div className="absolute inset-0 bg-gradient-to-br from-white/60 to-transparent rounded-2xl pointer-events-none"></div>
         

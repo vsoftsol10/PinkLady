@@ -1,13 +1,15 @@
 import React from "react";
-import './marquee.css'; // Create this file with the CSS below
+import './marquee.css';
 
-const Marquee = ({ speed = 30 }) => {
+const Marquee = ({ speed = 30, hide = false }) => {
   const items = [
     "🌿 100% Herbal Sanitary Napkin",
     "💧 Leakage Proof & Comfortable",
     "🌿 Breathable Design for Freshness",
     "♻️ Affordable & Eco-Friendly",
   ];
+
+  if (hide) return null; // Don't render if hide is true
 
   return (
     <div className="marquee-container">
