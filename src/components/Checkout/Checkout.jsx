@@ -7,7 +7,6 @@ import AddressModal from "./AddressModal";
 import { db } from "../../firebase/firebaseConfig";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { doc, updateDoc } from "firebase/firestore";
-import OrderConfirmationModal from "./OrderConfirmationModal";
 
 
 const Checkout = () => {
@@ -16,9 +15,6 @@ const Checkout = () => {
   const [paymentMethod, setPaymentMethod] = useState("COD");
   const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
   const [isOrderPlacing, setIsOrderPlacing] = useState(false);
-  const [showOrderConfirmation, setShowOrderConfirmation] = useState(false);
-  const [orderConfirmationDetails, setOrderConfirmationDetails] =
-    useState(null);
   const [savedAddresses, setSavedAddresses] = useState([
     {
       fullName: "John Doe",
@@ -45,26 +41,11 @@ const Checkout = () => {
   ]);
 
   useEffect(() => {
-    console.log("showOrderConfirmation changed:", showOrderConfirmation);
-    console.log("orderConfirmationDetails:", orderConfirmationDetails);
-  }, [showOrderConfirmation, orderConfirmationDetails]);
-
-useEffect(() => {
-  console.log("=== MODAL STATE DEBUG ===");
-  console.log("showOrderConfirmation:", showOrderConfirmation);
-  console.log("orderConfirmationDetails:", orderConfirmationDetails);
-  console.log("Modal should render:", showOrderConfirmation && orderConfirmationDetails);
-  console.log("========================");
-}, [showOrderConfirmation, orderConfirmationDetails]);
-
-
-  useEffect(() => {
-  // Set first address as default if none selected
-  if (!selectedAddress && savedAddresses.length > 0) {
-    setSelectedAddress(savedAddresses[0]);
-  }
-}, [savedAddresses]);
-
+    // Set first address as default if none selected
+    if (!selectedAddress && savedAddresses.length > 0) {
+      setSelectedAddress(savedAddresses[0]);
+    }
+  }, [savedAddresses]);
 
   const navigate = useNavigate();
 
@@ -111,7 +92,7 @@ useEffect(() => {
         .join("\n");
 
       const templateParams = {
-        to_email: orderDetails.customerEmail, // Changed from to_email to email
+        to_email: orderDetails.customerEmail,
         customer_name: orderDetails.customerName,
         order_number: orderNumber,
         order_date: orderDate,
@@ -123,10 +104,10 @@ useEffect(() => {
         payment_method: orderDetails.paymentMethod,
         customer_phone: orderDetails.customerPhone,
         item_count: orderDetails.itemCount,
-        order_id: orderNumber, // Alternative variable name
+        order_id: orderNumber,
       };
 
-      console.log("Sending email with params:", templateParams); // Debug log
+      console.log("Sending email with params:", templateParams);
 
       const result = await emailjs.send(
         "service_8lju8fe", // Replace with your EmailJS service ID
@@ -150,140 +131,117 @@ useEffect(() => {
   };
 
   const handlePlaceOrder = async () => {
-  console.log("=== ORDER PLACEMENT STARTED ===");
-  
-  if (cartItems.length === 0) {
-    alert("Your cart is empty. Please add some items before placing an order.");
-    navigate("/products");
-    return;
-  }
+    console.log("=== ORDER PLACEMENT STARTED ===");
+    
+    if (cartItems.length === 0) {
+      alert("Your cart is empty. Please add some items before placing an order.");
+      navigate("/products");
+      return;
+    }
 
-  if (!selectedAddress) {
-    alert("Please select or add an address before placing the order.");
-    return;
-  }
+    if (!selectedAddress) {
+      alert("Please select or add an address before placing the order.");
+      return;
+    }
 
-  setIsOrderPlacing(true);
-  const orderNumber = `ORD-${Date.now()}`;
+    setIsOrderPlacing(true);
+    const orderNumber = `ORD-${Date.now()}`;
 
-  try {
-    // Prepare order details
-    const orderDetails = {
-      customerEmail: selectedAddress.email,
-      customerName: selectedAddress.fullName,
-      customerPhone: selectedAddress.phone,
-      deliveryAddress: selectedAddress.displayString,
-      paymentMethod: paymentMethod,
-      items: cartItems,
-      subtotal: subtotal,
-      tax: tax,
-      total: total,
-      itemCount: itemCount,
-    };
-
-    // Create order data for Firestore
-    const orderData = {
-      orderNumber: orderNumber,
-      customerDetails: {
-        name: selectedAddress.fullName,
-        email: selectedAddress.email,
-        phone: selectedAddress.phone,
-      },
-      deliveryAddress: {
-        fullAddress: selectedAddress.displayString,
-        addressDetails: {
-          address: selectedAddress.address,
-          city: selectedAddress.city,
-          state: selectedAddress.state,
-          zipCode: selectedAddress.zipCode,
-          addressType: selectedAddress.addressType,
-        }
-      },
-      paymentMethod: paymentMethod,
-      items: cartItems.map(item => ({
-        id: item.id,
-        name: item.name,
-        category: item.category,
-        image: item.image,
-        size: item.size || "N/A",
-        quantity: item.quantity,
-        pricePerItem: item.offerPrice,
-        totalPrice: item.offerPrice * item.quantity
-      })),
-      pricing: {
+    try {
+      // Prepare order details
+      const orderDetails = {
+        customerEmail: selectedAddress.email,
+        customerName: selectedAddress.fullName,
+        customerPhone: selectedAddress.phone,
+        deliveryAddress: selectedAddress.displayString,
+        paymentMethod: paymentMethod,
+        items: cartItems,
         subtotal: subtotal,
         tax: tax,
-        shippingFee: 0,
         total: total,
-      },
-      itemCount: itemCount,
-      orderStatus: "pending",
-      paymentStatus: paymentMethod === "COD" ? "pending" : "paid",
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp(),
-    };
+        itemCount: itemCount,
+      };
 
-    // Save order to Firestore
-    console.log("Saving order to Firestore...");
-    const docRef = await addDoc(collection(db, "orders"), orderData);
-    console.log("Order saved with ID: ", docRef.id);
+      // Create order data for Firestore
+      const orderData = {
+        orderNumber: orderNumber,
+        customerDetails: {
+          name: selectedAddress.fullName,
+          email: selectedAddress.email,
+          phone: selectedAddress.phone,
+        },
+        deliveryAddress: {
+          fullAddress: selectedAddress.displayString,
+          addressDetails: {
+            address: selectedAddress.address,
+            city: selectedAddress.city,
+            state: selectedAddress.state,
+            zipCode: selectedAddress.zipCode,
+            addressType: selectedAddress.addressType,
+          }
+        },
+        paymentMethod: paymentMethod,
+        items: cartItems.map(item => ({
+          id: item.id,
+          name: item.name,
+          category: item.category,
+          image: item.image,
+          size: item.size || "N/A",
+          quantity: item.quantity,
+          pricePerItem: item.offerPrice,
+          totalPrice: item.offerPrice * item.quantity
+        })),
+        pricing: {
+          subtotal: subtotal,
+          tax: tax,
+          shippingFee: 0,
+          total: total,
+        },
+        itemCount: itemCount,
+        orderStatus: "pending",
+        paymentStatus: paymentMethod === "COD" ? "pending" : "paid",
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      };
 
-    // Prepare confirmation details IMMEDIATELY after successful save
-    const confirmationDetails = {
-      orderNumber: orderNumber,
-      customerEmail: selectedAddress.email,
-      deliveryAddress: selectedAddress.displayString,
-      paymentMethod: paymentMethod,
-      total: total,
-      itemCount: itemCount,
-      emailSent: false,
-      firestoreId: docRef.id,
-    };
+      // Save order to Firestore
+      console.log("Saving order to Firestore...");
+      const docRef = await addDoc(collection(db, "orders"), orderData);
+      console.log("Order saved with ID: ", docRef.id);
 
-    // Clear cart BEFORE showing modal
-    clearCart();
+      // Clear cart
+      clearCart();
 
-    // Set modal state SYNCHRONOUSLY and TOGETHER
-    console.log("Setting modal state...");
-    setOrderConfirmationDetails(confirmationDetails);
-    setShowOrderConfirmation(true);
-    
-    // Try to send email in background (don't block modal display)
-    sendOrderConfirmationEmail(orderDetails)
-      .then(async (emailResult) => {
-        if (emailResult.success) {
-          // Update both state and Firestore
-          setOrderConfirmationDetails(prev => ({
-            ...prev,
-            emailSent: true
-          }));
-          
-          await updateDoc(doc(db, "orders", docRef.id), {
-            emailSent: true,
-            emailSentAt: serverTimestamp()
-          });
-          
-          console.log("Email sent successfully");
-        }
-      })
-      .catch((emailError) => {
-        console.error("Email sending failed:", emailError);
-      });
+      // Show success alert
+      alert(`✅ Order placed successfully!\n\nOrder Number: ${orderNumber}\nTotal Amount: ₹${total}\n\nA confirmation email will be sent to ${selectedAddress.email}`);
 
-    console.log("=== ORDER PLACEMENT SUCCESS - MODAL SHOULD SHOW ===");
+      // Try to send email in background
+      sendOrderConfirmationEmail(orderDetails)
+        .then(async (emailResult) => {
+          if (emailResult.success) {
+            await updateDoc(doc(db, "orders", docRef.id), {
+              emailSent: true,
+              emailSentAt: serverTimestamp()
+            });
+            console.log("Email sent successfully");
+          }
+        })
+        .catch((emailError) => {
+          console.error("Email sending failed:", emailError);
+        });
 
-  } catch (error) {
-    console.error("Error placing order:", error);
-    alert(`Order placement failed: ${error.message || 'Unknown error'}. Please try again.`);
-    
-    // Don't show modal on error
-    setShowOrderConfirmation(false);
-    setOrderConfirmationDetails(null);
-    
-  } finally {
-    setIsOrderPlacing(false);
-  }
-};
+      // Redirect to products page
+      navigate("/products");
+
+      console.log("=== ORDER PLACEMENT SUCCESS ===");
+
+    } catch (error) {
+      console.error("Error placing order:", error);
+      alert(`❌ Order placement failed: ${error.message || 'Unknown error'}. Please try again.`);
+    } finally {
+      setIsOrderPlacing(false);
+    }
+  };
 
   // Show empty cart message when no products
   if (cartItems.length === 0) {
@@ -544,18 +502,6 @@ useEffect(() => {
         onClose={() => setIsAddressModalOpen(false)}
         onAddAddress={handleAddAddress}
       />
-     {/* Order Confirmation Modal */}
-<OrderConfirmationModal
-  isOpen={showOrderConfirmation}
-  onClose={() => {
-    console.log("Modal close triggered");
-    setShowOrderConfirmation(false);
-    setOrderConfirmationDetails(null);
-  }}
-  orderDetails={orderConfirmationDetails}
-/>
-      
-      
     </>
   );
 };

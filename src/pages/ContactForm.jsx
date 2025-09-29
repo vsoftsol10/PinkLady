@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { MapPin, Phone, Mail, Send, CheckCircle, AlertCircle, User, MessageSquare, Sparkles } from 'lucide-react';
+import emailjs from '@emailjs/browser';
 
 const ContactInputBox = ({ type, placeholder, name, value, onChange, onBlur, error, touched, icon: Icon }) => {
   const [focused, setFocused] = useState(false);
@@ -107,6 +108,13 @@ const FloatingParticles = () => {
 };
 
 const ContactForm = () => {
+  // EmailJS Configuration - Replace with your actual IDs
+  const EMAILJS_CONFIG = {
+    serviceId: 'service_8lju8fe',
+    templateId: 'template_r7q9fre',
+    publicKey: 'uHyjQhoh59EySHL4X'
+  };
+
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -122,9 +130,10 @@ const ContactForm = () => {
 
   useEffect(() => {
     setIsVisible(true);
+    // Initialize EmailJS
+    emailjs.init(EMAILJS_CONFIG.publicKey);
   }, []);
 
-  // Validation functions (same as original)
   const validateName = (name) => {
     if (!name.trim()) return 'Name is required';
     if (name.trim().length < 2) return 'Name must be at least 2 characters';
@@ -171,7 +180,6 @@ const ContactForm = () => {
       [name]: value
     }));
 
-    // Real-time validation
     let error = '';
     switch (name) {
       case 'name':
@@ -234,15 +242,31 @@ const ContactForm = () => {
     setSubmitStatus(null);
 
     try {
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      console.log('Form submitted:', formData);
+      // Prepare template parameters for EmailJS
+      const templateParams = {
+        from_name: formData.name,
+        from_email: formData.email,
+        phone: formData.phone,
+        message: formData.message,
+        to_email: 'Paapatchienterprises@gmail.com',
+        reply_to: formData.email
+      };
+
+      // Send email using EmailJS
+      const response = await emailjs.send(
+        EMAILJS_CONFIG.serviceId,
+        EMAILJS_CONFIG.templateId,
+        templateParams
+      );
+
+      console.log('Email sent successfully:', response);
       
       setSubmitStatus({ 
         type: 'success', 
-        message: 'Thank you! Your message has been sent successfully.' 
+        message: 'Thank you! Your message has been sent successfully. We\'ll get back to you soon!' 
       });
       
+      // Reset form
       setFormData({
         name: '',
         email: '',
@@ -253,9 +277,10 @@ const ContactForm = () => {
       setErrors({});
       
     } catch (error) {
+      console.error('EmailJS error:', error);
       setSubmitStatus({ 
         type: 'error', 
-        message: 'Something went wrong. Please try again.' 
+        message: 'Oops! Something went wrong. Please try again or contact us directly at Paapatchienterprises@gmail.com' 
       });
     } finally {
       setIsSubmitting(false);
@@ -263,16 +288,14 @@ const ContactForm = () => {
   };
 
   return (
-    <div className=" max-w-7xl mx-auto mt-[70px] md:mt-[120px] min-h-screen bg-gradient-to-br from-gray-50 via-white to-orange-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 relative overflow-hidden">
+    <div className="max-w-7xl mx-auto mt-[70px] md:mt-[120px] min-h-screen dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 relative overflow-hidden">
       <FloatingParticles />
       
-      {/* Decorative elements */}
       <div className="absolute top-0 right-0 w-72 h-72 bg-gradient-to-br from-[#F18372]/10 to-orange-200/10 rounded-full blur-3xl"></div>
       <div className="absolute bottom-0 left-0 w-96 h-96 bg-gradient-to-tr from-blue-100/20 to-purple-100/20 rounded-full blur-3xl"></div>
 
       <div className={`max-w-6xl mx-auto p-8 relative z-10 transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
         
-        {/* Header Section */}
         <div className="text-center mb-16">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-[#F18372] to-orange-400 rounded-full mb-6 animate-pulse">
             <Sparkles className="text-white" size={24} />
@@ -287,7 +310,6 @@ const ContactForm = () => {
         </div>
 
         <div className="grid lg:grid-cols-5 gap-12 items-start">
-          {/* Contact Info */}
           <div className="lg:col-span-2 space-y-8">
             <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-3xl p-8 shadow-xl border border-white/20 dark:border-gray-700/20 transform hover:scale-105 transition-all duration-300">
               <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6 flex items-center">
@@ -328,14 +350,11 @@ const ContactForm = () => {
                   </div>
                 </div>
               </div>
-
-            
             </div>
           </div>
 
-          {/* Contact Form */}
           <div className="lg:col-span-3">
-            <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-lg rounded-3xl p-8 shadow-2xl border border-white/20 dark:border-gray-700/20 relative overflow-hidden">
+            <form onSubmit={handleSubmit} className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-lg rounded-3xl p-8 shadow-2xl border border-white/20 dark:border-gray-700/20 relative overflow-hidden">
               <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-[#F18372]/20 to-orange-200/20 rounded-full blur-2xl"></div>
               
               <div className="relative z-10">
@@ -387,7 +406,6 @@ const ContactForm = () => {
                   touched={touched.message}
                 />
 
-                {/* Submit Status Message */}
                 {submitStatus && (
                   <div className={`mb-6 p-4 rounded-xl text-sm flex items-center animate-slide-in ${
                     submitStatus.type === 'success' 
@@ -428,11 +446,9 @@ const ContactForm = () => {
                   </div>
                 </button>
               </div>
-            </div>
+            </form>
           </div>
         </div>
-
-       
       </div>
 
       <style jsx>{`

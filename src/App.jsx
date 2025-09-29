@@ -14,6 +14,9 @@ import UpArrow from './components/UpArrow';
 import FloationWhatsappIcon from './components/FloatingWhatsAppIcon';
 import OrderManagement from './pages/Admin/OrderManagement';
 import Marquee from './components/Marquee';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import ReturnAndRefund from './pages/ReturnAndRefund';
+import TermsAndConditions from './pages/TermsAndConditions';
 
 const AppContent = () => {
   const location = useLocation();
@@ -39,6 +42,9 @@ const AppContent = () => {
         <Route path="/about" element={<AboutUs />} />
         <Route path='/products' element={<Products />} />
         <Route path='/checkout' element={<CheckOutPage />} />
+        <Route path='/privacy' element={<PrivacyPolicy/>} />
+        <Route path='/refund-policy' element={<ReturnAndRefund/>} />
+        <Route path='/terms' element={<TermsAndConditions/>} />
         
         {/* Admin routes */}
         <Route path='/adminlogin' element={<AdminLogin />} />

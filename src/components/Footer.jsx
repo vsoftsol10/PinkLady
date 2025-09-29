@@ -30,16 +30,14 @@ const Footer = () => {
     {
       title: "Our Policies",
       links: [
-        "Terms of Service",
+        "Privacy Policy",
         "Return & Refund Policy",
-        "Payment Methods",
-        "Track your Order",
+        "Terms and Conditions",
       ],
       urls: [
-        "/terms",
+        "/privacy",
         "/refund-policy",
-        "/payment-methods",
-        "/track-order",
+        "/terms",
       ],
     },
     {
@@ -65,28 +63,29 @@ const Footer = () => {
               Comfort, care, and confidence in every product.
             </p>
             <div className="footer-certification">
-              <img 
-                src={certificationIcon} 
-                alt="Quality Certification" 
-                className="footer-certification-icon" 
-              />
-              <img 
-                src={certificationIcon1} 
-                alt="Quality Certification" 
-                className="footer-certification-icon" 
-              />
-              <img 
-                src={certificationIcon2} 
-                alt="Quality Certification" 
-                className="footer-certification-icon" 
-              />
-              <img 
-                src={certificationIcon3} 
-                alt="Quality Certification" 
-                className="footer-certification-icon" 
-              />
-             
-            </div>
+  <div className="footer-certification-icons">
+    <img 
+      src={certificationIcon} 
+      alt="ISO Certification" 
+      className="footer-certification-icon" 
+    />
+    <img 
+      src={certificationIcon1} 
+      alt="IAF Certification" 
+      className="footer-certification-icon" 
+    />
+    <img 
+      src={certificationIcon2} 
+      alt="MSME Certification" 
+      className="footer-certification-icon" 
+    />
+    <img 
+      src={certificationIcon3} 
+      alt="EGAC Certification" 
+      className="footer-certification-icon" 
+    />
+  </div>
+</div>
           </div>
 
           {/* Links Sections */}

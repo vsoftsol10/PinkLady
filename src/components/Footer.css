@@ -153,15 +153,10 @@
   text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7);
 }
 
-/* Add this CSS to your existing Footer.css file */
-
 /* Certification Section Styles */
 .footer-certification {
-  display: flex;
-  align-items: center;
-  gap: 12px;
   margin-top: 20px;
-  padding: 10px 15px;
+  padding: 15px;
   background: rgba(255, 255, 255, 0.1);
   border-radius: 8px;
   border: 1px solid rgba(255, 255, 255, 0.2);
@@ -175,54 +170,97 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
+.footer-certification-icons {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
 .footer-certification-icon {
-  width: 60px;
-  height: 60px;
+  width: 50px;
+  height: 50px;
   object-fit: contain;
-  filter: brightness(1.1);
+  filter: brightness(1.1) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
   transition: transform 0.3s ease;
 }
 
 .footer-certification-icon:hover {
-  transform: scale(1.1);
-}
-
-.footer-certification-text {
-  color: #ffffff;
-  font-size: 14px;
-  font-weight: 600;
-  letter-spacing: 0.5px;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  transform: scale(1.15);
 }
 
 /* Responsive Design for Certification */
 @media (max-width: 768px) {
   .footer-certification {
     margin-top: 15px;
-    padding: 12px 16px;
-    gap: 10px;
+    padding: 12px;
+  }
+  
+  .footer-certification-icons {
+    gap: 12px;
   }
   
   .footer-certification-icon {
-    width: 32px;
-    height: 32px;
-  }
-  
-  .footer-certification-text {
-    font-size: 12px;
+    width: 45px;
+    height: 45px;
   }
 }
 
 @media (max-width: 480px) {
   .footer-certification {
-    flex-direction: column;
-    text-align: center;
-    gap: 8px;
-    padding: 12px;
+    padding: 10px;
   }
   
-  .footer-certification-text {
-    font-size: 11px;
+  .footer-certification-icons {
+    gap: 10px;
+  }
+  
+  .footer-certification-icon {
+    width: 40px;
+    height: 40px;
+  }
+}
+
+@media (max-width: 360px) {
+  .footer-certification-icons {
+    gap: 8px;
+  }
+  
+  .footer-certification-icon {
+    width: 35px;
+    height: 35px;
+  }
+}
+
+/* For larger tablets and desktops */
+@media (min-width: 768px) {
+  .footer-certification {
+    max-width: 400px;
+  }
+  
+  .footer-certification-icons {
+    gap: 18px;
+  }
+  
+  .footer-certification-icon {
+    width: 55px;
+    height: 55px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .footer-certification {
+    max-width: 450px;
+  }
+  
+  .footer-certification-icons {
+    gap: 20px;
+  }
+  
+  .footer-certification-icon {
+    width: 60px;
+    height: 60px;
   }
 }
 
