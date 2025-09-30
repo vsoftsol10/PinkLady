@@ -112,10 +112,11 @@ const Checkout = () => {
   };
 
   // Function to send order confirmation email with better error handling
+  // Function to send order confirmation email to customer
   const sendOrderConfirmationEmail = async (orderDetails) => {
     try {
-      // Initialize EmailJS with your public key
-      emailjs.init("uHyjQhoh59EySHL4X"); // Replace with your actual public key
+      // Initialize EmailJS with customer public key
+      emailjs.init("uHyjQhoh59EySHL4X");
 
       // Generate order number
       const orderNumber = `ORD-${Date.now()}`;
@@ -152,26 +153,85 @@ const Checkout = () => {
         order_id: orderNumber,
       };
 
-      console.log("Sending email with params:", templateParams);
+      console.log("Sending customer email with params:", templateParams);
 
       const result = await emailjs.send(
-        "service_8lju8fe", // Replace with your EmailJS service ID
-        "template_3q4176h", // Replace with your EmailJS template ID
+        "service_8lju8fe",
+        "template_3q4176h",
         templateParams
       );
 
-      console.log("Email sent successfully!", result);
+      console.log("Customer email sent successfully!", result);
       return { success: true, result, orderNumber };
     } catch (error) {
-      console.error("Failed to send email:", error);
+      console.error("Failed to send customer email:", error);
 
-      // More detailed error logging
       if (error.status) {
         console.error("Error status:", error.status);
         console.error("Error text:", error.text);
       }
 
       return { success: false, error, orderNumber: `ORD-${Date.now()}` };
+    }
+  };
+
+  // Function to send order notification email to admin
+  const sendAdminNotificationEmail = async (orderDetails, orderNumber) => {
+    try {
+      // Initialize EmailJS with admin public key
+      emailjs.init("TLgEwU0ofzU-siEfL");
+
+      const orderDate = new Date().toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      });
+
+      // Prepare product details string for admin email
+      const productDetailsString = orderDetails.items
+        .map(
+          (item) =>
+            `${item.name} - Qty: ${item.quantity} - Price: ₹${
+              item.offerPrice * item.quantity
+            }`
+        )
+        .join("\n");
+
+      const adminTemplateParams = {
+        order_number: orderNumber,
+        order_date: orderDate,
+        customer_name: orderDetails.customerName,
+        customer_email: orderDetails.customerEmail,
+        customer_phone: orderDetails.customerPhone,
+        delivery_address: orderDetails.deliveryAddress,
+        payment_method: orderDetails.paymentMethod,
+        item_count: orderDetails.itemCount,
+        product_details: productDetailsString,
+        subtotal: orderDetails.subtotal,
+        shipping_fee: orderDetails.shippingFee,
+        tax: orderDetails.tax,
+        total_amount: orderDetails.total,
+      };
+
+      console.log("Sending admin email with params:", adminTemplateParams);
+
+      const result = await emailjs.send(
+        "service_bv6gssg",
+        "template_rk70gvn",
+        adminTemplateParams
+      );
+
+      console.log("Admin email sent successfully!", result);
+      return { success: true, result };
+    } catch (error) {
+      console.error("Failed to send admin email:", error);
+
+      if (error.status) {
+        console.error("Error status:", error.status);
+        console.error("Error text:", error.text);
+      }
+
+      return { success: false, error };
     }
   };
 
@@ -226,19 +286,25 @@ const Checkout = () => {
       clearCart();
 
       // Try to send email in background
-      sendOrderConfirmationEmail(orderDetails)
-        .then(async (emailResult) => {
-          if (emailResult.success) {
-            await updateDoc(doc(db, "orders", docRef.id), {
-              emailSent: true,
-              emailSentAt: serverTimestamp()
-            });
-            console.log("Email sent successfully");
-          }
-        })
-        .catch((emailError) => {
-          console.error("Email sending failed:", emailError);
-        });
+      // Try to send emails in background
+const customerEmailPromise = sendOrderConfirmationEmail(orderDetails);
+
+customerEmailPromise
+  .then(async (emailResult) => {
+    if (emailResult.success) {
+      // Send admin notification with the order number
+      await sendAdminNotificationEmail(orderDetails, emailResult.orderNumber);
+      
+      await updateDoc(doc(db, "orders", docRef.id), {
+        emailSent: true,
+        emailSentAt: serverTimestamp()
+      });
+      console.log("Customer and admin emails sent successfully");
+    }
+  })
+  .catch((emailError) => {
+    console.error("Email sending failed:", emailError);
+  });
 
       console.log("=== ORDER PLACEMENT SUCCESS ===");
 
