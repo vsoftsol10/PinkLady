@@ -26,28 +26,7 @@ const Checkout = () => {
     email: ''
   });
   const [savedAddresses, setSavedAddresses] = useState([
-    {
-      fullName: "John Doe",
-      phone: "+1234567890",
-      email: "john@example.com",
-      address: "123 Main St",
-      city: "New York",
-      state: "NY",
-      zipCode: "10001",
-      addressType: "Home",
-      displayString: "John Doe, 123 Main St, New York, NY - 10001",
-    },
-    {
-      fullName: "Jane Smith",
-      phone: "+0987654321",
-      email: "jane@example.com",
-      address: "456 Oak Ave",
-      city: "Los Angeles",
-      state: "CA",
-      zipCode: "90210",
-      addressType: "Work",
-      displayString: "Jane Smith, 456 Oak Ave, Los Angeles, CA - 90210",
-    },
+    {}
   ]);
 
   const navigate = useNavigate();
@@ -474,37 +453,17 @@ customerEmailPromise
                     ? selectedAddress.displayString
                     : "No address found"}
                 </p>
-                {selectedAddress && (
-                  <p className="text-gray-500 text-xs mt-1">
-                    Email: {selectedAddress.email}
-                  </p>
-                )}
+               
               </div>
               <button
                 onClick={() => setShowAddress(!showAddress)}
                 className="text-[#F18372] hover:underline cursor-pointer text-sm"
               >
-                Change
+                Add Address
               </button>
               {showAddress && (
                 <div className="absolute top-12 py-1 bg-white border border-gray-300 text-sm w-full z-10 shadow-lg">
-                  {savedAddresses.map((addressObj, index) => (
-                    <div
-                      key={index}
-                      onClick={() => {
-                        setSelectedAddress(addressObj);
-                        setShowAddress(false);
-                      }}
-                      className="text-gray-500 p-2 hover:bg-gray-100 cursor-pointer border-b"
-                    >
-                      <p className="font-medium text-gray-800">
-                        {addressObj.displayString}
-                      </p>
-                      <p className="text-xs text-gray-500">
-                        Email: {addressObj.email}
-                      </p>
-                    </div>
-                  ))}
+                  
                   <p
                     onClick={() => {
                       setIsAddressModalOpen(true);

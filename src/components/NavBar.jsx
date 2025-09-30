@@ -9,15 +9,11 @@ import './NavBar.css';
 const NavBar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState([]);
-  const [isSearching, setIsSearching] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   
   const location = useLocation();
   const navigate = useNavigate();
   const { itemCount } = useCart();
-  const searchInputRef = useRef(null);
   const searchContainerRef = useRef(null);
 
   // ✅ Smooth navigation function
@@ -56,68 +52,8 @@ useEffect(() => {
     window.removeEventListener('scroll', handleScroll);
   };
 }, []);
-  // Handle search functionality
-  const handleSearch = (query) => {
-    if (!query.trim()) {
-      setSearchResults([]);
-      setIsSearching(false);
-      return;
-    }
-
-    setIsSearching(true);
-    
-    // Simulate API call delay
-    setTimeout(() => {
-      const filteredProducts = mockProducts.filter(product =>
-        product.name.toLowerCase().includes(query.toLowerCase()) ||
-        product.category.toLowerCase().includes(query.toLowerCase())
-      );
-      setSearchResults(filteredProducts);
-      setIsSearching(false);
-    }, 300);
-  };
-
-  // Handle search input change
-  const handleSearchInputChange = (e) => {
-    const query = e.target.value;
-    setSearchQuery(query);
-    handleSearch(query);
-  };
-
-  // Open search modal
-  const openSearch = () => {
-    setIsSearchOpen(true);
-    setTimeout(() => {
-      if (searchInputRef.current) {
-        searchInputRef.current.focus();
-      }
-    }, 100);
-  };
-
-  // Close search modal
-  const closeSearch = () => {
-    setIsSearchOpen(false);
-    setSearchQuery('');
-    setSearchResults([]);
-    setIsSearching(false);
-  };
-
-  // Handle search result click
-  const handleResultClick = (product) => {
-    // Navigate to product page or handle as needed
-    navigate(`/products/${product.id}`);
-    closeSearch();
-  };
-
-  // Handle search submit
-  const handleSearchSubmit = (e) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      // Navigate to search results page
-      navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
-      closeSearch();
-    }
-  };
+  
+ 
 
   // Close search when clicking outside
   useEffect(() => {
@@ -160,69 +96,7 @@ useEffect(() => {
         onClick={() => setIsOpen(false)}
       />
 
-      {/* Search Modal */}
-      {isSearchOpen && (
-        <div className="search-modal-overlay">
-          <div className="search-modal" ref={searchContainerRef}>
-            <div className="search-modal-header">
-              <form onSubmit={handleSearchSubmit} className="search-form">
-                <Search className="w-5 h-5 text-gray-400" />
-                <input
-                  ref={searchInputRef}
-                  type="text"
-                  value={searchQuery}
-                  onChange={handleSearchInputChange}
-                  placeholder="Search products..."
-                  className="search-input"
-                />
-                <button
-                  type="button"
-                  onClick={closeSearch}
-                  className="search-close-btn"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </form>
-            </div>
-            
-            <div className="search-results">
-              {isSearching ? (
-                <div className="search-loading">Searching...</div>
-              ) : searchQuery.trim() && searchResults.length === 0 ? (
-                <div className="no-results">
-                  No products found for "{searchQuery}"
-                </div>
-              ) : searchResults.length > 0 ? (
-                <div className="results-list">
-                  {searchResults.map((product) => (
-                    <div
-                      key={product.id}
-                      className="result-item"
-                      onClick={() => handleResultClick(product)}
-                    >
-                      <div className="result-info">
-                        <h4 className="result-name">{product.name}</h4>
-                        <p className="result-category">{product.category}</p>
-                      </div>
-                      <div className="result-price">${product.price}</div>
-                    </div>
-                  ))}
-                  {searchQuery.trim() && (
-                    <div className="view-all-results">
-                      <button
-                        onClick={() => handleSearchSubmit({ preventDefault: () => {} })}
-                        className="view-all-btn"
-                      >
-                        View all results for "{searchQuery}"
-                      </button>
-                    </div>
-                  )}
-                </div>
-              ) : null}
-            </div>
-          </div>
-        </div>
-      )}
+      
 
       <nav className={`navbar ${isScrolled ? 'scrolled' : ''}`}>
         <div className="navbar-container">
@@ -259,13 +133,7 @@ useEffect(() => {
             {/* Desktop Icons (hide in admin if not needed) */}
             {!isAdminRoute && (
               <div className="nav-icons">
-                <button 
-                  onClick={openSearch}
-                  className="search-btn"
-                  aria-label="Open search"
-                >
-                  <Search className="w-5 h-5" />
-                </button>
+                
                 <div className="cart-container relative" onClick={() => { navigate("/checkout") }}>
                   <ShoppingCart className="w-5 h-5" />
                   {itemCount > 0 && (
