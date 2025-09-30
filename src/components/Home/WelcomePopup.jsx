@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
-import image from "../../assets/popup.jpeg"
-
+import  image from "../../assets/popup.jpeg"
 export default function WelcomePopup() {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -21,25 +20,25 @@ export default function WelcomePopup() {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center w-full h-full bg-black bg-opacity-50 p-4">
-      <div className="relative  rounded-lg shadow-2xl max-w-md w-full p-6 animate-[scale-in_0.3s_ease-out]">
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center w-full h-full bg-black bg-opacity-50 p-4 sm:p-6">
+      <div className="relative  rounded-lg shadow-2xl w-full max-w-[95vw] sm:max-w-md md:max-w-lg p-4 sm:p-6 animate-[scale-in_0.3s_ease-out]">
         {/* Close Button */}
         <button
           onClick={closePopup}
-          className="relative bottom-1 left-100 text-red-400 hover:text-red-600 transition-colors"
+          className="absolute -top-2 -right-2 sm:top-0 sm:right-0  rounded-full p-1 shadow-lg text-red-400 hover:text-red-600 transition-colors z-10"
           aria-label="Close popup"
         >
-          <X size={24} />
+          <X size={20} className="sm:w-6 sm:h-6" />
         </button>
 
         {/* Popup Content */}
         <div className="text-center">
           {/* Image */}
-          <div className="mb-4">
+          <div className="w-full">
             <img 
-              src={image} 
+              src={image}
               alt="Welcome"
-              className="w-full h-full object-cover rounded-lg mb-4"
+              className="w-full h-auto object-cover rounded-lg"
             />
           </div>
         </div>
