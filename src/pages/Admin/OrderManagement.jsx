@@ -1,6 +1,6 @@
 
 import React, { useState, useMemo, useEffect } from "react";
-import { Download, Calendar, Search, Package, DollarSign, Clock, Filter, Edit2, Check, X, Eye, ShoppingCart } from "lucide-react";
+import { Download, Calendar, Search, Package, DollarSign, Clock, Filter, Edit2, Check, X, Eye, ShoppingCart, DownloadIcon, Printer } from "lucide-react";
 // Add these Firebase imports
 import { db } from "../../firebase/firebaseConfig"; // Adjust the path according to your file structure
 import { collection, getDocs, doc, updateDoc, onSnapshot, query, orderBy } from "firebase/firestore";
@@ -69,6 +69,227 @@ const statusOptions = ["pending", "processing", "shipped", "delivered", "cancell
 
   fetchOrders();
 }, []);
+
+  const handlePrintOrder = () => {
+  // Create a new window for printing
+  const printWindow = window.open('', '_blank');
+  
+  // Get delivery address string
+  const addressDetails = viewingOrderDetails.deliveryAddress?.addressDetails || {};
+  const addressString = [
+    addressDetails.address,
+    addressDetails.city,
+    addressDetails.state,
+    addressDetails.zipCode
+  ].filter(Boolean).join(', ');
+
+  // Build the HTML content
+  const printContent = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <title>Order ${viewingOrderDetails.orderNumber}</title>
+        <style>
+          * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+          }
+          
+          body {
+            font-family: Arial, sans-serif;
+            padding: 40px;
+            color: #333;
+          }
+          
+          .header {
+            text-align: center;
+            margin-bottom: 40px;
+            border-bottom: 3px solid #F18372;
+            padding-bottom: 20px;
+          }
+          
+          .header h1 {
+            color: #F18372;
+            font-size: 28px;
+            margin-bottom: 10px;
+          }
+          
+          .section {
+            margin-bottom: 30px;
+          }
+          
+          .section-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #F18372;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #f0f0f0;
+          }
+          
+          .info-row {
+            display: flex;
+            padding: 10px 0;
+            border-bottom: 1px solid #f0f0f0;
+          }
+          
+          .info-label {
+            font-weight: bold;
+            width: 180px;
+            color: #666;
+          }
+          
+          .info-value {
+            flex: 1;
+            color: #333;
+          }
+          
+          .products-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+          }
+          
+          .products-table th {
+            background-color: #F18372;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: bold;
+          }
+          
+          .products-table td {
+            padding: 12px;
+            border-bottom: 1px solid #e0e0e0;
+          }
+          
+          .products-table tr:hover {
+            background-color: #f9f9f9;
+          }
+          
+          .footer {
+            margin-top: 40px;
+            text-align: center;
+            color: #666;
+            font-size: 12px;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
+          }
+          
+          @media print {
+            body {
+              padding: 20px;
+            }
+            
+            .header {
+              margin-bottom: 30px;
+            }
+            
+            button {
+              display: none;
+            }
+          }
+          
+          .print-button {
+            background-color: #F18372;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 20px auto;
+            display: block;
+          }
+          
+          .print-button:hover {
+            background-color: #E07362;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="header">
+          <h1>Order Details</h1>
+          <p style="color: #666; font-size: 14px;">Order Number: ${viewingOrderDetails.orderNumber}</p>
+        </div>
+        
+        <div class="section">
+          <div class="section-title">Customer Information</div>
+          <div class="info-row">
+            <div class="info-label">Customer Name:</div>
+            <div class="info-value">${viewingOrderDetails.customerName}</div>
+          </div>
+          <div class="info-row">
+            <div class="info-label">Order ID:</div>
+            <div class="info-value">${viewingOrderDetails.orderNumber}</div>
+          </div>
+          <div class="info-row">
+            <div class="info-label">Payment Status:</div>
+            <div class="info-value">${viewingOrderDetails.paymentStatus}</div>
+          </div>
+        </div>
+        
+        ${addressString ? `
+        <div class="section">
+          <div class="section-title">Delivery Address</div>
+          <div class="info-row">
+            <div class="info-label">Address:</div>
+            <div class="info-value">${addressString}</div>
+          </div>
+        </div>
+        ` : ''}
+        
+        <div class="section">
+          <div class="section-title">Ordered Products</div>
+          <table class="products-table">
+            <thead>
+              <tr>
+                <th style="width: 10%;">#</th>
+                <th style="width: 50%;">Product Name</th>
+                <th style="width: 20%;">Quantity</th>
+                <th style="width: 20%;">Size</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${viewingOrderDetails.products?.map((product, index) => `
+                <tr>
+                  <td>${index + 1}</td>
+                  <td>${product.name}</td>
+                  <td>${product.quantity || 0}</td>
+                  <td>${product.size || 'N/A'}</td>
+                </tr>
+              `).join('') || '<tr><td colspan="4" style="text-align: center; padding: 20px;">No products found</td></tr>'}
+            </tbody>
+          </table>
+        </div>
+        
+        <div class="footer">
+          <p>Generated on ${new Date().toLocaleString()}</p>
+        </div>
+        
+        <button class="print-button" onclick="window.print()">Print / Save as PDF</button>
+        
+        <script>
+          // Auto print dialog after page loads
+          window.onload = function() {
+            // Optional: Automatically open print dialog
+            // window.print();
+          }
+        </script>
+      </body>
+    </html>
+  `;
+
+  // Write content to the new window
+  printWindow.document.write(printContent);
+  printWindow.document.close();
+  
+  // Wait for content to load before focusing
+  printWindow.onload = function() {
+    printWindow.focus();
+  };
+};
 
   // Filter orders based on date range, status, and search term
   const filteredOrders = useMemo(() => {
@@ -187,44 +408,22 @@ const statusOptions = ["pending", "processing", "shipped", "delivered", "cancell
 
   // Comprehensive CSV export function
   const exportOrdersToCSV = (orders, filename) => {
-    // Create detailed rows for each product in each order
-    const rows = [];
-    
-    orders.forEach(order => {
-      if (order.products && order.products.length > 0) {
-        // Create a row for each product in the order
-        order.products.forEach((product, productIndex) => {
-          const deliveryAddress = order.deliveryAddress?.addressDetails || {};
-          const addressLine = [
-            deliveryAddress.address,
-            deliveryAddress.city,
-            deliveryAddress.state,
-            deliveryAddress.zipCode
-          ].filter(Boolean).join(', ');
+  // Helper function to properly escape CSV fields
+  const escapeCsvField = (field) => {
+    if (field === null || field === undefined) return '';
+    const stringField = String(field);
+    // Escape double quotes by doubling them, and wrap in quotes if contains comma, quote, or newline
+    if (stringField.includes(',') || stringField.includes('"') || stringField.includes('\n')) {
+      return `"${stringField.replace(/"/g, '""')}"`;
+    }
+    return stringField;
+  };
 
-          rows.push([
-            order.orderNumber || order.id,
-            `"${order.customerName}"`,
-            order.email,
-            order.phone || 'N/A',
-            order.orderDate,
-            order.status,
-            order.paymentMethod || 'N/A',
-            order.paymentStatus || 'N/A',
-            `"${addressLine || 'N/A'}"`,
-            productIndex + 1, // Product sequence in order
-            `"${product.name || 'N/A'}"`,
-            product.size || 'N/A',
-            product.quantity || 0,
-            product.pricePerItem?.toFixed(2) || '0.00',
-            product.totalPrice?.toFixed(2) || '0.00',
-            order.total?.toFixed(2) || '0.00',
-            order.items || 0,
-            new Date(order.orderDate).toLocaleDateString() + ' ' + new Date(order.orderDate).toLocaleTimeString()
-          ]);
-        });
-      } else {
-        // If no products, still include the order with empty product fields
+  const rows = [];
+  
+  orders.forEach(order => {
+    if (order.products && order.products.length > 0) {
+      order.products.forEach((product, productIndex) => {
         const deliveryAddress = order.deliveryAddress?.addressDetails || {};
         const addressLine = [
           deliveryAddress.address,
@@ -234,67 +433,97 @@ const statusOptions = ["pending", "processing", "shipped", "delivered", "cancell
         ].filter(Boolean).join(', ');
 
         rows.push([
-          order.orderNumber || order.id,
-          `"${order.customerName}"`,
-          order.email,
-          order.phone || 'N/A',
-          order.orderDate,
-          order.status,
-          order.paymentMethod || 'N/A',
-          order.paymentStatus || 'N/A',
-          `"${addressLine || 'N/A'}"`,
-          'N/A', // Product sequence
-          'No products found',
-          'N/A', // Size
-          0, // Quantity
-          '0.00', // Price per item
-          '0.00', // Product total
-          order.total?.toFixed(2) || '0.00',
-          order.items || 0,
-          new Date(order.orderDate).toLocaleDateString() + ' ' + new Date(order.orderDate).toLocaleTimeString()
+          escapeCsvField(order.orderNumber || order.id),
+          escapeCsvField(order.customerName),
+          escapeCsvField(order.email),
+          escapeCsvField(order.phone || 'N/A'),
+          escapeCsvField(order.orderDate),
+          escapeCsvField(order.status),
+          escapeCsvField(order.paymentMethod || 'N/A'),
+          escapeCsvField(order.paymentStatus || 'N/A'),
+          escapeCsvField(addressLine || 'N/A'),
+          escapeCsvField(productIndex + 1),
+          escapeCsvField(product.name || 'N/A'),
+          escapeCsvField(product.size || 'N/A'),
+          escapeCsvField(product.quantity || 0),
+          escapeCsvField(product.pricePerItem?.toFixed(2) || '0.00'),
+          escapeCsvField(product.totalPrice?.toFixed(2) || '0.00'),
+          escapeCsvField(order.total?.toFixed(2) || '0.00'),
+          escapeCsvField(order.items || 0),
+          escapeCsvField(new Date(order.orderDate).toLocaleString())
         ]);
-      }
-    });
+      });
+    } else {
+      const deliveryAddress = order.deliveryAddress?.addressDetails || {};
+      const addressLine = [
+        deliveryAddress.address,
+        deliveryAddress.city,
+        deliveryAddress.state,
+        deliveryAddress.zipCode
+      ].filter(Boolean).join(', ');
 
-    // Define comprehensive headers
-    const headers = [
-      "Order Number",
-      "Customer Name", 
-      "Email",
-      "Phone",
-      "Order Date",
-      "Order Status",
-      "Payment Method",
-      "Payment Status",
-      "Delivery Address",
-      "Product Sequence",
-      "Product Name",
-      "Product Size",
-      "Product Quantity",
-      "Price Per Item (₹)",
-      "Product Total (₹)",
-      "Order Total (₹)",
-      "Total Items in Order",
-      "Order Timestamp"
-    ];
+      rows.push([
+        escapeCsvField(order.orderNumber || order.id),
+        escapeCsvField(order.customerName),
+        escapeCsvField(order.email),
+        escapeCsvField(order.phone || 'N/A'),
+        escapeCsvField(order.orderDate),
+        escapeCsvField(order.status),
+        escapeCsvField(order.paymentMethod || 'N/A'),
+        escapeCsvField(order.paymentStatus || 'N/A'),
+        escapeCsvField(addressLine || 'N/A'),
+        escapeCsvField('N/A'),
+        escapeCsvField('No products found'),
+        escapeCsvField('N/A'),
+        escapeCsvField(0),
+        escapeCsvField('0.00'),
+        escapeCsvField('0.00'),
+        escapeCsvField(order.total?.toFixed(2) || '0.00'),
+        escapeCsvField(order.items || 0),
+        escapeCsvField(new Date(order.orderDate).toLocaleString())
+      ]);
+    }
+  });
 
-    // Create CSV content
-    const csvContent = [
-      headers.join(","),
-      ...rows.map(row => row.join(","))
-    ].join("\n");
+  const headers = [
+    "Order Number",
+    "Customer Name", 
+    "Email",
+    "Phone",
+    "Order Date",
+    "Order Status",
+    "Payment Method",
+    "Payment Status",
+    "Delivery Address",
+    "Product Sequence",
+    "Product Name",
+    "Product Size",
+    "Product Quantity",
+    "Price Per Item (₹)",
+    "Product Total (₹)",
+    "Order Total (₹)",
+    "Total Items in Order",
+    "Order Timestamp"
+  ];
 
-    // Download the file
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-    const link = document.createElement("a");
-    const url = URL.createObjectURL(blob);
-    link.setAttribute("href", url);
-    link.setAttribute("download", `${filename}_detailed_export_${new Date().toISOString().split('T')[0]}.csv`);
-    link.style.visibility = "hidden";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
+  // Add BOM for proper UTF-8 encoding in Excel
+  const BOM = '\uFEFF';
+  const csvContent = BOM + [
+    headers.join(","),
+    ...rows.map(row => row.join(","))
+  ].join("\n");
+
+  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+  const link = document.createElement("a");
+  const url = URL.createObjectURL(blob);
+  link.setAttribute("href", url);
+  link.setAttribute("download", `${filename}_detailed_export_${new Date().toISOString().split('T')[0]}.csv`);
+  link.style.visibility = "hidden";
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url); // Clean up the URL object
+};
 
   const getStatusColor = (status) => {
   switch (status?.toLowerCase()) {
@@ -777,7 +1006,14 @@ const statusOptions = ["pending", "processing", "shipped", "delivered", "cancell
       </div>
 
       {/* Modal Footer */}
-      <div className="bg-gray-50 px-6 py-4 border-t border-gray-200 flex justify-end">
+      <div className="bg-gray-50 gap-5 px-6 py-4 border-t border-gray-200 flex justify-end">
+        <button 
+          onClick={handlePrintOrder}
+          className="px-6 py-2 bg-[#F18372] text-white rounded-lg hover:bg-[#E07362] transition-colors flex items-center gap-2"
+        >
+          <Printer className="h-4 w-4" />
+          Print Order
+        </button>
         <button
           onClick={closeOrderDetails}
           className="px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"

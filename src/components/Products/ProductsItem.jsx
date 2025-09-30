@@ -1,7 +1,7 @@
 import React from 'react';
 
-const ProductItem = ({ product, onAddToCart, onRemoveFromCart, cartQuantity = 0 }) => {
-    // ✅ Use cartQuantity from props instead of local state
+// ✅ Add onImageClick to the props destructuring
+const ProductItem = ({ product, onAddToCart, onRemoveFromCart, onImageClick, cartQuantity = 0 }) => {
     const count = cartQuantity;
 
     const handleAddClick = () => {
@@ -13,17 +13,40 @@ const ProductItem = ({ product, onAddToCart, onRemoveFromCart, cartQuantity = 0 
     };
 
     const handleDecrement = () => {
-        onRemoveFromCart(); // This should actually remove from cart
+        onRemoveFromCart();
     };
+
+    // Convert prices to numbers to handle string values from database
+    const price = Number(product.price);
+    const offerPrice = Number(product.offerPrice);
+    
+    // Check if offer is set (offerPrice exists, is a valid number, and is less than regular price)
+    const hasOffer = !isNaN(offerPrice) && 
+                     !isNaN(price) && 
+                     offerPrice > 0 &&
+                     offerPrice < price;
 
     return (
         <div className="border border-gray-500/20 rounded-md px-4 py-3 bg-white min-w-56 w-full shadow-sm hover:shadow-md transition-shadow">
-            <div className="group cursor-pointer flex items-center justify-center px-2 mb-3">
+            <div className="group cursor-pointer flex items-center justify-center px-2 mb-3 relative">
                 <img 
-                    className="group-hover:scale-105 transition max-w-full md:max-w-full" 
                     src={product.image} 
-                    alt={product.name} 
+                    alt={product.name}
+                    onClick={onImageClick}
+                    className="cursor-pointer hover:scale-105 transition-transform duration-200"
                 />
+                {/* Only show offer text badge if it exists */}
+                {product.offerText && (
+                    <div className="absolute top-2 right-2 bg-gradient-to-r from-amber-500 to-orange-500 text-white px-2 py-1 rounded-full text-xs font-semibold shadow-lg">
+                        {product.offerText}
+                    </div>
+                )}
+                {/* Only show discount badge if there's a valid offer */}
+                {hasOffer && (
+                    <div className="absolute top-2 left-2 bg-gradient-to-r from-red-500 to-pink-500 text-white px-2 py-1 rounded-full text-xs font-bold shadow-lg">
+                        {product.offerPercentage || Math.round(((price - offerPrice) / price) * 100)}% OFF
+                    </div>
+                )}
             </div>
             <div className="text-gray-500/60 text-sm">
                 <p className="mb-1">{product.category}</p>
@@ -45,9 +68,16 @@ const ProductItem = ({ product, onAddToCart, onRemoveFromCart, cartQuantity = 0 
                     <p className="ml-1">({product.rating})</p>
                 </div>
                 <div className="flex items-end justify-between">
-                    <p className="md:text-xl text-base font-medium text-[#37471e]">
-                       ₹{product.offerPrice} <span className="text-gray-500/60 md:text-sm text-xs line-through">₹{product.price}</span>
-                    </p>
+                    {/* Conditionally show price based on whether offer exists */}
+                    {hasOffer ? (
+                        <p className="md:text-xl text-base font-medium text-[#37471e]">
+                            ₹{offerPrice} <span className="text-gray-500/60 md:text-sm text-xs line-through">₹{price}</span>
+                        </p>
+                    ) : (
+                        <p className="md:text-xl text-base font-medium text-[#37471e]">
+                            ₹{price}
+                        </p>
+                    )}
                     <div>
                         {count === 0 ? (
                             <button 

@@ -20,7 +20,7 @@ import TermsAndConditions from './pages/TermsAndConditions';
 
 const AppContent = () => {
   const location = useLocation();
-  const isAdminPage = location.pathname.includes('/admin');
+  const isAdminPage = location.pathname.includes('/adminlogin');
   
   // Define routes where navbar and footer should be hidden
   const hideNavFooterRoutes = ['/adminlogin'];

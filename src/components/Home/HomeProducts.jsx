@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
-import image from "../../assets/napkin1.png"
-import image1 from "../../assets/napkin2.png"
+import image from "../../assets/napkin.png"
+import image1 from "../../assets/napkin.png"
 import { useNavigate } from 'react-router-dom';
 
 const HomeProducts = () => {

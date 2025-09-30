@@ -43,10 +43,10 @@ const Footer = () => {
     },
     {
       title: "Follow Us",
-      links: ["Instagram", "Facebook"],
+      links: ["Instagram", ],
       urls: [
         "https://www.instagram.com/paapatchi_enterprises/?igsh=MWc4eTJ6dHkwejZreQ%3D%3D#",
-        "https://facebook.com/",
+        
       ],
     },
   ];

@@ -2,9 +2,11 @@ import {
   collection, 
   addDoc, 
   getDocs, 
+  getDoc,
   doc, 
   updateDoc, 
   deleteDoc,
+  setDoc,
   serverTimestamp,
   query,
   orderBy
@@ -12,8 +14,13 @@ import {
 import { db } from '../firebase/firebaseConfig';
 
 const PRODUCTS_COLLECTION = 'products';
+const SETTINGS_COLLECTION = 'settings';
 
 export const firestoreService = {
+  // =====================
+  // PRODUCTS METHODS
+  // =====================
+  
   // Get all products
   getAllProducts: async () => {
     try {
@@ -29,6 +36,26 @@ export const firestoreService = {
       return products;
     } catch (error) {
       console.error('Error getting products:', error);
+      throw error;
+    }
+  },
+
+  // Get product by ID
+  getProductById: async (productId) => {
+    try {
+      const productRef = doc(db, PRODUCTS_COLLECTION, productId);
+      const productSnap = await getDoc(productRef);
+      
+      if (productSnap.exists()) {
+        return {
+          id: productSnap.id,
+          ...productSnap.data()
+        };
+      } else {
+        throw new Error('Product not found');
+      }
+    } catch (error) {
+      console.error('Error fetching product:', error);
       throw error;
     }
   },
@@ -75,28 +102,102 @@ export const firestoreService = {
     }
   },
 
-  async getProductById(productId) {
+  // Increment product order count (for analytics)
+  incrementProductOrder: async (productId, quantity = 1) => {
     try {
-      const productRef = doc(db, 'products', productId);
+      const productRef = doc(db, PRODUCTS_COLLECTION, productId);
       const productSnap = await getDoc(productRef);
       
       if (productSnap.exists()) {
-        return {
-          id: productSnap.id,
-          ...productSnap.data()
-        };
-      } else {
-        throw new Error('Product not found');
+        const currentOrders = productSnap.data().totalOrders || 0;
+        await updateDoc(productRef, {
+          totalOrders: currentOrders + quantity,
+          updatedAt: serverTimestamp()
+        });
       }
+      return true;
     } catch (error) {
-      console.error('Error fetching product:', error);
+      console.error('Error updating product orders:', error);
       throw error;
     }
   },
+
+  // =====================
+  // GENERAL SETTINGS METHODS
+  // =====================
   
-  async getShippingSettings() {
+
+  // Add this new method to firestoreService
+initializeSettings: async () => {
+  try {
+    const settingsRef = doc(db, SETTINGS_COLLECTION, 'general');
+    const settingsSnap = await getDoc(settingsRef);
+    
+    if (!settingsSnap.exists()) {
+      // Create the document with default values
+      await setDoc(settingsRef, {
+        shippingFee: 0,
+        taxApplicable: 0,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      });
+      console.log('Settings document created');
+    }
+    return true;
+  } catch (error) {
+    console.error('Error initializing settings:', error);
+    throw error;
+  }
+},
+
+  // Get general settings (shipping fee, tax, etc.)
+  getSettings: async () => {
     try {
-      const settingsRef = doc(db, 'settings', 'shipping');
+      const settingsRef = doc(db, SETTINGS_COLLECTION, 'general');
+      const settingsSnap = await getDoc(settingsRef);
+      
+      if (settingsSnap.exists()) {
+        return settingsSnap.data();
+      } else {
+        // Return default settings if none exist
+        const defaultSettings = {
+          shippingFee: 0,
+          taxApplicable: 0
+        };
+        return defaultSettings;
+      }
+    } catch (error) {
+      console.error('Error fetching settings:', error);
+      throw error;
+    }
+  },
+
+  // Update general settings (will create if doesn't exist)
+  updateSettings: async (settingsData) => {
+    try {
+      const settingsRef = doc(db, SETTINGS_COLLECTION, 'general');
+      
+      // Use setDoc with merge to create or update
+      await setDoc(settingsRef, {
+        ...settingsData,
+        updatedAt: new Date().toISOString()
+      }, { merge: true });
+      
+      return true;
+    } catch (error) {
+      console.error('Error updating settings:', error);
+      throw error;
+    }
+  },
+
+  // =====================
+  // SHIPPING SETTINGS METHODS
+  // =====================
+  
+  // Get shipping settings
+  getShippingSettings: async () => {
+    try {
+      const settingsRef = doc(db, SETTINGS_COLLECTION, 'shipping');
       const settingsSnap = await getDoc(settingsRef);
       
       if (settingsSnap.exists()) {
@@ -108,25 +209,26 @@ export const firestoreService = {
           expressShipping: 100,
           freeShippingThreshold: 500,
           isActive: true,
-          updatedAt: new Date(),
-          createdAt: new Date()
+          updatedAt: serverTimestamp(),
+          createdAt: serverTimestamp()
         };
         // Create default settings in Firestore
-        await this.updateShippingSettings(defaultSettings);
+        await setDoc(settingsRef, defaultSettings);
         return defaultSettings;
       }
     } catch (error) {
       console.error('Error fetching shipping settings:', error);
       throw error;
     }
-  }
-,
-  async updateShippingSettings(settingsData) {
+  },
+
+  // Update shipping settings
+  updateShippingSettings: async (settingsData) => {
     try {
-      const settingsRef = doc(db, 'settings', 'shipping');
+      const settingsRef = doc(db, SETTINGS_COLLECTION, 'shipping');
       await setDoc(settingsRef, {
         ...settingsData,
-        updatedAt: new Date()
+        updatedAt: serverTimestamp()
       }, { merge: true });
       return true;
     } catch (error) {
@@ -135,10 +237,10 @@ export const firestoreService = {
     }
   },
 
-  // Method for checkout page to calculate shipping
-  async calculateShipping(orderTotal, shippingType = 'standard') {
+  // Calculate shipping for checkout
+  calculateShipping: async (orderTotal, shippingType = 'standard') => {
     try {
-      const shippingSettings = await this.getShippingSettings();
+      const shippingSettings = await firestoreService.getShippingSettings();
       
       if (!shippingSettings.isActive) {
         return {
@@ -191,9 +293,9 @@ export const firestoreService = {
   },
 
   // Get shipping options for checkout page
-  async getShippingOptions(orderTotal) {
+  getShippingOptions: async (orderTotal) => {
     try {
-      const shippingSettings = await this.getShippingSettings();
+      const shippingSettings = await firestoreService.getShippingSettings();
       
       if (!shippingSettings.isActive) {
         return [{
@@ -239,25 +341,24 @@ export const firestoreService = {
       throw error;
     }
   },
-
-  // Method to update product order count (for analytics)
-  async incrementProductOrder(productId, quantity = 1) {
-    try {
-      const productRef = doc(db, 'products', productId);
-      const productSnap = await getDoc(productRef);
-      
-      if (productSnap.exists()) {
-        const currentOrders = productSnap.data().totalOrders || 0;
-        await updateDoc(productRef, {
-          totalOrders: currentOrders + quantity,
-          updatedAt: new Date()
-        });
-      }
-      return true;
-    } catch (error) {
-      console.error('Error updating product orders:', error);
-      throw error;
+  // Add to your firestoreService
+async initializeSettings() {
+  try {
+    const settingsRef = doc(db, 'settings', 'general');
+    const settingsDoc = await getDoc(settingsRef);
+    
+    if (!settingsDoc.exists()) {
+      await setDoc(settingsRef, {
+        shippingFee: 0,
+        taxApplicable: 0,
+        globalOfferEnabled: false,
+        globalOfferPercentage: 0,
+        globalOfferText: ""
+      });
     }
+  } catch (error) {
+    console.error('Error initializing settings:', error);
+    throw error;
   }
-
+}
 };

@@ -7,7 +7,8 @@ import AddressModal from "./AddressModal";
 import { db } from "../../firebase/firebaseConfig";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { doc, updateDoc } from "firebase/firestore";
-
+import { firestoreService } from "../../service/firestoreService";
+import OrderSuccessModal from "./OrderSuccessModal";
 
 const Checkout = () => {
   const [showAddress, setShowAddress] = useState(false);
@@ -15,6 +16,15 @@ const Checkout = () => {
   const [paymentMethod, setPaymentMethod] = useState("COD");
   const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
   const [isOrderPlacing, setIsOrderPlacing] = useState(false);
+  const [shippingFee, setShippingFee] = useState(0);
+  const [taxRate, setTaxRate] = useState(0);
+  const [loadingSettings, setLoadingSettings] = useState(true);
+  const [orderSuccess, setOrderSuccess] = useState({
+    isOpen: false,
+    orderNumber: '',
+    total: 0,
+    email: ''
+  });
   const [savedAddresses, setSavedAddresses] = useState([
     {
       fullName: "John Doe",
@@ -40,26 +50,60 @@ const Checkout = () => {
     },
   ]);
 
+  const navigate = useNavigate();
+
+  // Use cart context
+  const {
+    cartItems,
+    updateQuantity,
+    removeFromCart,
+    clearCart,
+  } = useCart();
+
+  // Calculate cart values based on Firebase settings
+  const itemCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+  const subtotal = cartItems.reduce((sum, item) => sum + (item.offerPrice * item.quantity), 0);
+  const calculatedTax = (subtotal * taxRate) / 100;
+  const total = subtotal + shippingFee + calculatedTax;
+
+  const handleModalClose = () => {
+    setOrderSuccess({
+      isOpen: false,
+      orderNumber: '',
+      total: 0,
+      email: ''
+    });
+    navigate("/products");
+  };
+
+  // Load settings from Firebase
+  useEffect(() => {
+    const loadSettings = async () => {
+      try {
+        setLoadingSettings(true);
+        await firestoreService.initializeSettings();
+        const settings = await firestoreService.getSettings();
+        setShippingFee(settings.shippingFee || 0);
+        setTaxRate(settings.taxApplicable || 0);
+      } catch (error) {
+        console.error('Error loading settings:', error);
+        // Set defaults on error
+        setShippingFee(0);
+        setTaxRate(0);
+      } finally {
+        setLoadingSettings(false);
+      }
+    };
+    
+    loadSettings();
+  }, []);
+
   useEffect(() => {
     // Set first address as default if none selected
     if (!selectedAddress && savedAddresses.length > 0) {
       setSelectedAddress(savedAddresses[0]);
     }
-  }, [savedAddresses]);
-
-  const navigate = useNavigate();
-
-  // Use cart context instead of location state
-  const {
-    cartItems,
-    updateQuantity,
-    removeFromCart,
-    subtotal,
-    tax,
-    total,
-    itemCount,
-    clearCart,
-  } = useCart();
+  }, [savedAddresses, selectedAddress]);
 
   // Handle adding new address
   const handleAddAddress = (newAddressData) => {
@@ -99,6 +143,7 @@ const Checkout = () => {
         order_items: orderItemsString,
         subtotal: orderDetails.subtotal,
         tax: orderDetails.tax,
+        shipping_fee: orderDetails.shippingFee,
         total_amount: orderDetails.total,
         delivery_address: orderDetails.deliveryAddress,
         payment_method: orderDetails.paymentMethod,
@@ -150,70 +195,35 @@ const Checkout = () => {
     try {
       // Prepare order details
       const orderDetails = {
-        customerEmail: selectedAddress.email,
         customerName: selectedAddress.fullName,
+        customerEmail: selectedAddress.email,
         customerPhone: selectedAddress.phone,
         deliveryAddress: selectedAddress.displayString,
         paymentMethod: paymentMethod,
         items: cartItems,
-        subtotal: subtotal,
-        tax: tax,
-        total: total,
+        subtotal: subtotal.toFixed(2),
+        shippingFee: shippingFee.toFixed(2),
+        tax: calculatedTax.toFixed(2),
+        total: total.toFixed(2),
         itemCount: itemCount,
+        status: "pending",
+        createdAt: serverTimestamp()
       };
 
-      // Create order data for Firestore
-      const orderData = {
+      // Save order to Firebase
+      const docRef = await addDoc(collection(db, "orders"), orderDetails);
+      console.log("Order saved to Firebase with ID:", docRef.id);
+
+      // Show success modal FIRST (before clearing cart)
+      setOrderSuccess({
+        isOpen: true,
         orderNumber: orderNumber,
-        customerDetails: {
-          name: selectedAddress.fullName,
-          email: selectedAddress.email,
-          phone: selectedAddress.phone,
-        },
-        deliveryAddress: {
-          fullAddress: selectedAddress.displayString,
-          addressDetails: {
-            address: selectedAddress.address,
-            city: selectedAddress.city,
-            state: selectedAddress.state,
-            zipCode: selectedAddress.zipCode,
-            addressType: selectedAddress.addressType,
-          }
-        },
-        paymentMethod: paymentMethod,
-        items: cartItems.map(item => ({
-          id: item.id,
-          name: item.name,
-          category: item.category,
-          image: item.image,
-          size: item.size || "N/A",
-          quantity: item.quantity,
-          pricePerItem: item.offerPrice,
-          totalPrice: item.offerPrice * item.quantity
-        })),
-        pricing: {
-          subtotal: subtotal,
-          tax: tax,
-          shippingFee: 0,
-          total: total,
-        },
-        itemCount: itemCount,
-        orderStatus: "pending",
-        paymentStatus: paymentMethod === "COD" ? "pending" : "paid",
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
-      };
+        total: total.toFixed(2),
+        email: selectedAddress.email
+      });
 
-      // Save order to Firestore
-      console.log("Saving order to Firestore...");
-      const docRef = await addDoc(collection(db, "orders"), orderData);
-      console.log("Order saved with ID: ", docRef.id);
-
-      // Clear cart
+      // Clear cart AFTER showing modal
       clearCart();
-
-      // Show success alert
-      alert(`✅ Order placed successfully!\n\nOrder Number: ${orderNumber}\nTotal Amount: ₹${total}\n\nA confirmation email will be sent to ${selectedAddress.email}`);
 
       // Try to send email in background
       sendOrderConfirmationEmail(orderDetails)
@@ -230,9 +240,6 @@ const Checkout = () => {
           console.error("Email sending failed:", emailError);
         });
 
-      // Redirect to products page
-      navigate("/products");
-
       console.log("=== ORDER PLACEMENT SUCCESS ===");
 
     } catch (error) {
@@ -243,8 +250,8 @@ const Checkout = () => {
     }
   };
 
-  // Show empty cart message when no products
-  if (cartItems.length === 0) {
+  // Show empty cart message when no products (but not when modal is showing)
+  if (cartItems.length === 0 && !orderSuccess.isOpen) {
     return (
       <div className="flex flex-col items-center justify-center py-16 max-w-6xl w-full px-6 mx-auto min-h-[500px]">
         <div className="text-center">
@@ -338,7 +345,7 @@ const Checkout = () => {
                 </div>
               </div>
               <p className="text-center font-semibold text-gray-800">
-                ₹{product.offerPrice * product.quantity}
+                ₹{(product.offerPrice * product.quantity).toFixed(2)}
               </p>
               <button
                 className="cursor-pointer mx-auto"
@@ -464,34 +471,36 @@ const Checkout = () => {
           <div className="text-gray-500 mt-4 space-y-2">
             <p className="flex justify-between">
               <span>Price ({itemCount} items)</span>
-              <span>₹{subtotal}</span>
+              <span>₹{subtotal.toFixed(2)}</span>
             </p>
             <p className="flex justify-between">
               <span>Shipping Fee</span>
-              <span className="text-green-600">Free</span>
+              <span className={shippingFee === 0 ? "text-green-600" : ""}>
+                {shippingFee === 0 ? 'Free' : `₹${shippingFee.toFixed(2)}`}
+              </span>
             </p>
             <p className="flex justify-between">
-              <span>Tax (2%)</span>
-              <span>₹{tax}</span>
+              <span>Tax ({taxRate}%)</span>
+              <span>₹{calculatedTax.toFixed(2)}</span>
             </p>
             <hr className="border-gray-300 my-2" />
             <p className="flex justify-between text-lg font-medium text-gray-800">
               <span>Total Amount:</span>
-              <span>₹{total}</span>
+              <span>₹{total.toFixed(2)}</span>
             </p>
           </div>
 
           {/* Place Order */}
           <button
             onClick={handlePlaceOrder}
-            disabled={isOrderPlacing}
+            disabled={isOrderPlacing || loadingSettings}
             className={`w-full py-3 mt-6 cursor-pointer font-medium rounded transition ${
-              isOrderPlacing
+              isOrderPlacing || loadingSettings
                 ? "bg-gray-400 text-gray-200 cursor-not-allowed"
                 : "bg-[#F18372] text-white hover:bg-[#ec543d]"
             }`}
           >
-            {isOrderPlacing ? "Placing Order..." : "Place Order"}
+            {loadingSettings ? "Loading..." : isOrderPlacing ? "Placing Order..." : "Place Order"}
           </button>
         </div>
       </div>
@@ -501,6 +510,14 @@ const Checkout = () => {
         isOpen={isAddressModalOpen}
         onClose={() => setIsAddressModalOpen(false)}
         onAddAddress={handleAddAddress}
+      />
+
+      <OrderSuccessModal
+        isOpen={orderSuccess.isOpen}
+        onClose={handleModalClose}
+        orderNumber={orderSuccess.orderNumber}
+        total={orderSuccess.total}
+        email={orderSuccess.email}
       />
     </>
   );

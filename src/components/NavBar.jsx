@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Search, ShoppingCart, X } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import MainLogo from '../assets/PinkLadyLogo.png';
+import PaapatchiLogo from '../assets/PapaatchiLogo.png'; // ADD THIS LINE - Adjust path as needed
 import { useCart } from '../context/CartContext';
 import './NavBar.css';
 
@@ -223,10 +224,10 @@ useEffect(() => {
         </div>
       )}
 
-<nav className={`navbar ${isScrolled ? 'scrolled' : ''}`}>
+      <nav className={`navbar ${isScrolled ? 'scrolled' : ''}`}>
         <div className="navbar-container">
-          {/* Logo */}
-          <button onClick={() => handleNavigation("/")} className="logo">
+          {/* Left Logo - Pink Lady */}
+          <button onClick={() => handleNavigation("/")} className="logo logo-left">
             <img src={MainLogo} alt="Pink Lady Logo" />
           </button>
 
@@ -253,17 +254,37 @@ useEffect(() => {
             )}
           </ul>
 
-          {/* Desktop Icons (hide in admin if not needed) */}
-          {!isAdminRoute && (
-            <div className="nav-icons">
-              <button 
-                onClick={openSearch}
-                className="search-btn"
-                aria-label="Open search"
-              >
-                <Search className="w-5 h-5" />
-              </button>
-              <div className="cart-container relative" onClick={() => { navigate("/checkout") }}>
+          {/* Right side container with icons and logo */}
+          <div className="navbar-right">
+            {/* Desktop Icons (hide in admin if not needed) */}
+            {!isAdminRoute && (
+              <div className="nav-icons">
+                <button 
+                  onClick={openSearch}
+                  className="search-btn"
+                  aria-label="Open search"
+                >
+                  <Search className="w-5 h-5" />
+                </button>
+                <div className="cart-container relative" onClick={() => { navigate("/checkout") }}>
+                  <ShoppingCart className="w-5 h-5" />
+                  {itemCount > 0 && (
+                    <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center min-w-[20px] font-semibold">
+                      {itemCount > 99 ? '99+' : itemCount}
+                    </span>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Right Logo - Paapatchi Enterprises */}
+            <div className="logo logo-right">
+              <img src={PaapatchiLogo} alt="Paapatchi Enterprises Logo" />
+            </div>
+
+            {/* Mobile Cart Icon (hide in admin) */}
+            {!isAdminRoute && (
+              <div className="mobile-cart-icon relative" onClick={() => { navigate("/checkout") }}>
                 <ShoppingCart className="w-5 h-5" />
                 {itemCount > 0 && (
                   <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center min-w-[20px] font-semibold">
@@ -271,69 +292,57 @@ useEffect(() => {
                   </span>
                 )}
               </div>
-            </div>
-          )}
+            )}
 
-          {/* Mobile Cart Icon (hide in admin) */}
-          {!isAdminRoute && (
-            <div className="mobile-cart-icon relative" onClick={() => { navigate("/checkout") }}>
-              <ShoppingCart className="w-5 h-5" />
-              {itemCount > 0 && (
-                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center min-w-[20px] font-semibold">
-                  {itemCount > 99 ? '99+' : itemCount}
-                </span>
-              )}
-            </div>
-          )}
-
-          {/* Hamburger Menu */}
-          <button
-            className={`hamburger ${isOpen ? 'active' : ''}`}
-            onClick={() => setIsOpen(!isOpen)}
-            aria-label="Toggle menu"
-          >
-            <span className="hamburger-line"></span>
-            <span className="hamburger-line"></span>
-            <span className="hamburger-line"></span>
-          </button>
+            {/* Hamburger Menu */}
+            <button
+              className={`hamburger ${isOpen ? 'active' : ''}`}
+              onClick={() => setIsOpen(!isOpen)}
+              aria-label="Toggle menu"
+            >
+              <span className="hamburger-line"></span>
+              <span className="hamburger-line"></span>
+              <span className="hamburger-line"></span>
+            </button>
+          </div>
         </div>
 
         {/* Mobile Menu */}
         <div className={`mobile-menu ${isOpen ? 'open' : ''}`}>
-            <div className="mobile-menu-content">
-              {!isAdminRoute && (
-                <div className="mobile-search">
-                  <button 
-                    onClick={() => {
-                      setIsOpen(false);
-                      openSearch();
-                    }}
-                    className="mobile-search-btn"
-                  >
-                    <Search className="w-4 h-4 text-gray-500" />
-                    <span>Search products...</span>
-                  </button>
-                </div>
-              )}
+          <div className="mobile-menu-content">
+            {!isAdminRoute && (
+              <div className="mobile-search">
+                <button 
+                  onClick={() => {
+                    setIsOpen(false);
+                    openSearch();
+                  }}
+                  className="mobile-search-btn"
+                >
+                  <Search className="w-4 h-4 text-gray-500" />
+                  <span>Search products...</span>
+                </button>
+              </div>
+            )}
 
-              {/* Mobile Navigation */}
-              {isAdminRoute ? (
-                <>
-                  <button onClick={() => handleNavigation("/admin/products")} className="mobile-nav-link">
-                    Products
-                  </button>
-                  <button onClick={() => handleNavigation("/admin/orders")} className="mobile-nav-link">
-                    Order Management
-                  </button>
-                </>
-              ) : (
-                <>
-                  <button onClick={() => handleNavigation("/")} className="mobile-nav-link">Home</button>
-                  <button onClick={() => handleNavigation("/about")} className="mobile-nav-link">About</button>
-                  <button onClick={() => handleNavigation("/products")} className="mobile-nav-link">Products</button>
-                  <button onClick={() => handleNavigation("/contact")} className="mobile-nav-link">Contact</button>
-                </>
-              )}
+            {/* Mobile Navigation */}
+            {isAdminRoute ? (
+              <>
+                <button onClick={() => handleNavigation("/admin/products")} className="mobile-nav-link">
+                  Products
+                </button>
+                <button onClick={() => handleNavigation("/admin/orders")} className="mobile-nav-link">
+                  Order Management
+                </button>
+              </>
+            ) : (
+              <>
+                <button onClick={() => handleNavigation("/")} className="mobile-nav-link">Home</button>
+                <button onClick={() => handleNavigation("/about")} className="mobile-nav-link">About</button>
+                <button onClick={() => handleNavigation("/products")} className="mobile-nav-link">Products</button>
+                <button onClick={() => handleNavigation("/contact")} className="mobile-nav-link">Contact</button>
+              </>
+            )}
             {/* Mobile Actions (hide in admin) */}
             {!isAdminRoute && (
               <div className="mobile-actions">

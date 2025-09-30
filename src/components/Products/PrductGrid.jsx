@@ -2,9 +2,9 @@ import React from 'react';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { collection, getDocs, query, orderBy } from 'firebase/firestore';
-import { db } from '../../firebase/firebaseConfig'; // Adjust path as needed
+import { db } from '../../firebase/firebaseConfig';
 import shoppingCart from "../../assets/icon/CheckoutIcon.png"
-import productImg from "../../assets/ProductImage.png" // Fallback image
+import productImg from "../../assets/ProductImage.png"
 import ProductItem from './ProductsItem';
 import { useCart } from '../../context/CartContext';
 
@@ -13,20 +13,47 @@ const ProductsGrid = () => {
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [showModal, setShowModal] = useState(false);
+    const [selectedProduct, setSelectedProduct] = useState(null);
     const navigate = useNavigate();
     
     const { addToCart, decrementFromCart, cartItems, itemCount } = useCart();
 
-    // Fetch products from Firebase
+    const herbalIngredients = [
+        {
+            name: "Turmeric (Manjal)",
+            benefits: "Helps prevent allergies, improves digestion, boosts immunity, and promotes healthy skin."
+        },
+        {
+            name: "Neem Leaves (Veppa Elai)",
+            benefits: "Purifies the blood, acts as a natural antibiotic, and helps regulate menstrual cycles."
+        },
+        {
+            name: "Aloe Vera (Kattralai)",
+            benefits: "Supports digestion and reduces body heat."
+        },
+        {
+            name: "Vetiver",
+            benefits: "Reduces stress, calms the mind, and provides a pleasant natural fragrance."
+        },
+        {
+            name: "Tulsi (Holy Basil)",
+            benefits: "Rich in vitamins and iron, enhances immunity, and is an excellent natural antiseptic."
+        },
+        {
+            name: "Triphala Chooranam Powder",
+            benefits: "Improves digestion, relieves constipation, detoxifies the body, and enhances overall health."
+        }
+    ];
+
     useEffect(() => {
         const fetchProducts = async () => {
             try {
                 setLoading(true);
                 setError(null);
                 
-                // Create a query to get products, ordered by creation date or name
                 const productsRef = collection(db, 'products');
-                const q = query(productsRef, orderBy('createdAt', 'desc')); // or orderBy('name')
+                const q = query(productsRef, orderBy('createdAt', 'desc'));
                 
                 const querySnapshot = await getDocs(q);
                 const productsData = [];
@@ -43,7 +70,6 @@ const ProductsGrid = () => {
                 console.error('Error fetching products:', err);
                 setError('Failed to load products. Please try again.');
                 
-                // Fallback to default products in case of error
                 setProducts([
                     {
                         id: 1,
@@ -76,6 +102,17 @@ const ProductsGrid = () => {
         fetchProducts();
     }, []);
 
+    useEffect(() => {
+        if (showModal) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'unset';
+        }
+        return () => {
+            document.body.style.overflow = 'unset';
+        };
+    }, [showModal]);
+
     const addAlert = (message, description, type) => {
         const newAlert = {
             id: Date.now() + Math.random(),
@@ -104,9 +141,8 @@ const ProductsGrid = () => {
         );
     };
 
-    // ✅ Fix this function to actually remove from cart
     const handleRemoveFromCart = (productId) => {
-        decrementFromCart(productId); // Actually remove from cart
+        decrementFromCart(productId);
         addAlert(
             'Removed from cart', 
             'Item has been successfully removed from your cart.',
@@ -140,7 +176,16 @@ const ProductsGrid = () => {
         }
     };
 
-    // Loading state
+    const handleProductClick = (product) => {
+        setSelectedProduct(product);
+        setShowModal(true);
+    };
+
+    const closeModal = () => {
+        setShowModal(false);
+        setTimeout(() => setSelectedProduct(null), 300);
+    };
+
     if (loading) {
         return (
             <div className="max-w-7xl mx-auto px-3 sm:px-4 py-4 sm:py-8 relative mb-20 sm:mb-8">
@@ -151,7 +196,6 @@ const ProductsGrid = () => {
         );
     }
 
-    // Error state
     if (error) {
         return (
             <div className="max-w-7xl mx-auto px-3 sm:px-4 py-4 sm:py-8 relative mb-20 sm:mb-8">
@@ -170,7 +214,7 @@ const ProductsGrid = () => {
 
     return (
         <div className="max-w-7xl mx-auto px-3 sm:px-4 py-4 sm:py-8 relative mb-20 sm:mb-8">
-            {/* Toast Alerts Container - Mobile Responsive */}
+            {/* Toast Alerts Container */}
             <div className="fixed top-4 sm:top-20 left-1/2 transform -translate-x-1/2 z-50 space-y-2 w-full max-w-sm px-4 sm:px-0 sm:max-w-none sm:w-auto">
                 {alerts.map((alert, index) => (
                     <div 
@@ -211,7 +255,6 @@ const ProductsGrid = () => {
                 ))}
             </div>
             
-            {/* Add CSS animation */}
             <style jsx>{`
                 @keyframes slide-down {
                     from {
@@ -227,33 +270,156 @@ const ProductsGrid = () => {
                 .animate-slide-down {
                     animation: slide-down 0.3s ease-out forwards;
                 }
+
+                @keyframes fadeIn {
+                    from { opacity: 0; }
+                    to { opacity: 1; }
+                }
+
+                @keyframes slideUp {
+                    from {
+                        opacity: 0;
+                        transform: translateY(20px);
+                    }
+                    to {
+                        opacity: 1;
+                        transform: translateY(0);
+                    }
+                }
+
+                .animate-fade-in {
+                    animation: fadeIn 0.3s ease-out;
+                }
+
+                .animate-slide-up {
+                    animation: slideUp 0.3s ease-out;
+                }
             `}</style>
             
-            {/* Show empty state if no products */}
+            {/* Herbal Ingredients Modal */}
+            {showModal && (
+                <div 
+                    className="fixed inset-0 z-[9999] flex items-center justify-center p-4 animate-fade-in"
+                    onClick={closeModal}
+                >
+                    {/* Backdrop */}
+                    <div className="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
+                    
+                    {/* Modal Content */}
+                    <div 
+                        className="relative bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden animate-slide-up"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        {/* Header */}
+                        <div className="sticky top-0 bg-gradient-to-r from-[#93B45D] to-[#7BA04A] text-white p-4 sm:p-6 flex items-center justify-between">
+                            <div>
+                                <h2 className="text-xl sm:text-2xl font-bold">Natural Herbal Ingredients</h2>
+                                <p className="text-sm sm:text-base text-white/90 mt-1">Six powerful herbs for your wellness</p>
+                            </div>
+                            <button
+                                onClick={closeModal}
+                                className="p-2 hover:bg-white/20 rounded-full transition-colors"
+                                aria-label="Close modal"
+                            >
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                </svg>
+                            </button>
+                        </div>
+
+                        {/* Product Info */}
+                        {selectedProduct && (
+                            <div className="p-4 sm:p-6 bg-gradient-to-br from-green-50 to-emerald-50 border-b border-green-100">
+                                <div className="flex items-center gap-4">
+                                    <img 
+                                        src={selectedProduct.image || selectedProduct.imageUrl || productImg} 
+                                        alt={selectedProduct.name}
+                                        className="w-16 h-16 sm:w-20 sm:h-20 object-cover rounded-lg shadow-md"
+                                    />
+                                    <div>
+                                        <h3 className="font-semibold text-lg sm:text-xl text-gray-800">{selectedProduct.name}</h3>
+                                        <p className="text-sm sm:text-base text-gray-600">{selectedProduct.category}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Ingredients List */}
+                        <div className="overflow-y-auto max-h-[calc(90vh-240px)] p-4 sm:p-6">
+                            <div className="space-y-4">
+                                {herbalIngredients.map((ingredient, index) => (
+                                    <div 
+                                        key={index}
+                                        className="bg-white rounded-xl p-4 sm:p-5 border-l-4 border-[#93B45D] shadow-sm hover:shadow-md transition-shadow"
+                                    >
+                                        <div className="flex items-start gap-3">
+                                            <div className="flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-[#93B45D] to-[#7BA04A] rounded-full flex items-center justify-center text-white font-bold text-sm sm:text-base">
+                                                {index + 1}
+                                            </div>
+                                            <div className="flex-1">
+                                                <h4 className="font-semibold text-base sm:text-lg text-gray-800 mb-2">
+                                                    {ingredient.name}
+                                                </h4>
+                                                <p className="text-sm sm:text-base text-gray-600 leading-relaxed">
+                                                    {ingredient.benefits}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+
+                            {/* Footer Note */}
+                            <div className="mt-6 p-4 bg-gradient-to-r from-amber-50 to-yellow-50 rounded-xl border border-amber-200 mb-25">
+                                <div className="flex items-start gap-3">
+                                    <svg className="w-5 h-5 sm:w-6 sm:h-6 text-amber-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                                    </svg>
+                                    <p className="text-xs sm:text-sm text-amber-800 ">
+                                        <span className="font-semibold">Note:</span> All our products are made with 100% natural herbal ingredients, carefully selected for their traditional wellness benefits.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Close Button */}
+                        <div className="sticky bottom-0 bg-white border-t border-gray-200 p-4 sm:p-6">
+                            <button
+                                onClick={closeModal}
+                                className="w-full bg-gradient-to-r from-[#93B45D] to-[#7BA04A] text-white py-3 rounded-xl font-semibold hover:from-[#7BA04A] hover:to-[#6A9040] transition-all shadow-lg hover:shadow-xl"
+                            >
+                                Got it!
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+            
             {products.length === 0 ? (
                 <div className="flex flex-col justify-center items-center min-h-[400px] text-center">
                     <div className="text-gray-500 text-lg mb-4">No products available</div>
                     <p className="text-gray-400">Products will appear here once they are added to the database.</p>
                 </div>
             ) : (
-                /* Responsive Grid Layout - Enhanced Mobile Grid */
                 <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2 gap-3 sm:gap-4 md:gap-6">
                     {products.map((product) => (
                         <ProductItem 
                             key={product.id} 
                             product={{
                                 ...product,
-                                image: product.image || product.imageUrl || productImg // Fallback to default image
+                                image: product.image || product.imageUrl || productImg
                             }} 
                             onAddToCart={() => handleAddToCart(product)}
                             onRemoveFromCart={() => handleRemoveFromCart(product.id)}
+                            onImageClick={() => handleProductClick(product)}
                             cartQuantity={cartItems.find(item => item.id === product.id)?.quantity || 0}
                         />
                     ))}
                 </div>
             )}
 
-            {/* Mobile Responsive Checkout Button */}
+            {/* Checkout Button */}
             <div className="fixed bottom-4 sm:bottom-6 right-3 sm:right-6 z-50">
                 <button 
                     className={`${
