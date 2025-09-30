@@ -8,11 +8,13 @@ import HomeContact from '../components/Home/HomeContact';
 import Testimonials from '../components/Home/Testimonials';
 import StepByStep from '../components/Home/StepByStep';
 import HeroCarosuel from '../components/Home/HeroCarosuel';
+import WelcomePopup from '../components/Home/WelcomePopup';
 
 
 const Home = () => {
   return (
 <div className=" mt-[50px] md:mt-[100px]">
+  <WelcomePopup/>
       <HeroCarosuel/>
       <HomeAbout/>
       <HomeProducts/>
