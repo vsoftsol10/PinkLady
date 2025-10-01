@@ -51,7 +51,11 @@ const ProductItem = ({ product, onAddToCart, onRemoveFromCart, onImageClick, car
             <div className="text-gray-500/60 text-sm">
                 <p className="mb-1">{product.category}</p>
                 <p className="text-gray-700 font-medium text-lg truncate w-full mb-2">{product.name}</p>
-                <p className="text-sm text-gray-500">Size: {product.size}</p>
+                <div className='flex gap-2'>
+                <p className="text-sm text-gray-500">Size: {product.size}</p>|
+                 <p className="text-sm text-gray-500"> {product.pieces} Pieces</p> 
+
+                </div>
 
                 <div className="flex items-center gap-0.5 mb-3">
                     {Array(5).fill('').map((_, i) => (

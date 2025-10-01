@@ -365,6 +365,7 @@ customerEmailPromise
                     <p>
                       Size: <span>{product.size || "N/A"}</span>
                     </p>
+                    <p>{product.pieces} pieces</p>
                     <div className="flex items-center">
                       <p>Qty:</p>
                       <select
