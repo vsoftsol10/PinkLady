@@ -9,6 +9,8 @@ import image6 from "../../assets/Process/006.jpg"
 import image7 from "../../assets/Process/007.jpg"
 import image8 from "../../assets/Process/008.jpg"
 import image9 from "../../assets/Process/009.jpg"
+import image10 from "../../assets/Process/Ready.png"
+import { FcDataProtection } from 'react-icons/fc';
 
 
 const StepByStep = () => {
@@ -73,11 +75,18 @@ const StepByStep = () => {
     },
     {
       id: 9,
-      title: "Ready for Customers",
-      description: "The journey is complete! With a final check and a smile, a staff member proudly holds up the finished product. Each pouch, from the initial materials to the final packaging, has been handled with care and attention to detail, ensuring it's ready to provide comfort and natural care to customers.",
+      title: "UV Sterilization for Absolute Safety",
+      description: "The final and most critical step in ensuring hygiene is UV Sterilization. The finished, individually-wrapped herbal sanitary napkins are placed inside a UV sterilizer box. This powerful process uses Ultraviolet light to eliminate 99.9% of bacteria, ensuring that every napkin you receive is completely sterile, safe, and ready to provide the highest level of care.",
       icon: <CheckCircle className="w-6 h-6 text-pink-500" />,
       image: image9
-    }
+    },
+    {
+      id: 10,
+      title: "Ready for Customers",
+      description: "The journey is complete! With a final check and a smile, a staff member proudly holds up the finished product. Each pouch, from the initial materials to the final packaging, has been handled with care and attention to detail, ensuring it's ready to provide comfort and natural care to customers.",
+      icon: <FcDataProtection className="w-6 h-6 text-pink-500" />,
+      image: image10
+    },
   ];
 
   const nextStep = () => {

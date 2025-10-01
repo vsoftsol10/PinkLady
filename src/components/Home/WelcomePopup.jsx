@@ -20,8 +20,8 @@ export default function WelcomePopup() {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center w-full h-full bg-black bg-opacity-50 p-4 sm:p-6">
-      <div className="relative  rounded-lg shadow-2xl w-full max-w-[95vw] sm:max-w-md md:max-w-lg p-4 sm:p-6 animate-[scale-in_0.3s_ease-out]">
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center w-full h-full  bg-opacity-50 p-4 sm:p-6 ">
+      <div className="relative  rounded-lg shadow-2xl w-full  max-w-[95vw] sm:max-w-md md:max-w-lg p-4 sm:p-6 animate-[scale-in_0.3s_ease-out]">
         {/* Close Button */}
         <button
           onClick={closePopup}

@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../../firebase/firebaseConfig"; // adjust path
-import Background from "../../assets/AdminBackground.jpg";
+import Background from "../../assets/AdminBackground1.png";
 import BackgroundVideo from "../../assets/Video.mp4";
 
 const AdminLogin = () => {
@@ -80,32 +80,17 @@ const AdminLogin = () => {
   return (
     <div className="min-h-screen flex items-center justify-center px-4 relative overflow-hidden">
       {/* Video Background */}
-      <video
-        autoPlay
-        muted
-        loop
-        playsInline
-        className="absolute inset-0 w-full h-full object-cover z-0"
-        style={{ filter: "brightness(0.8) saturate(1.2)" }}
-      >
-        <source src={BackgroundVideo} type="video/mp4" />
-      </video>
+      
+      <img src={Background} alt="Background Image"  className="absolute inset-0 w-full h-full object-cover z-0"/>
 
       {/* Glassy overlay */}
-      <div
-        className="absolute inset-0 z-10"
-        style={{
-          background:
-            "linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.08))",
-          backdropFilter: "blur(1px)",
-        }}
-      />
+      
 
       {/* Login Box */}
       <div
         className="w-90 max-w-md rounded-2xl shadow-2xl px-8 py-10 relative z-30"
         style={{
-          background: "rgba(255, 247, 246, 0.4)",
+          background: "#fff",
           backdropFilter: "blur(5px)",
           border: "1px solid rgba(255, 255, 255, 0.3)",
         }}
@@ -135,7 +120,7 @@ const AdminLogin = () => {
           <input
             type="email"
             placeholder="Email address"
-            className={`w-full px-4 py-3 text-white rounded-lg focus:outline-none focus:ring-2 transition-all placeholder-white ${
+            className={`w-full px-4 py-3 text-black rounded-lg focus:outline-none focus:ring-2 transition-all placeholder-grey ${
               fieldErrors.email 
                 ? "focus:ring-red-500 border border-red-500" 
                 : "focus:ring-[#F18372]"
@@ -155,7 +140,7 @@ const AdminLogin = () => {
           <input
             type="password"
             placeholder="Password"
-            className={`w-full px-4 py-3 rounded-lg text-white focus:outline-none focus:ring-2 transition-all placeholder-white ${
+            className={`w-full px-4 py-3 rounded-lg text-balck focus:outline-none focus:ring-2 transition-all placeholder-gray ${
               fieldErrors.password 
                 ? "focus:ring-red-500 border border-red-500" 
                 : "focus:ring-[#F18372]"

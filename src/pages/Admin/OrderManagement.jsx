@@ -2,6 +2,7 @@ import React, { useState, useMemo, useEffect } from "react";
 import { Download, Calendar, Search, Package, DollarSign, Clock, Filter, Edit2, Check, X, Eye, ShoppingCart, DownloadIcon, Printer } from "lucide-react";
 import { db } from "../../firebase/firebaseConfig";
 import { collection, getDocs, doc, updateDoc, onSnapshot, query, orderBy } from "firebase/firestore";
+import { BiRupee } from "react-icons/bi";
 
 const OrderManagement = () => {
   const [orders, setOrders] = useState([]);
@@ -273,7 +274,7 @@ const OrderManagement = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
           <StatsCard icon={Package} color="blue" label="Total Orders" value={filteredOrders.length} />
-          <StatsCard icon={DollarSign} color="green" label="Total Revenue" 
+          <StatsCard icon={BiRupee} color="green" label="Total Revenue" 
             value={`₹${filteredOrders.reduce((sum, o) => sum + o.total, 0).toFixed(2)}`} />
           <StatsCard icon={Package} color="purple" label="Avg Order Value" 
             value={`₹${filteredOrders.length > 0 ? (filteredOrders.reduce((sum, o) => sum + o.total, 0) / filteredOrders.length).toFixed(2) : '0.00'}`} />
