@@ -16,7 +16,6 @@ const Checkout = () => {
   const [paymentMethod, setPaymentMethod] = useState("COD");
   const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
   const [isOrderPlacing, setIsOrderPlacing] = useState(false);
-  const [shippingFee, setShippingFee] = useState(0);
   const [taxRate, setTaxRate] = useState(0);
   const [loadingSettings, setLoadingSettings] = useState(true);
   const [orderSuccess, setOrderSuccess] = useState({
@@ -25,9 +24,16 @@ const Checkout = () => {
     total: 0,
     email: ''
   });
-  const [savedAddresses, setSavedAddresses] = useState([
-    {}
-  ]);
+  const [savedAddresses, setSavedAddresses] = useState([]);
+  const [paymentOptions, setPaymentOptions] = useState({
+    cod: false,
+    upi: false,
+    card: false,
+  });
+  const [shippingSettings, setShippingSettings] = useState({
+    withinTN: 0,
+    outsideTN: 0
+  });
 
   const navigate = useNavigate();
 
@@ -43,7 +49,64 @@ const Checkout = () => {
   const itemCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
   const subtotal = cartItems.reduce((sum, item) => sum + (item.offerPrice * item.quantity), 0);
   const calculatedTax = (subtotal * taxRate) / 100;
-  const total = subtotal + shippingFee + calculatedTax;
+  
+  // Calculate dynamic shipping fee based on selected address state
+  // Calculate dynamic shipping fee based on selected address state
+const dynamicShippingFee = React.useMemo(() => {
+  if (!selectedAddress || !selectedAddress.state) {
+    return 0;
+  }
+  
+  const state = selectedAddress.state.toLowerCase().trim();
+  // More comprehensive Tamil Nadu check
+  const isTamilNadu = state === 'tamil nadu' || 
+                      state === 'tamilnadu' || 
+                      state === 'tn' ||
+                      state === 'tamil-nadu' ||
+                      state.includes('tamil nadu');
+  
+  const fee = isTamilNadu ? shippingSettings.withinTN : shippingSettings.outsideTN;
+  
+  console.log('Shipping calculation:', {
+    state: selectedAddress.state,
+    isTamilNadu,
+    fee,
+    settings: shippingSettings
+  });
+  
+  return fee;
+}, [selectedAddress, shippingSettings]);
+  
+  const total = subtotal + dynamicShippingFee + calculatedTax;
+
+  // Single useEffect to load settings
+  useEffect(() => {
+    const loadSettings = async () => {
+      try {
+        setLoadingSettings(true);
+        await firestoreService.initializeSettings();
+        const settings = await firestoreService.getSettings();
+        
+        console.log('Loaded settings:', settings);
+        
+        setShippingSettings({
+          withinTN: settings.shippingFee.insideTN || 0,
+          outsideTN: settings.shippingFee.outsideTN || 0
+        });
+        setTaxRate(settings.taxApplicable || 0);
+        setPaymentOptions(settings.paymentOptions || { cod: false, upi: false, card: false });
+      } catch (error) {
+        console.error('Error loading settings:', error);
+        setShippingSettings({ withinTN: 0, outsideTN: 0 });
+        setTaxRate(0);
+        setPaymentOptions({ cod: false, upi: false, card: false });
+      } finally {
+        setLoadingSettings(false);
+      }
+    };
+    
+    loadSettings();
+  }, []);
 
   const handleModalClose = () => {
     setOrderSuccess({
@@ -55,49 +118,32 @@ const Checkout = () => {
     navigate("/products");
   };
 
-  // Load settings from Firebase
-  useEffect(() => {
-    const loadSettings = async () => {
-      try {
-        setLoadingSettings(true);
-        await firestoreService.initializeSettings();
-        const settings = await firestoreService.getSettings();
-        setShippingFee(settings.shippingFee || 0);
-        setTaxRate(settings.taxApplicable || 0);
-      } catch (error) {
-        console.error('Error loading settings:', error);
-        // Set defaults on error
-        setShippingFee(0);
-        setTaxRate(0);
-      } finally {
-        setLoadingSettings(false);
-      }
-    };
-    
-    loadSettings();
-  }, []);
-
   useEffect(() => {
     // Set first address as default if none selected
-    if (!selectedAddress && savedAddresses.length > 0) {
+    if (!selectedAddress && savedAddresses.length > 0 && savedAddresses[0].state) {
       setSelectedAddress(savedAddresses[0]);
     }
   }, [savedAddresses, selectedAddress]);
 
-  // Handle adding new address
   const handleAddAddress = (newAddressData) => {
-    setSavedAddresses([...savedAddresses, newAddressData]);
-    setSelectedAddress(newAddressData);
+    // Ensure the address includes the state field
+    const addressWithState = {
+      ...newAddressData,
+      state: newAddressData.state || '',
+      displayString: `${newAddressData.fullName}, ${newAddressData.address}, ${newAddressData.city}, ${newAddressData.state} - ${newAddressData.zipCode}`
+    };
+    
+    console.log("New address added:", addressWithState);
+    
+    setSavedAddresses(prev => [...prev, addressWithState]);
+    setSelectedAddress(addressWithState);
   };
 
-  // Function to send order confirmation email with better error handling
   // Function to send order confirmation email to customer
   const sendOrderConfirmationEmail = async (orderDetails) => {
     try {
-      // Initialize EmailJS with customer public key
       emailjs.init("uHyjQhoh59EySHL4X");
 
-      // Generate order number
       const orderNumber = `ORD-${Date.now()}`;
       const orderDate = new Date().toLocaleDateString("en-US", {
         year: "numeric",
@@ -105,7 +151,6 @@ const Checkout = () => {
         day: "numeric",
       });
 
-      // Prepare order items as a string for the email template
       const orderItemsString = orderDetails.items
         .map(
           (item) =>
@@ -157,7 +202,6 @@ const Checkout = () => {
   // Function to send order notification email to admin
   const sendAdminNotificationEmail = async (orderDetails, orderNumber) => {
     try {
-      // Initialize EmailJS with admin public key
       emailjs.init("TLgEwU0ofzU-siEfL");
 
       const orderDate = new Date().toLocaleDateString("en-US", {
@@ -166,7 +210,6 @@ const Checkout = () => {
         day: "numeric",
       });
 
-      // Prepare product details string for admin email
       const productDetailsString = orderDetails.items
         .map(
           (item) =>
@@ -232,16 +275,16 @@ const Checkout = () => {
     const orderNumber = `ORD-${Date.now()}`;
 
     try {
-      // Prepare order details
       const orderDetails = {
         customerName: selectedAddress.fullName,
         customerEmail: selectedAddress.email,
         customerPhone: selectedAddress.phone,
         deliveryAddress: selectedAddress.displayString,
+        deliveryState: selectedAddress.state,
         paymentMethod: paymentMethod,
         items: cartItems,
         subtotal: subtotal.toFixed(2),
-        shippingFee: shippingFee.toFixed(2),
+        shippingFee: dynamicShippingFee.toFixed(2),
         tax: calculatedTax.toFixed(2),
         total: total.toFixed(2),
         itemCount: itemCount,
@@ -253,7 +296,7 @@ const Checkout = () => {
       const docRef = await addDoc(collection(db, "orders"), orderDetails);
       console.log("Order saved to Firebase with ID:", docRef.id);
 
-      // Show success modal FIRST (before clearing cart)
+      // Show success modal FIRST
       setOrderSuccess({
         isOpen: true,
         orderNumber: orderNumber,
@@ -264,26 +307,24 @@ const Checkout = () => {
       // Clear cart AFTER showing modal
       clearCart();
 
-      // Try to send email in background
       // Try to send emails in background
-const customerEmailPromise = sendOrderConfirmationEmail(orderDetails);
+      const customerEmailPromise = sendOrderConfirmationEmail(orderDetails);
 
-customerEmailPromise
-  .then(async (emailResult) => {
-    if (emailResult.success) {
-      // Send admin notification with the order number
-      await sendAdminNotificationEmail(orderDetails, emailResult.orderNumber);
-      
-      await updateDoc(doc(db, "orders", docRef.id), {
-        emailSent: true,
-        emailSentAt: serverTimestamp()
-      });
-      console.log("Customer and admin emails sent successfully");
-    }
-  })
-  .catch((emailError) => {
-    console.error("Email sending failed:", emailError);
-  });
+      customerEmailPromise
+        .then(async (emailResult) => {
+          if (emailResult.success) {
+            await sendAdminNotificationEmail(orderDetails, emailResult.orderNumber);
+            
+            await updateDoc(doc(db, "orders", docRef.id), {
+              emailSent: true,
+              emailSentAt: serverTimestamp()
+            });
+            console.log("Customer and admin emails sent successfully");
+          }
+        })
+        .catch((emailError) => {
+          console.error("Email sending failed:", emailError);
+        });
 
       console.log("=== ORDER PLACEMENT SUCCESS ===");
 
@@ -295,7 +336,7 @@ customerEmailPromise
     }
   };
 
-  // Show empty cart message when no products (but not when modal is showing)
+  // Show empty cart message
   if (cartItems.length === 0 && !orderSuccess.isOpen) {
     return (
       <div className="flex flex-col items-center justify-center py-16 max-w-6xl w-full px-6 mx-auto min-h-[500px]">
@@ -454,7 +495,6 @@ customerEmailPromise
                     ? selectedAddress.displayString
                     : "No address found"}
                 </p>
-               
               </div>
               <button
                 onClick={() => setShowAddress(!showAddress)}
@@ -464,7 +504,6 @@ customerEmailPromise
               </button>
               {showAddress && (
                 <div className="absolute top-12 py-1 bg-white border border-gray-300 text-sm w-full z-10 shadow-lg">
-                  
                   <p
                     onClick={() => {
                       setIsAddressModalOpen(true);
@@ -485,10 +524,17 @@ customerEmailPromise
               onChange={(e) => setPaymentMethod(e.target.value)}
               className="w-full border border-gray-300 bg-white px-3 py-2 mt-2 outline-none"
             >
-              <option value="COD">Cash On Delivery</option>
-              <option value="Online">Online Payment</option>
-              <option value="Card">Credit/Debit Card</option>
+              {paymentOptions.cod && <option value="COD">Cash On Delivery</option>}
+              {paymentOptions.upi && <option value="UPI">UPI Payment</option>}
+              {paymentOptions.card && <option value="Card">Credit/Debit Card</option>}
             </select>
+
+            {/* Show message if no payment options are enabled */}
+            {!paymentOptions.cod && !paymentOptions.upi && !paymentOptions.card && (
+              <p className="text-red-500 text-xs mt-2">
+                No payment methods available. Please contact support.
+              </p>
+            )}
           </div>
 
           <hr className="border-gray-300" />
@@ -501,8 +547,8 @@ customerEmailPromise
             </p>
             <p className="flex justify-between">
               <span>Shipping Fee</span>
-              <span className={shippingFee === 0 ? "text-green-600" : ""}>
-                {shippingFee === 0 ? 'Free' : `₹${shippingFee.toFixed(2)}`}
+              <span className={dynamicShippingFee === 0 ? "text-green-600" : ""}>
+                {dynamicShippingFee === 0 ? 'Free' : `₹${dynamicShippingFee.toFixed(2)}`}
               </span>
             </p>
             <p className="flex justify-between">
@@ -519,14 +565,24 @@ customerEmailPromise
           {/* Place Order */}
           <button
             onClick={handlePlaceOrder}
-            disabled={isOrderPlacing || loadingSettings}
+            disabled={
+              isOrderPlacing || 
+              loadingSettings || 
+              (!paymentOptions.cod && !paymentOptions.upi && !paymentOptions.card)
+            }
             className={`w-full py-3 mt-6 cursor-pointer font-medium rounded transition ${
-              isOrderPlacing || loadingSettings
+              isOrderPlacing || loadingSettings || (!paymentOptions.cod && !paymentOptions.upi && !paymentOptions.card)
                 ? "bg-gray-400 text-gray-200 cursor-not-allowed"
                 : "bg-[#F18372] text-white hover:bg-[#ec543d]"
             }`}
           >
-            {loadingSettings ? "Loading..." : isOrderPlacing ? "Placing Order..." : "Place Order"}
+            {loadingSettings 
+              ? "Loading..." 
+              : isOrderPlacing 
+              ? "Placing Order..." 
+              : (!paymentOptions.cod && !paymentOptions.upi && !paymentOptions.card)
+              ? "No Payment Methods Available"
+              : "Place Order"}
           </button>
         </div>
       </div>

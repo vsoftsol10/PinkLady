@@ -360,5 +360,17 @@ async initializeSettings() {
     console.error('Error initializing settings:', error);
     throw error;
   }
+},
+initializeSettings: async () => {
+  const settingsRef = doc(db, "settings", "general");
+  const settingsSnap = await getDoc(settingsRef);
+  
+  if (!settingsSnap.exists()) {
+    await setDoc(settingsRef, {
+      shippingFee: 0,
+      taxApplicable: 0,
+      paymentOptions: { cod: false, upi: false, card: false }
+    });
+  }
 }
 };

@@ -40,12 +40,21 @@ const AdminDashBoard = () => {
     message: "",
     type: "success",
   });
-  const [shippingFee, setShippingFee] = useState(0);
-  const [taxApplicable, setTaxApplicable] = useState(0);
-  const [editingShipping, setEditingShipping] = useState(false);
-  const [editingTax, setEditingTax] = useState(false);
-  const [tempShipping, setTempShipping] = useState("");
-  const [tempTax, setTempTax] = useState("");
+const [shippingFee, setShippingFee] = useState({
+  insideTN: 0,
+  outsideTN: 0
+});
+const [taxApplicable, setTaxApplicable] = useState(0);
+const [editingShipping, setEditingShipping] = useState({
+  insideTN: false,
+  outsideTN: false
+});
+const [editingTax, setEditingTax] = useState(false);
+const [tempShipping, setTempShipping] = useState({
+  insideTN: "",
+  outsideTN: ""
+});
+const [tempTax, setTempTax] = useState("");
   const [isOfferModalOpen, setIsOfferModalOpen] = useState(false);
   const [offerFormData, setOfferFormData] = useState({
     percentage: 0,
@@ -55,6 +64,11 @@ const AdminDashBoard = () => {
 
   const sizes = ["XL - (280mm)", "XXL - (320mm)"];
   const categories = ["Herbal"];
+  const [paymentOptions, setPaymentOptions] = useState({
+    cod: false,
+    upi: false,
+    card: false,
+  });
 
   const showNotification = (message, type = "success") => {
     setNotification({ show: true, message, type });
@@ -64,22 +78,31 @@ const AdminDashBoard = () => {
     );
   };
 
-  const updateSetting = async (field, value, setter, setEditing) => {
-    try {
-      const newValue = parseFloat(value);
-      if (isNaN(newValue) || newValue < 0) {
-        alert("Please enter a valid number");
-        return;
-      }
-      const settingsRef = doc(db, "settings", "general");
+  const updateSetting = async (field, value, setter, setEditing, subField = null) => {
+  try {
+    const newValue = parseFloat(value);
+    if (isNaN(newValue) || newValue < 0) {
+      alert("Please enter a valid number");
+      return;
+    }
+    const settingsRef = doc(db, "settings", "general");
+    
+    if (subField) {
+      // Update nested field (e.g., shippingFee.insideTN)
+      await updateDoc(settingsRef, { [`${field}.${subField}`]: newValue });
+      setter(prev => ({ ...prev, [subField]: newValue }));
+      setEditing(prev => ({ ...prev, [subField]: false }));
+    } else {
+      // Update simple field
       await updateDoc(settingsRef, { [field]: newValue });
       setter(newValue);
       setEditing(false);
-    } catch (error) {
-      console.error(`Error updating ${field}:`, error);
-      alert(`Failed to update ${field}`);
     }
-  };
+  } catch (error) {
+    console.error(`Error updating ${field}:`, error);
+    alert(`Failed to update ${field}`);
+  }
+};
 
   useEffect(() => {
     loadProducts();
@@ -163,14 +186,39 @@ const AdminDashBoard = () => {
   };
 
   const loadSettings = async () => {
+  try {
+    await firestoreService.initializeSettings();
+    const settings = await firestoreService.getSettings();
+    setShippingFee(settings.shippingFee || { insideTN: 0, outsideTN: 0 });
+    setTaxApplicable(settings.taxApplicable || 0);
+    setPaymentOptions(
+      settings.paymentOptions || { cod: false, upi: false, card: false }
+    );
+  } catch (error) {
+    console.error("Error loading settings:", error);
+    showNotification("Error loading settings", "error");
+  }
+};
+
+  const handlePaymentToggle = async (method) => {
     try {
-      await firestoreService.initializeSettings();
-      const settings = await firestoreService.getSettings();
-      setShippingFee(settings.shippingFee || 0);
-      setTaxApplicable(settings.taxApplicable || 0);
+      const newPaymentOptions = {
+        ...paymentOptions,
+        [method]: !paymentOptions[method],
+      };
+
+      const settingsRef = doc(db, "settings", "general");
+      await updateDoc(settingsRef, { paymentOptions: newPaymentOptions });
+      setPaymentOptions(newPaymentOptions);
+      showNotification(
+        `${method.toUpperCase()} payment ${
+          newPaymentOptions[method] ? "enabled" : "disabled"
+        }`,
+        "success"
+      );
     } catch (error) {
-      console.error("Error loading settings:", error);
-      showNotification("Error loading settings", "error");
+      console.error("Error updating payment options:", error);
+      showNotification("Failed to update payment options", "error");
     }
   };
 
@@ -398,69 +446,276 @@ const AdminDashBoard = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-blue-500">
-            <p className="text-sm text-gray-600">Total Products</p>
-            <p className="text-2xl font-bold text-gray-800">
-              {products.length}
-            </p>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+  <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-blue-500">
+    <p className="text-sm text-gray-600">Total Products</p>
+    <p className="text-2xl font-bold text-gray-800">
+      {products.length}
+    </p>
+  </div>
+
+  <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-yellow-500">
+    <p className="text-sm text-gray-600">Avg Rating</p>
+    <p className="text-2xl font-bold text-gray-800">
+      {products.length > 0
+        ? (
+            products.reduce((sum, p) => sum + p.rating, 0) /
+            products.length
+          ).toFixed(1)
+        : 0}
+    </p>
+  </div>
+
+  <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-purple-500">
+  <p className="text-sm text-gray-600 mb-1">Shipping Fees</p>
+  
+  <div className="space-y-2">
+    {/* Inside Tamil Nadu */}
+    <div>
+      <div className="flex items-center justify-between">
+        <span className="text-xs text-gray-500">Inside TN:</span>
+        {editingShipping.insideTN ? (
+          <div className="flex items-center gap-1">
+            <input
+              type="number"
+              value={tempShipping.insideTN}
+              onChange={(e) => setTempShipping(prev => ({ ...prev, insideTN: e.target.value }))}
+              className="w-20 px-2 py-0.5 text-sm border border-gray-300 rounded"
+              step="0.01"
+              min="0"
+              autoFocus
+            />
+            <button
+              onClick={() => updateSetting("shippingFee", tempShipping.insideTN, setShippingFee, setEditingShipping, "insideTN")}
+              className="text-green-600 hover:text-green-700"
+            >
+              <Check className="w-3.5 h-3.5" />
+            </button>
+            <button
+              onClick={() => setEditingShipping(prev => ({ ...prev, insideTN: false }))}
+              className="text-red-600 hover:text-red-700"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
           </div>
-
-          <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-yellow-500">
-            <p className="text-sm text-gray-600">Avg Rating</p>
-            <p className="text-2xl font-bold text-gray-800">
-              {products.length > 0
-                ? (
-                    products.reduce((sum, p) => sum + p.rating, 0) /
-                    products.length
-                  ).toFixed(1)
-                : 0}
-            </p>
+        ) : (
+          <div className="flex items-center gap-1">
+            <span className="font-semibold text-gray-800">₹{(shippingFee.insideTN || 0).toFixed(2)}</span>
+            <button
+              onClick={() => {
+                setTempShipping(prev => ({ ...prev, insideTN: (shippingFee.insideTN || 0).toString() }));
+                setEditingShipping(prev => ({ ...prev, insideTN: true }));
+              }}
+              className="text-gray-400 hover:text-gray-600"
+            >
+              <Edit2 className="w-3 h-3" />
+            </button>
           </div>
+        )}
+      </div>
+    </div>
 
-          <EditableField
-            label="Shipping Fee"
-            value={shippingFee}
-            editing={editingShipping}
-            onEdit={() => {
-              setTempShipping(shippingFee.toString());
-              setEditingShipping(true);
-            }}
-            onSave={() =>
-              updateSetting(
-                "shippingFee",
-                tempShipping,
-                setShippingFee,
-                setEditingShipping
-              )
-            }
-            onCancel={() => setEditingShipping(false)}
-            tempValue={tempShipping}
-            setTempValue={setTempShipping}
-          />
+    {/* Outside Tamil Nadu */}
+    <div>
+      <div className="flex items-center justify-between">
+        <span className="text-xs text-gray-500">Outside TN:</span>
+        {editingShipping.outsideTN ? (
+          <div className="flex items-center gap-1">
+            <input
+              type="number"
+              value={tempShipping.outsideTN}
+              onChange={(e) => setTempShipping(prev => ({ ...prev, outsideTN: e.target.value }))}
+              className="w-20 px-2 py-0.5 text-sm border border-gray-300 rounded"
+              step="0.01"
+              min="0"
+              autoFocus
+            />
+            <button
+              onClick={() => updateSetting("shippingFee", tempShipping.outsideTN, setShippingFee, setEditingShipping, "outsideTN")}
+              className="text-green-600 hover:text-green-700"
+            >
+              <Check className="w-3.5 h-3.5" />
+            </button>
+            <button
+              onClick={() => setEditingShipping(prev => ({ ...prev, outsideTN: false }))}
+              className="text-red-600 hover:text-red-700"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        ) : (
+          <div className="flex items-center gap-1">
+            <span className="font-semibold text-gray-800">₹{(shippingFee.outsideTN || 0).toFixed(2)}</span>
+            <button
+              onClick={() => {
+                setTempShipping(prev => ({ ...prev, outsideTN: (shippingFee.outsideTN || 0).toString() }));
+                setEditingShipping(prev => ({ ...prev, outsideTN: true }));
+              }}
+              className="text-gray-400 hover:text-gray-600"
+            >
+              <Edit2 className="w-3 h-3" />
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  </div>
+</div>
 
-          <EditableField
-            label="Tax Applicable (%)"
-            value={taxApplicable}
-            editing={editingTax}
-            onEdit={() => {
-              setTempTax(taxApplicable.toString());
-              setEditingTax(true);
-            }}
-            onSave={() =>
-              updateSetting(
-                "taxApplicable",
-                tempTax,
-                setTaxApplicable,
-                setEditingTax
-              )
-            }
-            onCancel={() => setEditingTax(false)}
-            tempValue={tempTax}
-            setTempValue={setTempTax}
-            prefix=""
-            suffix="%"
-          />
+  <EditableField
+    label="Tax Applicable (%)"
+    value={taxApplicable}
+    editing={editingTax}
+    onEdit={() => {
+      setTempTax(taxApplicable.toString());
+      setEditingTax(true);
+    }}
+    onSave={() =>
+      updateSetting(
+        "taxApplicable",
+        tempTax,
+        setTaxApplicable,
+        setEditingTax
+      )
+    }
+    onCancel={() => setEditingTax(false)}
+    tempValue={tempTax}
+    setTempValue={setTempTax}
+    prefix=""
+    suffix="%"
+  />
+</div>
+
+        {/* Add this new section after the 4 stat cards */}
+        <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+          <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+            <svg
+              className="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
+              />
+            </svg>
+            Payment Options (Checkout Page)
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* Cash on Delivery */}
+            <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:border-blue-300 transition-colors">
+              <div className="flex items-center gap-3">
+                <div className="bg-green-100 p-2 rounded-lg">
+                  <svg
+                    className="w-6 h-6 text-green-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"
+                    />
+                  </svg>
+                </div>
+                <div>
+                  <p className="font-medium text-gray-800">Cash on Delivery</p>
+                  <p className="text-xs text-gray-500">Pay when you receive</p>
+                </div>
+              </div>
+              <button
+                onClick={() => handlePaymentToggle("cod")}
+                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                  paymentOptions.cod ? "bg-green-500" : "bg-gray-300"
+                }`}
+              >
+                <span
+                  className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                    paymentOptions.cod ? "translate-x-6" : "translate-x-1"
+                  }`}
+                />
+              </button>
+            </div>
+
+            {/* UPI Payment */}
+            <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:border-blue-300 transition-colors">
+              <div className="flex items-center gap-3">
+                <div className="bg-purple-100 p-2 rounded-lg">
+                  <svg
+                    className="w-6 h-6 text-purple-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"
+                    />
+                  </svg>
+                </div>
+                <div>
+                  <p className="font-medium text-gray-800">UPI Payment</p>
+                  <p className="text-xs text-gray-500">GPay, PhonePe, etc.</p>
+                </div>
+              </div>
+              <button
+                onClick={() => handlePaymentToggle("upi")}
+                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                  paymentOptions.upi ? "bg-green-500" : "bg-gray-300"
+                }`}
+              >
+                <span
+                  className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                    paymentOptions.upi ? "translate-x-6" : "translate-x-1"
+                  }`}
+                />
+              </button>
+            </div>
+
+            {/* Card Payment */}
+            <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:border-blue-300 transition-colors">
+              <div className="flex items-center gap-3">
+                <div className="bg-blue-100 p-2 rounded-lg">
+                  <svg
+                    className="w-6 h-6 text-blue-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
+                    />
+                  </svg>
+                </div>
+                <div>
+                  <p className="font-medium text-gray-800">Card Payment</p>
+                  <p className="text-xs text-gray-500">Credit/Debit cards</p>
+                </div>
+              </div>
+              <button
+                onClick={() => handlePaymentToggle("card")}
+                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                  paymentOptions.card ? "bg-green-500" : "bg-gray-300"
+                }`}
+              >
+                <span
+                  className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                    paymentOptions.card ? "translate-x-6" : "translate-x-1"
+                  }`}
+                />
+              </button>
+            </div>
+          </div>
         </div>
 
         <div className="bg-white rounded-lg shadow-md p-6 mb-8">
