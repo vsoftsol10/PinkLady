@@ -140,201 +140,268 @@ const dynamicShippingFee = React.useMemo(() => {
   };
 
   // Function to send order confirmation email to customer
-  const sendOrderConfirmationEmail = async (orderDetails) => {
-    try {
-      emailjs.init("uHyjQhoh59EySHL4X");
+  // Function to send order confirmation email to customer
+const sendOrderConfirmationEmail = async (orderDetails) => {
+  try {
+    emailjs.init("uHyjQhoh59EySHL4X");
 
-      const orderNumber = `ORD-${Date.now()}`;
-      const orderDate = new Date().toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-      });
+    // Use the order number passed from orderDetails, or generate new one
+    const orderNumber = orderDetails.orderNumber || `ORD-${Date.now()}`;
+    const orderDate = new Date().toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
 
-      const orderItemsString = orderDetails.items
-        .map(
-          (item) =>
-            `${item.name} - Qty: ${item.quantity} - Price: ₹${
-              item.offerPrice * item.quantity
-            }`
-        )
-        .join("\n");
+    const orderItemsString = orderDetails.items
+      .map(
+        (item) =>
+          `${item.name} - Qty: ${item.quantity} - Price: ₹${
+            item.offerPrice * item.quantity
+          }`
+      )
+      .join("\n");
 
-      const templateParams = {
-        to_email: orderDetails.customerEmail,
-        customer_name: orderDetails.customerName,
-        order_number: orderNumber,
-        order_date: orderDate,
-        order_items: orderItemsString,
-        subtotal: orderDetails.subtotal,
-        tax: orderDetails.tax,
-        shipping_fee: orderDetails.shippingFee,
-        total_amount: orderDetails.total,
-        delivery_address: orderDetails.deliveryAddress,
-        payment_method: orderDetails.paymentMethod,
-        customer_phone: orderDetails.customerPhone,
-        item_count: orderDetails.itemCount,
-        order_id: orderNumber,
-      };
+    const templateParams = {
+      to_email: orderDetails.customerEmail,
+      customer_name: orderDetails.customerName,
+      order_number: orderNumber,
+      order_date: orderDate,
+      order_items: orderItemsString,
+      subtotal: orderDetails.subtotal,
+      tax: orderDetails.tax,
+      shipping_fee: orderDetails.shippingFee, // This now has the correct value
+      total_amount: orderDetails.total,
+      delivery_address: orderDetails.deliveryAddress,
+      payment_method: orderDetails.paymentMethod, // This now has the correct value
+      customer_phone: orderDetails.customerPhone,
+      item_count: orderDetails.itemCount,
+      order_id: orderNumber,
+    };
 
-      console.log("Sending customer email with params:", templateParams);
+    console.log("Sending customer email with params:", templateParams);
 
-      const result = await emailjs.send(
-        "service_8lju8fe",
-        "template_3q4176h",
-        templateParams
-      );
+    const result = await emailjs.send(
+      "service_8lju8fe",
+      "template_3q4176h",
+      templateParams
+    );
 
-      console.log("Customer email sent successfully!", result);
-      return { success: true, result, orderNumber };
-    } catch (error) {
-      console.error("Failed to send customer email:", error);
+    console.log("Customer email sent successfully!", result);
+    return { success: true, result, orderNumber };
+  } catch (error) {
+    console.error("Failed to send customer email:", error);
 
-      if (error.status) {
-        console.error("Error status:", error.status);
-        console.error("Error text:", error.text);
-      }
-
-      return { success: false, error, orderNumber: `ORD-${Date.now()}` };
+    if (error.status) {
+      console.error("Error status:", error.status);
+      console.error("Error text:", error.text);
     }
-  };
+
+    return { success: false, error, orderNumber: orderDetails.orderNumber || `ORD-${Date.now()}` };
+  }
+};
+
+// Function to send order notification email to admin
+const sendAdminNotificationEmail = async (orderDetails, orderNumber) => {
+  try {
+    emailjs.init("TLgEwU0ofzU-siEfL");
+
+    const orderDate = new Date().toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+
+    const productDetailsString = orderDetails.items
+      .map(
+        (item) =>
+          `${item.name} - Qty: ${item.quantity} - Price: ₹${
+            item.offerPrice * item.quantity
+          }`
+      )
+      .join("\n");
+
+    const adminTemplateParams = {
+      order_number: orderNumber,
+      order_date: orderDate,
+      customer_name: orderDetails.customerName,
+      customer_email: orderDetails.customerEmail,
+      customer_phone: orderDetails.customerPhone,
+      delivery_address: orderDetails.deliveryAddress,
+      payment_method: orderDetails.paymentMethod, // This now has the correct value
+      item_count: orderDetails.itemCount,
+      product_details: productDetailsString,
+      subtotal: orderDetails.subtotal,
+      shipping_fee: orderDetails.shippingFee, // This now has the correct value
+      tax: orderDetails.tax,
+      total_amount: orderDetails.total,
+    };
+
+    console.log("Sending admin email with params:", adminTemplateParams);
+
+    const result = await emailjs.send(
+      "service_bv6gssg",
+      "template_rk70gvn",
+      adminTemplateParams
+    );
+
+    console.log("Admin email sent successfully!", result);
+    return { success: true, result };
+  } catch (error) {
+    console.error("Failed to send admin email:", error);
+
+    if (error.status) {
+      console.error("Error status:", error.status);
+      console.error("Error text:", error.text);
+    }
+
+    return { success: false, error };
+  }
+};
 
   // Function to send order notification email to admin
-  const sendAdminNotificationEmail = async (orderDetails, orderNumber) => {
-    try {
-      emailjs.init("TLgEwU0ofzU-siEfL");
+    // const sendAdminNotificationEmail = async (orderDetails, orderNumber) => {
+    //   try {
+    //     emailjs.init("TLgEwU0ofzU-siEfL");
 
-      const orderDate = new Date().toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
+    //     const orderDate = new Date().toLocaleDateString("en-US", {
+    //       year: "numeric",
+    //       month: "long",
+    //       day: "numeric",
+    //     });
+
+    //     const productDetailsString = orderDetails.items
+    //       .map(
+    //         (item) =>
+    //           `${item.name} - Qty: ${item.quantity} - Price: ₹${
+    //             item.offerPrice * item.quantity
+    //           }`
+    //       )
+    //       .join("\n");
+
+    //     const adminTemplateParams = {
+    //       order_number: orderNumber,
+    //       order_date: orderDate,
+    //       customer_name: orderDetails.customerName,
+    //       customer_email: orderDetails.customerEmail,
+    //       customer_phone: orderDetails.customerPhone,
+    //       delivery_address: orderDetails.deliveryAddress,
+    //       payment_method: orderDetails.paymentMethod,
+    //       item_count: orderDetails.itemCount,
+    //       product_details: productDetailsString,
+    //       subtotal: orderDetails.subtotal,
+    //       shipping_fee: orderDetails.shippingFee,
+    //       tax: orderDetails.tax,
+    //       total_amount: orderDetails.total,
+    //     };
+
+    //     console.log("Sending admin email with params:", adminTemplateParams);
+
+    //     const result = await emailjs.send(
+    //       "service_bv6gssg",
+    //       "template_rk70gvn",
+    //       adminTemplateParams
+    //     );
+
+    //     console.log("Admin email sent successfully!", result);
+    //     return { success: true, result };
+    //   } catch (error) {
+    //     console.error("Failed to send admin email:", error);
+
+    //     if (error.status) {
+    //       console.error("Error status:", error.status);
+    //       console.error("Error text:", error.text);
+    //     }
+
+    //     return { success: false, error };
+    //   }
+    // };
+
+const handlePlaceOrder = async () => {
+  console.log("=== ORDER PLACEMENT STARTED ===");
+  
+  if (cartItems.length === 0) {
+    alert("Your cart is empty. Please add some items before placing an order.");
+    navigate("/products");
+    return;
+  }
+
+  if (!selectedAddress) {
+    alert("Please select or add an address before placing the order.");
+    return;
+  }
+
+  setIsOrderPlacing(true);
+  const orderNumber = `ORD-${Date.now()}`;
+
+  try {
+    // Create order details with properly formatted values
+    const orderDetails = {
+      customerName: selectedAddress.fullName,
+      customerEmail: selectedAddress.email,
+      customerPhone: selectedAddress.phone,
+      deliveryAddress: selectedAddress.displayString,
+      deliveryState: selectedAddress.state,
+      paymentMethod: paymentMethod, // This will now have the correct value
+      items: cartItems,
+      subtotal: subtotal.toFixed(2),
+      shippingFee: dynamicShippingFee.toFixed(2), // This now has the correct calculated value
+      tax: calculatedTax.toFixed(2),
+      total: total.toFixed(2),
+      itemCount: itemCount,
+      status: "pending",
+      createdAt: serverTimestamp()
+    };
+
+    console.log("Order details being saved:", orderDetails); // Debug log
+
+    // Save order to Firebase
+    const docRef = await addDoc(collection(db, "orders"), orderDetails);
+    console.log("Order saved to Firebase with ID:", docRef.id);
+
+    // Show success modal FIRST
+    setOrderSuccess({
+      isOpen: true,
+      orderNumber: orderNumber,
+      total: total.toFixed(2),
+      email: selectedAddress.email
+    });
+
+    // Clear cart AFTER showing modal
+    clearCart();
+
+    // Try to send emails in background with the SAME orderDetails
+    const customerEmailPromise = sendOrderConfirmationEmail({
+      ...orderDetails,
+      orderNumber: orderNumber // Pass the order number explicitly
+    });
+
+    customerEmailPromise
+      .then(async (emailResult) => {
+        if (emailResult.success) {
+          await sendAdminNotificationEmail(orderDetails, emailResult.orderNumber);
+          
+          await updateDoc(doc(db, "orders", docRef.id), {
+            emailSent: true,
+            emailSentAt: serverTimestamp(),
+            orderNumber: emailResult.orderNumber
+          });
+          console.log("Customer and admin emails sent successfully");
+        }
+      })
+      .catch((emailError) => {
+        console.error("Email sending failed:", emailError);
       });
 
-      const productDetailsString = orderDetails.items
-        .map(
-          (item) =>
-            `${item.name} - Qty: ${item.quantity} - Price: ₹${
-              item.offerPrice * item.quantity
-            }`
-        )
-        .join("\n");
+    console.log("=== ORDER PLACEMENT SUCCESS ===");
 
-      const adminTemplateParams = {
-        order_number: orderNumber,
-        order_date: orderDate,
-        customer_name: orderDetails.customerName,
-        customer_email: orderDetails.customerEmail,
-        customer_phone: orderDetails.customerPhone,
-        delivery_address: orderDetails.deliveryAddress,
-        payment_method: orderDetails.paymentMethod,
-        item_count: orderDetails.itemCount,
-        product_details: productDetailsString,
-        subtotal: orderDetails.subtotal,
-        shipping_fee: orderDetails.shippingFee,
-        tax: orderDetails.tax,
-        total_amount: orderDetails.total,
-      };
-
-      console.log("Sending admin email with params:", adminTemplateParams);
-
-      const result = await emailjs.send(
-        "service_bv6gssg",
-        "template_rk70gvn",
-        adminTemplateParams
-      );
-
-      console.log("Admin email sent successfully!", result);
-      return { success: true, result };
-    } catch (error) {
-      console.error("Failed to send admin email:", error);
-
-      if (error.status) {
-        console.error("Error status:", error.status);
-        console.error("Error text:", error.text);
-      }
-
-      return { success: false, error };
-    }
-  };
-
-  const handlePlaceOrder = async () => {
-    console.log("=== ORDER PLACEMENT STARTED ===");
-    
-    if (cartItems.length === 0) {
-      alert("Your cart is empty. Please add some items before placing an order.");
-      navigate("/products");
-      return;
-    }
-
-    if (!selectedAddress) {
-      alert("Please select or add an address before placing the order.");
-      return;
-    }
-
-    setIsOrderPlacing(true);
-    const orderNumber = `ORD-${Date.now()}`;
-
-    try {
-      const orderDetails = {
-        customerName: selectedAddress.fullName,
-        customerEmail: selectedAddress.email,
-        customerPhone: selectedAddress.phone,
-        deliveryAddress: selectedAddress.displayString,
-        deliveryState: selectedAddress.state,
-        paymentMethod: paymentMethod,
-        items: cartItems,
-        subtotal: subtotal.toFixed(2),
-        shippingFee: dynamicShippingFee.toFixed(2),
-        tax: calculatedTax.toFixed(2),
-        total: total.toFixed(2),
-        itemCount: itemCount,
-        status: "pending",
-        createdAt: serverTimestamp()
-      };
-
-      // Save order to Firebase
-      const docRef = await addDoc(collection(db, "orders"), orderDetails);
-      console.log("Order saved to Firebase with ID:", docRef.id);
-
-      // Show success modal FIRST
-      setOrderSuccess({
-        isOpen: true,
-        orderNumber: orderNumber,
-        total: total.toFixed(2),
-        email: selectedAddress.email
-      });
-
-      // Clear cart AFTER showing modal
-      clearCart();
-
-      // Try to send emails in background
-      const customerEmailPromise = sendOrderConfirmationEmail(orderDetails);
-
-      customerEmailPromise
-        .then(async (emailResult) => {
-          if (emailResult.success) {
-            await sendAdminNotificationEmail(orderDetails, emailResult.orderNumber);
-            
-            await updateDoc(doc(db, "orders", docRef.id), {
-              emailSent: true,
-              emailSentAt: serverTimestamp()
-            });
-            console.log("Customer and admin emails sent successfully");
-          }
-        })
-        .catch((emailError) => {
-          console.error("Email sending failed:", emailError);
-        });
-
-      console.log("=== ORDER PLACEMENT SUCCESS ===");
-
-    } catch (error) {
-      console.error("Error placing order:", error);
-      alert(`❌ Order placement failed: ${error.message || 'Unknown error'}. Please try again.`);
-    } finally {
-      setIsOrderPlacing(false);
-    }
-  };
+  } catch (error) {
+    console.error("Error placing order:", error);
+    alert(`❌ Order placement failed: ${error.message || 'Unknown error'}. Please try again.`);
+  } finally {
+    setIsOrderPlacing(false);
+  }
+};
 
   // Show empty cart message
   if (cartItems.length === 0 && !orderSuccess.isOpen) {
